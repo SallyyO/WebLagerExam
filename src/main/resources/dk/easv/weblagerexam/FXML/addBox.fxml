@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" style="-fx-padding: 20;"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="dk.easv.weblagerexam.gui.AddBoxController">
+
+    <Label text="Add New Box" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+    <Label fx:id="profileNameLabel" text="Adding box to: "/>
+
+    <Button text="Add Box" onAction="#handleAddBox" maxWidth="Infinity"/>
+
+</VBox>
