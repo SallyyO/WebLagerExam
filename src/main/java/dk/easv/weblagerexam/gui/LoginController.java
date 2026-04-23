@@ -1,25 +1,76 @@
 
 package dk.easv.weblagerexam.gui;
 
-import javafx.event.ActionEvent;
+import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.MockAuthService;
+import dk.easv.weblagerexam.bll.PasswordManager;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import java.util.Objects;
 
 public class LoginController {
+    @FXML
+    public PasswordField txtPasswordField;
+    @FXML
+    public TextField txtUsernameField;
+    @FXML
+    public Label lblErr;
+    @FXML
+    public Button btnLogIn;
+
+    // PasswordManager passwordManager = new PasswordManager();
+
+    MockAuthService authService = new MockAuthService();
 
     @FXML
-    private TextField passwordField;
-
-    @FXML
-    private TextField usernameField;
-
-    @FXML
-    private Label welcomeText;
-
-    @FXML
-    void onLoginButtonClick(ActionEvent event) {
-
+    public void initialize() {
+        txtUsernameField.textProperty().addListener((_, _, _) -> updateButton());
+        txtPasswordField.textProperty().addListener((_, _, _) -> updateButton());
+        //txtUsernameField.insertText(0, "example@weblager.dk");
+        //txtPasswordField.insertText(0, "coordinator");
     }
 
+    private void updateButton() {
+        btnLogIn.setDisable(txtUsernameField.getText().isEmpty() || txtPasswordField.getText().isEmpty());
+    }
+
+    public void btnSignIn() {
+
+        String login = txtUsernameField.getText();
+        String password = txtPasswordField.getText();
+
+        User user = authService.login(login, password);
+
+        if (user != null) {
+            try {
+                Stage stage = (Stage) txtUsernameField.getScene().getWindow();
+
+                if (user.getRole().equals("Admin")) {
+                    stage.getScene().setRoot(
+                            FXMLLoader.load(
+                                    Objects.requireNonNull(getClass().getResource("../admin-homepage.fxml"))
+                            )
+                    );
+                } else {
+                    stage.getScene().setRoot(
+                            FXMLLoader.load(
+                                    Objects.requireNonNull(getClass().getResource("../user-homepage.fxml"))
+                            )
+                    );
+                }
+
+            } catch (Exception e) {
+                lblErr.setVisible(true);
+                lblErr.setText("Error loading homepage");
+            }
+        } else {
+            lblErr.setVisible(true);
+            lblErr.setText("Wrong login or password");
+        }
+    }
 }

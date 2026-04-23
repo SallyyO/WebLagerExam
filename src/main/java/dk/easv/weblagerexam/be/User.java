@@ -1,7 +1,6 @@
 package dk.easv.weblagerexam.be;
 
-public class User
-{
+public class User {
     private int id;
     private String name;
     private String role;
@@ -27,6 +26,11 @@ public class User
         this.email = email;
         this.password = password;
         this.salt = salt;
+    }
+
+    public User(String name, String password){
+        this.name = name;
+        this.password = password;
     }
 
     public int getId() {return id;}
