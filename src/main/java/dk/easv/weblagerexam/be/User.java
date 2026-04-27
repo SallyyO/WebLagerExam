@@ -2,34 +2,34 @@ package dk.easv.weblagerexam.be;
 
 public class User {
     private int id;
-    private String name;
+    private String username;
     private String role;
     private String email;
     private String password;
     private String salt;
 
 
-    public User(int id, String name, String role, String email, String password, String salt)
+    public User(int id, String username, String role, String email, String password, String salt)
     {
         this.id = id;
-        this.name = name;
+        this.username = username;
         this.role = role;
         this.email = email;
         this.password = password;
         this.salt = salt;
     }
 
-    public User(String name, String role, String email, String password, String salt)
+    public User(String username, String role, String email, String password, String salt)
     {
-        this.name = name;
+        this.username = username;
         this.role = role;
         this.email = email;
         this.password = password;
         this.salt = salt;
     }
 
-    public User(String name, String password){
-        this.name = name;
+    public User(String username, String password){
+        this.username = username;
         this.password = password;
     }
 
@@ -37,9 +37,9 @@ public class User {
 
     public void setId(int id) {this.id = id;}
 
-    public String getName() {return name;}
+    public String getUsername() {return username;}
 
-    public void setName(String name) {this.name = name;}
+    public void setName(String name) {this.username = name;}
 
     public String getRole() {return role;}
 

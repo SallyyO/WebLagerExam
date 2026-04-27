@@ -36,7 +36,7 @@ public class UserDAO {
             String sql = "INSERT INTO Users (role, username, login, password, salt) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, user.getRole());
-            stmt.setString(2, user.getName());
+            stmt.setString(2, user.getUsername());
             stmt.setString(3, user.getEmail());
             stmt.setString(4, user.getPassword());
             stmt.setString(5, user.getSalt());
