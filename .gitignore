@@ -5,10 +5,19 @@ target/
 .kotlin
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
 .idea/compiler.xml
-.idea/libraries/
+.idea/copilot.data.migration.ask2agent.xml
+.idea/vcs.xml
+.idea/dataSources.xml
+.idea/data_source_mappings.xml
+.idea/copilot.data.migration.ask.xml
+.idea/copilot.data.migration.edit.xml
+.idea/sqldialects.xml
+.idea/jarRepositories.xml
+pom.xml
+config/config.settings
+.idea/inspectionProfiles/Project_Default.xml
+src/main/java/dk/easv/weblagerexam/dal/ConnectionManager.java
 *.iws
 *.iml
 *.ipr
