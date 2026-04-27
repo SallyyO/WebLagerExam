@@ -33,7 +33,7 @@ public class UserDAO {
 
     public void addUser(User user) {
         try (Connection con = conMan.getConnection()) {
-            String sql = "INSERT INTO Users (role, username, login, password, salt) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Users (role, username, email, password, salt) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, user.getRole());
             stmt.setString(2, user.getUsername());
