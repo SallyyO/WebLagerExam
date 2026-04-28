@@ -1,5 +1,6 @@
 package dk.easv.weblagerexam.dal;
 
+import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 
 import java.sql.*;
@@ -71,4 +72,53 @@ public class UserDAO {
 
         return users;
     }
+
+    // Assign a profile to a user
+    public void addProfileToUser(int userId, int profileId) {
+        String sql = "INSERT INTO UsersProfiles (userId, profileId) VALUES (?, ?) ";
+        try ( Connection con = conMan.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setInt(2, profileId);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Remove a profile from a user
+    public void deleteProfileFromUser(int userId, int profileId) {
+        String sql = "DELETE FROM UsersProfiles WHERE userId = ? AND profileId = ?";
+        try( Connection con = conMan.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setInt(2, profileId);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // get all profiles assigned to a user
+    public List<Profile> getProfilesForUser(int userId) {
+        List<Profile> profiles = new ArrayList<>();
+        String sql = "SELECT p.id, p.name FROM Profiles p " + "JOIN UserProfiles up ON p.id = up.profileId " + "WHERE up.userId = ?";
+        try( Connection con = conMan.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                profiles.add(new Profile(rs.getInt("id"), rs.getString("name")));
+
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return profiles;
+    }
+
+
 }

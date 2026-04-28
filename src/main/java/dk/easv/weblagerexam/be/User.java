@@ -1,5 +1,8 @@
 package dk.easv.weblagerexam.be;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private int id;
     private String username;
@@ -8,6 +11,7 @@ public class User {
     private String password;
     private String salt;
 
+    private List<Profile> profiles;
 
     public User(int id, String username, String role, String email, String password, String salt)
     {
@@ -17,6 +21,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.salt = salt;
+        this.profiles = new ArrayList<>();
     }
 
     public User(String username, String role, String email, String password, String salt)
@@ -56,4 +61,9 @@ public class User {
     public String getSalt() {return salt;}
 
     public void setSalt(String salt) {this.salt = salt;}
+
+    public List<Profile> getProfiles() {return profiles;}
+
+    public void setProfiles(List<Profile> profiles) {this.profiles = profiles;}
+
 }
