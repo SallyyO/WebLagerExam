@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -19,13 +20,13 @@
 
     <!-- TOP NAVIGATION BAR -->
     <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="70" style="-fx-background-color: #f5f5f5; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+        <HBox alignment="CENTER_LEFT" prefHeight="70" styleClass="modal-header" stylesheets="@CSS/app.css">
             <padding>
                 <Insets bottom="0" left="20" right="24" top="0" />
             </padding>
-         <ImageView fitHeight="41.0" fitWidth="200.0">
+         <ImageView fitHeight="50.0" fitWidth="203.0">
             <image>
-               <Image url="@/Images/LogoBlueH.png"/>
+               <Image url="@/Images/LogoBlueH.png" />
             </image>
          </ImageView>
 
@@ -34,7 +35,7 @@
 
             <!-- Admin profile area -->
             <HBox alignment="CENTER" spacing="12">
-                <Label style="-fx-font-size: 12px; -fx-text-fill: #333333;" text="Admin Name">
+                <Label styleClass="text-h3" stylesheets="@CSS/app.css" text="Michael Jackson">
                     <font>
                         <Font name="System" size="15" />
                     </font>
@@ -42,8 +43,8 @@
 
                 <!-- Avatar circle -->
                 <StackPane>
-                    <Circle radius="24" style="-fx-fill: #8b7d7b;" />
-                    <Label style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="AN">
+                    <Circle radius="24" styleClass="avatar-circle" />
+                    <Label styleClass="avatar-text" stylesheets="@CSS/app.css" text="MJ">
                         <font>
                             <Font name="System Bold" size="13" />
                         </font>
@@ -61,39 +62,29 @@
             <VBox prefWidth="210" style="-fx-background-color: #f5f6f8;                          -fx-border-color: #e0e0e0;                          -fx-border-width: 0 1 0 0;">
 
                 <!-- Users button (active/selected state) -->
-                <Button fx:id="usersButton" onAction="#onUsersClicked" prefHeight="55" prefWidth="210" style="-fx-background-color: #f5f5f5; -fx-text-fill: #1a1a2e; -fx-font-size: 12px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 24; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0; -fx-cursor: hand; -fx-background-radius: 0;" text="Users">
+                <Button fx:id="usersButton" onAction="#onUsersClicked" prefHeight="55" prefWidth="210" stylesheets="@CSS/app.css" text="Users">
                     <font>
                         <Font name="System" size="16" />
                     </font>
-                </Button>
-
-                <!-- File Info button -->
-                <Button fx:id="fileInfoButton" onAction="#onFileInfoClicked" prefHeight="55" prefWidth="210" style="-fx-background-color: #f5f5f5; -fx-text-fill: #1a1a2e; -fx-font-size: 12px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 24; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0; -fx-cursor: hand; -fx-background-radius: 0;" text="File Info">
-                    <font>
-                        <Font name="System" size="16" />
-                    </font>
-                </Button>
-
-                <!-- History button -->
-                <Button fx:id="historyButton" onAction="#onHistoryClicked" prefHeight="55" prefWidth="210" style="-fx-background-color: #f5f5f5; -fx-text-fill: #1a1a2e; -fx-font-size: 12px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 24; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0; -fx-cursor: hand; -fx-background-radius: 0;" text="History">
-                    <font>
-                        <Font name="System" size="16" />
-                    </font>
+               <styleClass>
+                  <String fx:value="button-secondary" />
+                  <String fx:value="text-button" />
+               </styleClass>
                 </Button>
 
                 <!-- Filler region below menu items -->
-                <Region style="-fx-background-color: #f5f5f5;" VBox.vgrow="ALWAYS" />
+                <Region styleClass="modal-footer" stylesheets="@CSS/app.css" VBox.vgrow="ALWAYS" />
             </VBox>
 
             <!-- MAIN CONTENT AREA -->
             <VBox style="-fx-background-color: #ffffff;" HBox.hgrow="ALWAYS">
 
                 <!-- Table -->
-                <TableView fx:id="mainTable" style="-fx-background-color: #ffffff;                                   -fx-border-color: transparent;                                   -fx-table-cell-border-color: #e8e8e8;" VBox.vgrow="ALWAYS">
+                <TableView fx:id="mainTable" styleClass="text-body" stylesheets="@CSS/app.css" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="idColumn" prefWidth="303.0" style="-fx-font-size: 12px; -fx-text-fill: #333333;" text="ID" />
-                        <TableColumn fx:id="nameColumn" prefWidth="303.0" style="-fx-font-size: 12px; -fx-text-fill: #333333;" text="Name" />
-                        <TableColumn fx:id="typeColumn" prefWidth="304.0" style="-fx-font-size: 12px; -fx-text-fill: #333333;" text="Type" />
+                        <TableColumn fx:id="idColumn" prefWidth="303.0" text="ID" />
+                        <TableColumn fx:id="nameColumn" prefWidth="303.0" text="Name" />
+                        <TableColumn fx:id="typeColumn" prefWidth="304.0" text="Type" />
                     </columns>
                     <placeholder>
                         <Label style="-fx-background-color: #f9f9f9;" text="" />
@@ -101,27 +92,39 @@
                 </TableView>
 
                 <!-- BOTTOM ACTION BUTTONS -->
-                <HBox alignment="CENTER" prefHeight="80" spacing="40" style="-fx-background-color: #f5f5f5; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 0 0;">
+                <HBox alignment="CENTER" prefHeight="80" spacing="40" styleClass="modal-footer" stylesheets="@CSS/app.css">
                     <padding>
                         <Insets bottom="15" left="20" right="20" top="15" />
                     </padding>
 
-                    <Button fx:id="addUserBtn" onAction="#onAddUserBtnClicked" prefHeight="30.0" prefWidth="145" style="-fx-background-color: #1e3a5f; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 30; -fx-cursor: hand;" text="Add">
+                    <Button fx:id="addUserBtn" onAction="#onAddUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Add">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
+                  <styleClass>
+                     <String fx:value="button-primary" />
+                     <String fx:value="text-button" />
+                  </styleClass>
                     </Button>
 
-                    <Button fx:id="editUserBtn" onAction="#onEditUserBtnClicked" prefHeight="30.0" prefWidth="145" style="-fx-background-color: #1e3a5f; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 30; -fx-cursor: hand;" text="Edit">
+                    <Button fx:id="editUserBtn" onAction="#onEditUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Edit">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
+                  <styleClass>
+                     <String fx:value="button-primary" />
+                     <String fx:value="text-button" />
+                  </styleClass>
                     </Button>
 
-                    <Button fx:id="deleteUserBtn" onAction="#onDeleteUserBtnClicked" prefHeight="30.0" prefWidth="145" style="-fx-background-color: #1e3a5f; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 30; -fx-cursor: hand;" text="Delete">
+                    <Button fx:id="deleteUserBtn" onAction="#onDeleteUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Delete">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
+                  <styleClass>
+                     <String fx:value="button-primary" />
+                     <String fx:value="text-button" />
+                  </styleClass>
                     </Button>
                 </HBox>
             </VBox>
