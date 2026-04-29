@@ -25,7 +25,7 @@
             </padding>
          <ImageView fitHeight="41.0" fitWidth="200.0">
             <image>
-               <Image url="@../../../../../../../../Downloads/StyleGuide/StyleGuide/WebLager%20Logo/Main%20Blue/LogoBlueH.png" />
+               <Image url="src/main/resources/Images/LogoBlueH.png" />
             </image>
          </ImageView>
 
