@@ -23,7 +23,7 @@ public class UserDAO {
                 //No point asking for login since we already have it
                 String password = rs.getString("password");
                 String salt = rs.getString("salt");
-                return new User(id, role, username, login, password, salt);
+                return new User(id,username, role, login, password, salt);
             } else {
                 return null; // No user found with the given login
             }
@@ -47,6 +47,19 @@ public class UserDAO {
         }
     }
 
+    public void deleteUser(int userID) {
+        String sql = "DELETE FROM Users WHERE id = ?";
+        try(Connection con = conMan.getConnection();
+            PreparedStatement ps =  con.prepareStatement(sql)){
+            ps.setInt(1, userID);
+            ps.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
@@ -63,7 +76,7 @@ public class UserDAO {
                 String password = rs.getString("password");
                 String salt = rs.getString("salt");
 
-                users.add(new User(id, role, username, login, password, salt));
+                users.add(new User(id, username, role, login, password, salt));
             }
 
         } catch (SQLException e) {
@@ -104,7 +117,7 @@ public class UserDAO {
     // get all profiles assigned to a user
     public List<Profile> getProfilesForUser(int userId) {
         List<Profile> profiles = new ArrayList<>();
-        String sql = "SELECT p.id, p.name FROM Profiles p " + "JOIN UserProfiles up ON p.id = up.profileId " + "WHERE up.userId = ?";
+        String sql = "SELECT p.id, p.name FROM Profiles p " + "JOIN UsersProfiles up ON p.id = up.profileId " + "WHERE up.userId = ?";
         try( Connection con = conMan.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, userId);

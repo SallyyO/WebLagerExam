@@ -13,6 +13,41 @@ public class UserManager {
         return dao.getUserDAO().getAllUsers();
 
     }
+
+    public void createUser(String username,String role,String email,String password) throws Exception{
+        // fields can't be empty
+        if(username == null || username.trim().isEmpty()){
+            throw new Exception("Username can't be empty");
+        }
+        if(role == null || role.trim().isEmpty()){
+            throw new Exception("Role can't be empty");
+        }
+        if(email == null || email.trim().isEmpty()){
+            throw new Exception("Email can't be empty");
+        }
+        if(password == null || password.trim().isEmpty()){
+            throw new Exception("Password can't be empty");
+        }
+
+        // No duplicate usernames
+        for(User existing : dao.getUserDAO().getAllUsers()){
+            if(existing.getUsername().equalsIgnoreCase(username.trim())){
+                throw new IllegalArgumentException("Username already exists");
+            }
+        }
+
+        // hash the password before saving
+        String salt = PasswordHasher.generateSalt();
+        String hash = PasswordHasher.hashPassword(password, salt);
+
+        dao.getUserDAO().addUser(new User(username.trim(),role,email.trim(),hash,salt));
+    }
+
+    public void deleteUser(int userID) throws Exception{
+        dao.getUserDAO().deleteUser(userID);
+    }
+
+
     public void assignProfileToUser(int userId, int profileId) throws Exception {
         // checking if it is already assigned
         List<Profile> existing = dao.getUserDAO().getProfilesForUser(userId);
