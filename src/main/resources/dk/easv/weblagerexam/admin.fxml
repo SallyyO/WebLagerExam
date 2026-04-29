@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -61,10 +62,14 @@
             <VBox prefWidth="210" style="-fx-background-color: #f5f6f8;                          -fx-border-color: #e0e0e0;                          -fx-border-width: 0 1 0 0;">
 
                 <!-- Users button (active/selected state) -->
-                <Button fx:id="usersButton" onAction="#onUsersClicked" prefHeight="55" prefWidth="210" styleClass="button-secondary" stylesheets="@CSS/app.css" text="Users">
+                <Button fx:id="usersButton" onAction="#onUsersClicked" prefHeight="55" prefWidth="210" stylesheets="@CSS/app.css" text="Users">
                     <font>
                         <Font name="System" size="16" />
                     </font>
+               <styleClass>
+                  <String fx:value="button-secondary" />
+                  <String fx:value="text-button" />
+               </styleClass>
                 </Button>
 
                 <!-- Filler region below menu items -->
@@ -77,9 +82,9 @@
                 <!-- Table -->
                 <TableView fx:id="mainTable" styleClass="text-body" stylesheets="@CSS/app.css" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="idColumn" prefWidth="303.0" style="-fx-font-size: 12px; -fx-text-fill: #333333;" text="ID" />
-                        <TableColumn fx:id="nameColumn" prefWidth="303.0" style="-fx-font-size: 12px; -fx-text-fill: #333333;" text="Name" />
-                        <TableColumn fx:id="typeColumn" prefWidth="304.0" style="-fx-font-size: 12px; -fx-text-fill: #333333;" text="Type" />
+                        <TableColumn fx:id="idColumn" prefWidth="303.0" text="ID" />
+                        <TableColumn fx:id="nameColumn" prefWidth="303.0" text="Name" />
+                        <TableColumn fx:id="typeColumn" prefWidth="304.0" text="Type" />
                     </columns>
                     <placeholder>
                         <Label style="-fx-background-color: #f9f9f9;" text="" />
@@ -92,22 +97,34 @@
                         <Insets bottom="15" left="20" right="20" top="15" />
                     </padding>
 
-                    <Button fx:id="addUserBtn" onAction="#onAddUserBtnClicked" prefHeight="30.0" prefWidth="145" styleClass="button-primary" stylesheets="@CSS/app.css" text="Add">
+                    <Button fx:id="addUserBtn" onAction="#onAddUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Add">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
+                  <styleClass>
+                     <String fx:value="button-primary" />
+                     <String fx:value="text-button" />
+                  </styleClass>
                     </Button>
 
-                    <Button fx:id="editUserBtn" onAction="#onEditUserBtnClicked" prefHeight="30.0" prefWidth="145" styleClass="button-primary" stylesheets="@CSS/app.css" text="Edit">
+                    <Button fx:id="editUserBtn" onAction="#onEditUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Edit">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
+                  <styleClass>
+                     <String fx:value="button-primary" />
+                     <String fx:value="text-button" />
+                  </styleClass>
                     </Button>
 
-                    <Button fx:id="deleteUserBtn" onAction="#onDeleteUserBtnClicked" prefHeight="30.0" prefWidth="145" styleClass="button-primary" stylesheets="@CSS/app.css" text="Delete">
+                    <Button fx:id="deleteUserBtn" onAction="#onDeleteUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Delete">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
+                  <styleClass>
+                     <String fx:value="button-primary" />
+                     <String fx:value="text-button" />
+                  </styleClass>
                     </Button>
                 </HBox>
             </VBox>
