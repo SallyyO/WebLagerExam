@@ -23,7 +23,7 @@ public class LoginController {
     @FXML
     public Button btnLogIn;
 
-    // PasswordManager passwordManager = new PasswordManager();
+    PasswordManager passwordManager = new PasswordManager();
 
     MockAuthService authService = new MockAuthService();
 
@@ -40,37 +40,25 @@ public class LoginController {
     }
 
     public void btnSignIn() {
-
         String login = txtUsernameField.getText();
         String password = txtPasswordField.getText();
 
-        User user = authService.login(login, password);
-
-        if (user != null) {
+        if (passwordManager.checkLogin(login, password)) {
+            User user = passwordManager.getUser();
             try {
                 Stage stage = (Stage) txtUsernameField.getScene().getWindow();
-
                 if (user.getRole().equals("Admin")) {
-                    stage.getScene().setRoot(
-                            FXMLLoader.load(
-                                    Objects.requireNonNull(getClass().getResource("../admin-homepage.fxml"))
-                            )
-                    );
+                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../admin-homepage.fxml"))));
                 } else {
-                    stage.getScene().setRoot(
-                            FXMLLoader.load(
-                                    Objects.requireNonNull(getClass().getResource("../user-homepage.fxml"))
-                            )
-                    );
+                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../coordinator-homepage.fxml"))));
                 }
-
             } catch (Exception e) {
                 lblErr.setVisible(true);
-                lblErr.setText("Error loading homepage");
+                lblErr.setText("An error occurred while loading the homepage");
             }
         } else {
             lblErr.setVisible(true);
-            lblErr.setText("Wrong login or password");
+            lblErr.setText("Wrong login or password!");
         }
     }
 }

@@ -7,7 +7,7 @@ public class PasswordManager {
     DAOManager dao = new DAOManager();
     User user;
 
-   /* public boolean checkLogin(String login, String password) {
+   public boolean checkLogin(String login, String password) {
         try {
             user = dao.getUserDAO().getUser(login);
             return PasswordHasher.verifyPassword(password, user.getPassword(), user.getSalt());
@@ -15,8 +15,6 @@ public class PasswordManager {
             return false;
         }
     }
-
-    */
 
     public void AddUser(String role, String username, String login, String password) throws Exception {
         String salt = PasswordHasher.generateSalt();

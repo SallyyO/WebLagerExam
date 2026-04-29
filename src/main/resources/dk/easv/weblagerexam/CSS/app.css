@@ -8,7 +8,7 @@ By doing it like this, we are telling it to start from the top and
 .root {
     -fx-font-family: "Montserrat";
     -fx-font-size: 12px;
-    -fx-background-color: #F5F5F5;
+    -fx-background-color: #FFFFFF;
 }
 
 /* || TEXT STYLES */
@@ -104,22 +104,18 @@ By doing it like this, we are telling it to start from the top and
 
 /* Primary */
 .button-primary {
-    -fx-background-color: #2D3D4F;
+    -fx-background-color: #415060;
     -fx-text-fill: white;
-}
-
-.button-primary:hover {
-    -fx-background-color: #1C252F;
 }
 
 /* Secondary */
 .button-secondary {
-    -fx-background-color: #64748B;
+    -fx-background-color: #2d3d4f;
     -fx-text-fill: white;
 }
 
 .button-secondary:hover {
-    -fx-background-color: #354556;
+    -fx-background-color: #344556;
 }
 
 /* Tertiary */
@@ -266,7 +262,7 @@ By doing it like this, we are telling it to start from the top and
 
 /* || HEADER */
 .header {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: #F5F5F5;
     -fx-padding: 10 16 10 16;
     -fx-border-color: #E2E4E8;
     -fx-border-width: 0 0 1 0;
