@@ -70,6 +70,10 @@ AdminController {
             stage.setTitle("Add User");
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
+
+            AddUserController controller = loader.getController();
+            controller.setDialogStage(stage);
+
             stage.showAndWait();
             loadUsers();
 
