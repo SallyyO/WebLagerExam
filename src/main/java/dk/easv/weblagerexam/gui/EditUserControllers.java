@@ -30,7 +30,7 @@ public class EditUserControllers {
     public void initialize() {}
 
 
-    public void setUser(User user){
+    public void setUser(User user) throws Exception {
         this.selectedUser = user;
         userNameLabel.setText("Editing:" + user.getUsername());
         loadProfiles();
