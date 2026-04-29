@@ -67,20 +67,6 @@
                     </font>
                 </Button>
 
-                <!-- File Info button -->
-                <Button fx:id="fileInfoButton" onAction="#onFileInfoClicked" prefHeight="55" prefWidth="210" style="-fx-background-color: #f5f5f5; -fx-text-fill: #1a1a2e; -fx-font-size: 12px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 24; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0; -fx-cursor: hand; -fx-background-radius: 0;" text="File Info">
-                    <font>
-                        <Font name="System" size="16" />
-                    </font>
-                </Button>
-
-                <!-- History button -->
-                <Button fx:id="historyButton" onAction="#onHistoryClicked" prefHeight="55" prefWidth="210" style="-fx-background-color: #f5f5f5; -fx-text-fill: #1a1a2e; -fx-font-size: 12px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 24; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0; -fx-cursor: hand; -fx-background-radius: 0;" text="History">
-                    <font>
-                        <Font name="System" size="16" />
-                    </font>
-                </Button>
-
                 <!-- Filler region below menu items -->
                 <Region style="-fx-background-color: #f5f5f5;" VBox.vgrow="ALWAYS" />
             </VBox>
