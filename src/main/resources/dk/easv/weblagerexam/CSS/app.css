@@ -100,18 +100,28 @@ By doing it like this, we are telling it to start from the top and
     -fx-background-radius: 6;
     -fx-border-radius: 6;
     -fx-cursor: hand;
+
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
 }
 
 /* Primary */
 .button-primary {
     -fx-background-color: #415060;
     -fx-text-fill: white;
+    -fx-background-insets: 0;
+}
+
+.button-primary:hover {
+    -fx-background-color: #1C252F;
+
 }
 
 /* Secondary */
 .button-secondary {
     -fx-background-color: #2d3d4f;
     -fx-text-fill: white;
+    -fx-background-insets: 0;
 }
 
 .button-secondary:hover {
@@ -131,10 +141,6 @@ By doing it like this, we are telling it to start from the top and
     -fx-text-fill: white;
 }
 
-/* Hover fallback */
-.button:hover {
-    -fx-background-color: #F1F5F9;
-}
 
 /* Disabled */
 .button:disabled {

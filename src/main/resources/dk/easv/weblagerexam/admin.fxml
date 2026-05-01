@@ -35,7 +35,7 @@
 
             <!-- Admin profile area -->
             <HBox alignment="CENTER" spacing="12">
-                <Label styleClass="text-h3" stylesheets="@CSS/app.css" text="Michael Jackson">
+                <Label styleClass="text-h3" text="Michael Jackson">
                     <font>
                         <Font name="System" size="15" />
                     </font>
@@ -44,7 +44,7 @@
                 <!-- Avatar circle -->
                 <StackPane>
                     <Circle radius="24" styleClass="avatar-circle" />
-                    <Label styleClass="avatar-text" stylesheets="@CSS/app.css" text="MJ">
+                    <Label styleClass="avatar-text" text="MJ">
                         <font>
                             <Font name="System Bold" size="13" />
                         </font>
@@ -62,7 +62,7 @@
             <VBox prefWidth="210" style="-fx-background-color: #f5f6f8;                          -fx-border-color: #e0e0e0;                          -fx-border-width: 0 1 0 0;">
 
                 <!-- Users button (active/selected state) -->
-                <Button fx:id="usersButton" onAction="#onUsersClicked" prefHeight="55" prefWidth="210" stylesheets="@CSS/app.css" text="Users">
+                <Button fx:id="usersButton" onAction="#onUsersClicked" prefHeight="55" prefWidth="210" text="Users">
                     <font>
                         <Font name="System" size="16" />
                     </font>
@@ -73,17 +73,17 @@
                 </Button>
 
                 <!-- Filler region below menu items -->
-                <Region styleClass="modal-footer" stylesheets="@CSS/app.css" VBox.vgrow="ALWAYS" />
+                <Region styleClass="modal-footer" VBox.vgrow="ALWAYS" />
             </VBox>
 
             <!-- MAIN CONTENT AREA -->
             <VBox style="-fx-background-color: #ffffff;" HBox.hgrow="ALWAYS">
 
                 <!-- Table -->
-                <TableView fx:id="mainTable" styleClass="text-body" stylesheets="@CSS/app.css" VBox.vgrow="ALWAYS">
+                <TableView fx:id="mainTable" styleClass="text-body" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="idColumn" prefWidth="303.0" text="ID" />
-                        <TableColumn fx:id="nameColumn" prefWidth="303.0" text="Name" />
+                        <TableColumn fx:id="usernameColumn" prefWidth="303.0" text="Name" />
                         <TableColumn fx:id="typeColumn" prefWidth="304.0" text="Type" />
                     </columns>
                     <placeholder>
@@ -92,12 +92,12 @@
                 </TableView>
 
                 <!-- BOTTOM ACTION BUTTONS -->
-                <HBox alignment="CENTER" prefHeight="80" spacing="40" styleClass="modal-footer" stylesheets="@CSS/app.css">
+                <HBox alignment="CENTER" prefHeight="80" spacing="40" styleClass="modal-footer">
                     <padding>
                         <Insets bottom="15" left="20" right="20" top="15" />
                     </padding>
 
-                    <Button fx:id="addUserBtn" onAction="#onAddUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Add">
+                    <Button fx:id="addUserBtn" onAction="#onAddUserBtnClicked" prefHeight="30.0" prefWidth="145" text="Add">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
@@ -107,7 +107,7 @@
                   </styleClass>
                     </Button>
 
-                    <Button fx:id="editUserBtn" onAction="#onEditUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Edit">
+                    <Button fx:id="editUserBtn" onAction="#onEditUserBtnClicked" prefHeight="30.0" prefWidth="145" text="Edit">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
@@ -117,7 +117,7 @@
                   </styleClass>
                     </Button>
 
-                    <Button fx:id="deleteUserBtn" onAction="#onDeleteUserBtnClicked" prefHeight="30.0" prefWidth="145" stylesheets="@CSS/app.css" text="Delete">
+                    <Button fx:id="deleteUserBtn" onAction="#onDeleteUserBtnClicked" prefHeight="30.0" prefWidth="145" text="Delete">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
