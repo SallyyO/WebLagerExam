@@ -1,6 +1,7 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.bll.PasswordManager;
+import dk.easv.weblagerexam.bll.UserManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
@@ -45,7 +46,9 @@ public class AddUserController
                 alert.showAndWait();
                 return;
             }
-            passwordManager.AddUser(role, username, email, password);
+            //passwordManager.AddUser(role, username, email, password);
+            UserManager userManager = new UserManager();
+            userManager.createUser(username, role, email, password);
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");

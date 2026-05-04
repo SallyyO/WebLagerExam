@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -13,8 +14,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class
-AdminController {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class AdminController implements Initializable {
 
     @FXML
     private Button addUserBtn;
@@ -48,19 +51,9 @@ AdminController {
 
     private UserManager userManager = new UserManager();
 
-    @FXML
-    public void initialize() {
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        typeColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
-
-        loadUsers();
-
-    }
 
 
 
-    // I will create addUser FXML and controller at night
     @FXML
     void onAddUserBtnClicked(ActionEvent event) {
         try{
@@ -169,4 +162,12 @@ AdminController {
         alert.show();
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
+
+        loadUsers();
+    }
 }

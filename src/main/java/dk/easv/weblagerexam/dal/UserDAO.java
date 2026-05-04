@@ -12,7 +12,7 @@ public class UserDAO {
 
     public User getUser(String login) {
         try (Connection con = conMan.getConnection()) {
-            String sql = "SELECT * FROM Users WHERE login = ?";
+            String sql = "SELECT * FROM Users WHERE username = ?";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, login);
             ResultSet rs = stmt.executeQuery();
