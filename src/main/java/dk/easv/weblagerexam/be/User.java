@@ -33,9 +33,15 @@ public class User {
         this.salt = salt;
     }
 
-    public User(String username, String password){
-        this.username = username;
+    public User(String email, String password){
+        this.email = email;
         this.password = password;
+    }
+
+    public User(int id, String username, String role){
+        this.id = id;
+        this.username = username;
+        this.role = role;
     }
 
     public int getId() {return id;}

@@ -7,19 +7,19 @@ public class PasswordManager {
     DAOManager dao = new DAOManager();
     User user;
 
-   public boolean checkLogin(String login, String password) {
+   public boolean checkLogin(String email, String password) {
         try {
-            user = dao.getUserDAO().getUser(login);
+            user = dao.getUserDAO().getUser(email);
             return PasswordHasher.verifyPassword(password, user.getPassword(), user.getSalt());
         }  catch (Exception e) {
             return false;
         }
     }
 
-    public void AddUser(String role, String username, String login, String password) throws Exception {
+    public void AddUser(String role, String username, String email, String password) throws Exception {
         String salt = PasswordHasher.generateSalt();
         String hash = PasswordHasher.hashPassword(password, salt);
-        User newUser = new User(role, username, login, hash, salt);
+        User newUser = new User(role, username, email, hash, salt);
         dao.getUserDAO().addUser(newUser);
     }
 

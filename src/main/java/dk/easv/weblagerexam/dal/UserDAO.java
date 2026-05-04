@@ -10,22 +10,22 @@ import java.util.List;
 public class UserDAO {
     ConnectionManager conMan = new ConnectionManager();
 
-    public User getUser(String login) {
+    public User getUser(String email) {
         try (Connection con = conMan.getConnection()) {
-            String sql = "SELECT * FROM Users WHERE login = ?";
+            String sql = "SELECT * FROM Users WHERE email = ?";
             PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setString(1, login);
+            stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt("id");
                 String role = rs.getString("role");
                 String username = rs.getString("username");
-                //No point asking for login since we already have it
+                //No point asking for email since we already have it
                 String password = rs.getString("password");
                 String salt = rs.getString("salt");
-                return new User(id,username, role, login, password, salt);
+                return new User(id,username, role, email, password, salt);
             } else {
-                return null; // No user found with the given login
+                return null; // No user found with the given email
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -72,11 +72,11 @@ public class UserDAO {
                 int id = rs.getInt("id");
                 String role = rs.getString("role");
                 String username = rs.getString("username");
-                String login = rs.getString("login");
+                String email = rs.getString("email");
                 String password = rs.getString("password");
                 String salt = rs.getString("salt");
 
-                users.add(new User(id, username, role, login, password, salt));
+                users.add(new User(id, username, role, email, password, salt));
             }
 
         } catch (SQLException e) {

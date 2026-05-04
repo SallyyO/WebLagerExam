@@ -3,6 +3,7 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.UserManager;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,8 +14,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class
-AdminController {
+import java.io.IOException;
+
+public class AdminController {
 
     @FXML
     private Button addUserBtn;
@@ -38,7 +40,7 @@ AdminController {
     private TableView<User> mainTable;
 
     @FXML
-    private TableColumn<User, String> nameColumn;
+    private TableColumn<User, String> usernameColumn;
 
     @FXML
     private TableColumn<User, String> typeColumn;
@@ -51,7 +53,7 @@ AdminController {
     @FXML
     public void initialize() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
 
         loadUsers();
@@ -60,28 +62,25 @@ AdminController {
 
 
 
-    // I will create addUser FXML and controller at night
     @FXML
     void onAddUserBtnClicked(ActionEvent event) {
-        try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("addUser.fxml"));
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/addNewUser.fxml")
+            );
             Parent root = loader.load();
+
             Stage stage = new Stage();
             stage.setTitle("Add User");
             stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
 
-            AddUserController controller = loader.getController();
-            controller.setDialogStage(stage);
-
-            stage.showAndWait();
-            loadUsers();
-
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-        catch(Exception e){
-        showError("Could not open Add User Wndow", e.getMessage());
-        }
-        }
+
+
 
     @FXML
     void onDeleteUserBtnClicked(ActionEvent event) {
@@ -149,17 +148,25 @@ AdminController {
     @FXML
     void onUsersClicked(ActionEvent event) throws Exception {
         loadUsers();
-
     }
 
     private void loadUsers()  {
-        try{
+       /* try{
             mainTable.setItems(
                     FXCollections.observableArrayList(userManager.getAllUsers()));
         }
         catch (Exception e){
             showError("Could not load users", e.getMessage());
         }
+        */
+        ObservableList<User> mockUsers = FXCollections.observableArrayList();
+
+        mockUsers.add(new User(1, "Obama What's His last Name?", "Admin"));
+        mockUsers.add(new User(2, "Bob", "User"));
+        mockUsers.add(new User(3, "Lange Grethe", "User"));
+        mockUsers.add(new User(4, "Bobby", "Admin"));
+
+        mainTable.setItems(mockUsers);
     }
 
     private void showError(String title, String message) {
@@ -168,5 +175,4 @@ AdminController {
         alert.setContentText(message);
         alert.show();
     }
-
 }

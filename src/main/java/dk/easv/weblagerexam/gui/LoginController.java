@@ -40,25 +40,30 @@ public class LoginController {
     }
 
     public void btnSignIn() {
-        String login = txtUsernameField.getText();
+        String email = txtUsernameField.getText();
         String password = txtPasswordField.getText();
 
-        if (passwordManager.checkLogin(login, password)) {
-            User user = passwordManager.getUser();
+        User user = authService.login(email, password);
+
+        if (user != null) {
             try {
                 Stage stage = (Stage) txtUsernameField.getScene().getWindow();
+
                 if (user.getRole().equals("Admin")) {
-                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../admin-homepage.fxml"))));
+                    stage.getScene().setRoot(FXMLLoader.load(
+                            Objects.requireNonNull(getClass().getResource("../admin.fxml"))));
                 } else {
-                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../coordinator-homepage.fxml"))));
+                    stage.getScene().setRoot(FXMLLoader.load(
+                            Objects.requireNonNull(getClass().getResource("../user.fxml"))));
                 }
+
             } catch (Exception e) {
                 lblErr.setVisible(true);
                 lblErr.setText("An error occurred while loading the homepage");
             }
         } else {
             lblErr.setVisible(true);
-            lblErr.setText("Wrong login or password!");
+            lblErr.setText("Wrong email or password!");
         }
     }
 }
