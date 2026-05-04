@@ -10,6 +10,7 @@ public class PasswordManager {
    public boolean checkLogin(String email, String password) {
         try {
             user = dao.getUserDAO().getUser(email);
+            System.out.println("PasswordManager: " + user.getUsername());
             return PasswordHasher.verifyPassword(password, user.getPassword(), user.getSalt());
         }  catch (Exception e) {
             return false;

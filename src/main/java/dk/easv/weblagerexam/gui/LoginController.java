@@ -32,7 +32,7 @@ public class LoginController {
         txtUsernameField.textProperty().addListener((_, _, _) -> updateButton());
         txtPasswordField.textProperty().addListener((_, _, _) -> updateButton());
         //txtUsernameField.insertText(0, "example@weblager.dk");
-        //txtPasswordField.insertText(0, "coordinator");
+        //txtPasswordField.insertText(0, "admin");
     }
 
     private void updateButton() {
@@ -40,21 +40,33 @@ public class LoginController {
     }
 
     public void btnSignIn() {
-        String email = txtUsernameField.getText();
+        String login = txtUsernameField.getText();
         String password = txtPasswordField.getText();
 
-        User user = authService.login(email, password);
+        //User user = authService.login(email, password);
 
         //When we get real users in the db (from Saroj)
-        /*if (passwordManager.checkLogin(login, password)) {
+        if (passwordManager.checkLogin(login, password)) {
             User user = passwordManager.getUser();
             try {
                 Stage stage = (Stage) txtUsernameField.getScene().getWindow();
                 if (user.getRole().equals("Admin")) {
                     // TODO: set the active user in the header
-         */
 
-        if (user != null) {
+                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../admin.fxml"))));
+                } else {
+                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../user.fxml"))));
+                }
+            } catch (Exception e) {
+                lblErr.setVisible(true);
+                lblErr.setText("An error occurred while loading the homepage");
+            }
+        } else {
+            lblErr.setVisible(true);
+            lblErr.setText("Wrong login or password!");
+        }
+
+        /* if (user != null) {
             try {
                 Stage stage = (Stage) txtUsernameField.getScene().getWindow();
 
@@ -66,13 +78,7 @@ public class LoginController {
                             Objects.requireNonNull(getClass().getResource("../user.fxml"))));
                 }
 
-            } catch (Exception e) {
-                lblErr.setVisible(true);
-                lblErr.setText("An error occurred while loading the homepage");
-            }
-        } else {
-            lblErr.setVisible(true);
-            lblErr.setText("Wrong email or password!");
-        }
+         */
+
     }
 }

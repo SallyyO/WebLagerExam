@@ -1,6 +1,7 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.UserManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -32,23 +33,26 @@ public class AddNewUserController {
 
     @FXML
     void onSaveClicked() {
-        String username = txtUsername.getText();
-        String email = txtEmail.getText();
-        String password = txtPassword.getText();
-        String role = roleComboBox.getValue();
+        try {
+            String username = txtUsername.getText().trim();
+            String email = txtEmail.getText().trim();
+            String password = txtPassword.getText().trim();
+            String role = roleComboBox.getValue();
 
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || role == null) {
-            showError("Please fill out all fields");
-            return;
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || role == null) {
+                showError("Please fill out all fields");
+                return;
+            }
+
+            UserManager userManager = new UserManager();
+            userManager.createUser(username, email, password, role);
+
+            // Close window
+            closeWindow();
+        } catch(Exception e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
         }
-
-        // !! This does NOT add stuff to the database! It's just mock data for now !!
-        User newUser = new User(0, username, role);
-
-        System.out.println("Created user: " + username + " (" + role + ")");
-
-        // Close window
-        closeWindow();
     }
 
     @FXML
