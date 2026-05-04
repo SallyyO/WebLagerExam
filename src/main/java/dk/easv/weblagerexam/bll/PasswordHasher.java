@@ -6,9 +6,9 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 public class PasswordHasher {
-    private static final int SALT_LENGTH = 16;
-    private static final int ITERATIONS = 65536;
-    private static final int KEY_LENGTH = 256;
+    private static final int SALT_LENGTH = 16; // salt length in bytes
+    private static final int ITERATIONS = 65536; // hashing runs this much times
+    private static final int KEY_LENGTH = 256; // final hash will be 256 bits long
 
     // Generate random salt
     public static String generateSalt() throws Exception {
@@ -16,6 +16,7 @@ public class PasswordHasher {
         byte[] salt = new byte[SALT_LENGTH]; // creates an empty array of 16 bytes
         random.nextBytes(salt);
         return Base64.getEncoder().encodeToString(salt); // convert into readable string to store in the database
+        // Converts to Base64 string so it can be stored as text in the database
     }
 
     // Hash password with salt

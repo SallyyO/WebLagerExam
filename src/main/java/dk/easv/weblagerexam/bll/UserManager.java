@@ -9,41 +9,46 @@ import java.util.List;
 public class UserManager {
     private DAOManager dao = new DAOManager();
 
-    public List<User> getAllUsers() throws Exception{
+    public List<User> getAllUsers() throws Exception {
         return dao.getUserDAO().getAllUsers();
 
     }
 
-    public void createUser(String username,String role,String email,String password) throws Exception{
+    public void createUser(String username, String role, String email, String password) throws Exception {
         // fields can't be empty
-        if(username == null || username.trim().isEmpty()){
+        if (username == null || username.trim().isEmpty()) {
             throw new Exception("Username can't be empty");
         }
-        if(role == null || role.trim().isEmpty()){
-            throw new Exception("Role can't be empty");
+        if (role == null || role.trim().isEmpty()
+                || !role.equals("Admin")
+                || !role.equals("User")) {
+            throw new Exception("Role can't be empty and need to be \"Admin\" or \"User\"");
         }
-        if(email == null || email.trim().isEmpty()){
+        if (email == null || email.trim().isEmpty()) {
             throw new Exception("Email can't be empty");
         }
-        if(password == null || password.trim().isEmpty()){
+        if (password == null || password.trim().isEmpty()) {
             throw new Exception("Password can't be empty");
         }
 
         // No duplicate usernames
-        for(User existing : dao.getUserDAO().getAllUsers()){
+        /*for(User existing : dao.getUserDAO().getAllUsers()){
             if(existing.getUsername().equalsIgnoreCase(username.trim())){
                 throw new IllegalArgumentException("Username already exists");
-            }
+            }*/
+        if (dao.getUserDAO().getUser(username) != null) {
+            throw new Exception("Username already exists");
         }
 
         // hash the password before saving
         String salt = PasswordHasher.generateSalt();
         String hash = PasswordHasher.hashPassword(password, salt);
 
-        dao.getUserDAO().addUser(new User(username.trim(),role,email.trim(),hash,salt));
+        dao.getUserDAO().addUser(new User(username.trim(), role, email.trim(), hash, salt));
+
     }
 
-    public void deleteUser(int userID) throws Exception{
+    public void deleteUser(int userID) throws Exception {
         dao.getUserDAO().deleteUser(userID);
     }
 
