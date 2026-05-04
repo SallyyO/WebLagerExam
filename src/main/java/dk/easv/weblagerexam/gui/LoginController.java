@@ -40,13 +40,13 @@ public class LoginController {
     }
 
     public void btnSignIn() {
-        String login = txtUsernameField.getText();
+        String email = txtUsernameField.getText();
         String password = txtPasswordField.getText();
 
         //User user = authService.login(email, password);
 
         //When we get real users in the db (from Saroj)
-        if (passwordManager.checkLogin(login, password)) {
+        if (passwordManager.checkLogin(email, password)) {
             User user = passwordManager.getUser();
             try {
                 Stage stage = (Stage) txtUsernameField.getScene().getWindow();
