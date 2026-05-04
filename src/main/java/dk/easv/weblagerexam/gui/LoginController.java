@@ -45,6 +45,15 @@ public class LoginController {
 
         User user = authService.login(email, password);
 
+        //When we get real users in the db (from Saroj)
+        /*if (passwordManager.checkLogin(login, password)) {
+            User user = passwordManager.getUser();
+            try {
+                Stage stage = (Stage) txtUsernameField.getScene().getWindow();
+                if (user.getRole().equals("Admin")) {
+                    // TODO: set the active user in the header
+         */
+
         if (user != null) {
             try {
                 Stage stage = (Stage) txtUsernameField.getScene().getWindow();
