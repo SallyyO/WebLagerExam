@@ -132,6 +132,4 @@ public class UserDAO {
         }
         return profiles;
     }
-
-
 }

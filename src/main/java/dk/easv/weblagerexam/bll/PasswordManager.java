@@ -20,7 +20,7 @@ public class PasswordManager {
     public void AddUser(String role, String username, String email, String password) throws Exception {
         String salt = PasswordHasher.generateSalt();
         String hash = PasswordHasher.hashPassword(password, salt);
-        User newUser = new User(role, username, email, hash, salt);
+        User newUser = new User(username, role, email, hash, salt);
         dao.getUserDAO().addUser(newUser);
     }
 

@@ -1,6 +1,7 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.PasswordManager;
 import dk.easv.weblagerexam.bll.UserManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -44,14 +45,14 @@ public class AddNewUserController {
                 return;
             }
 
-            UserManager userManager = new UserManager();
-            userManager.createUser(username, email, password, role);
+            PasswordManager pm = new PasswordManager();
+            pm.AddUser(role, username, email, password);
 
-            // Close window
             closeWindow();
-        } catch(Exception e){
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Error: " + e.getMessage());
         }
     }
 
@@ -67,6 +68,7 @@ public class AddNewUserController {
 
     private void showError(String msg) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
         alert.setContentText(msg);
         alert.show();
     }
