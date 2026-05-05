@@ -8,6 +8,7 @@ import java.util.List;
 
 public class UserManager {
     private DAOManager dao = new DAOManager();
+    private LogManager logManager = new LogManager();
 
     public List<User> getAllUsers() throws Exception {
         return dao.getUserDAO().getAllUsers();
@@ -49,7 +50,8 @@ public class UserManager {
     }
 
     public void deleteUser(int userID) throws Exception {
-        dao.getUserDAO().deleteUser(userID);
+        dao.getUserDAO().softDeleteUser(userID);
+        logManager.logFileDeleted(userID, "User #" + userID);
     }
 
 

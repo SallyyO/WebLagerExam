@@ -47,8 +47,8 @@ public class UserDAO {
         }
     }
 
-    public void deleteUser(int userID) {
-        String sql = "DELETE FROM Users WHERE id = ?";
+    public void softDeleteUser(int userID) {
+        String sql = "UPDATE  Users SET isDeleted =1 WHERE id = ?";
         try(Connection con = conMan.getConnection();
             PreparedStatement ps =  con.prepareStatement(sql)){
             ps.setInt(1, userID);
@@ -63,8 +63,9 @@ public class UserDAO {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
+        // only fetching non deleted users
         try (Connection con = conMan.getConnection()) {
-            String sql = "SELECT * FROM Users";
+            String sql = "SELECT * FROM Users WHERE isDeleted=0";
             PreparedStatement stmt = con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
 
@@ -123,7 +124,7 @@ public class UserDAO {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                profiles.add(new Profile(rs.getInt("id"), rs.getString("name")));
+                profiles.add(new Profile(rs.getInt("id"), rs.getString("name"),rs.getInt("customer_id")));
 
             }
 

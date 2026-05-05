@@ -4,6 +4,8 @@ public class DAOManager {
     private UserDAO userDAO = new UserDAO();
     private ProfileDAO profileDAO = new ProfileDAO();
     private BoxDAO boxDAO = new BoxDAO();
+    private LogDAO logDAO = new LogDAO();
+
 
     public DAOManager() {
         userDAO = new UserDAO();
@@ -19,5 +21,8 @@ public class DAOManager {
     }
     public BoxDAO getBoxDAO(){
         return boxDAO;
+    }
+    public LogDAO getLogDAO(){
+        return logDAO;
     }
 }

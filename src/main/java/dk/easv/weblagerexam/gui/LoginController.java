@@ -31,8 +31,8 @@ public class LoginController {
     public void initialize() {
         txtUsernameField.textProperty().addListener((_, _, _) -> updateButton());
         txtPasswordField.textProperty().addListener((_, _, _) -> updateButton());
-        //txtUsernameField.insertText(0, "example@weblager.dk");
-        //txtPasswordField.insertText(0, "admin");
+        txtUsernameField.insertText(0, "admin@example.com");
+        txtPasswordField.insertText(0, "admin");
     }
 
     private void updateButton() {

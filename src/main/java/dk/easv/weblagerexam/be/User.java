@@ -12,6 +12,7 @@ public class User {
     private String salt;
 
     private List<Profile> profiles;
+    private boolean isDeleted;
 
     public User(int id, String username, String role, String email, String password, String salt)
     {
@@ -32,6 +33,8 @@ public class User {
         this.password = password;
         this.salt = salt;
     }
+
+
 
     public User(String email, String password){
         this.email = email;
@@ -71,5 +74,9 @@ public class User {
     public List<Profile> getProfiles() {return profiles;}
 
     public void setProfiles(List<Profile> profiles) {this.profiles = profiles;}
+
+    public boolean isDeleted() {return isDeleted;}
+    public void setDeleted(boolean deleted) {this.isDeleted = deleted;}
+
 
 }

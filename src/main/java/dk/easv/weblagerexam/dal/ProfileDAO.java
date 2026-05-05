@@ -26,17 +26,26 @@ public class ProfileDAO {
         }
     }
 
+    public void softDeleteProfile(Profile profile) {
+        String sql = "UPDATE Profiles SET isDeleted=1 WHERE name=?";
+        try (Connection con = conMan.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)){
+                 ps.setInt(1, profile.getId());
+                 ps.executeUpdate();
+
+             } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public List<Profile> getAllProfiles() {
         List <Profile> profiles = new ArrayList<>();
-        String sql = "SELECT * FROM Profiles";
+        String sql = "SELECT * FROM Profiles WHERE isDeleted = 0 ";
         try(Connection con = conMan.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Profile profile = new Profile(rs.getInt("id"), rs.getString("name"));
-                // Load boxes for this profile
-                List<Box> boxes = boxDAO.getBoxesByProfileId(profile.getId());
-                profile.setBoxes(boxes);
+                Profile profile = new Profile(rs.getInt("id"), rs.getString("name"),rs.getInt("customer_id"));
                 profiles.add(profile);
             }
         } catch (SQLException e) {

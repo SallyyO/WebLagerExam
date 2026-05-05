@@ -1,6 +1,7 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.UserManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -49,6 +50,7 @@ public class AdminController {
     private Button usersButton;
 
     private UserManager userManager = new UserManager();
+    LogManager logManager = new LogManager();
 
     @FXML
     public void initialize() {
@@ -116,7 +118,7 @@ public class AdminController {
             return;
         }
         try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("editUser.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("FXML/editUser.fxml"));
             Parent root = loader.load();
 
             EditUserControllers controller = loader.getController();
@@ -142,6 +144,19 @@ public class AdminController {
 
     @FXML
     void onHistoryClicked(ActionEvent event) {
+        try{
+            idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            usernameColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
+            typeColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+            mainTable.setVisible(false);
+            mainTable.setManaged(false);
+            // TODO: Change the table for a log table
+            //mainTable.setItems(
+                    //FXCollections.observableArrayList(logManager.getAllLogs())
+            //);
+        } catch (Exception e) {
+            showError("Could not load Log", e.getMessage());
+        }
 
     }
 

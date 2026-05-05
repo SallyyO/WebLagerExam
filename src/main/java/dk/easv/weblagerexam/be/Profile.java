@@ -6,12 +6,12 @@ import java.util.List;
 public class Profile {
     private int id;
     private String name;
-    private List<Box> boxes; // one profile has many boxes
+    private int customerId;
+    private boolean isDeleted;
 
-    public Profile(int id, String name) {
+    public Profile(int id, String name,int customerId) {
         this.id = id;
         this.name = name;
-        this.boxes = new ArrayList<>();
     }
     public Profile(String name){
         this.name = name;
@@ -28,12 +28,15 @@ public class Profile {
     public void setName(String name) {
         this.name = name;
     }
-    public List<Box> getBoxes() {
-        return boxes;
+
+
+    public boolean isDeleted() {
+        return isDeleted;
     }
-    public void setBoxes(List<Box> boxes) {
-        this.boxes = boxes;
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
+
 
     @Override
     public String toString() {

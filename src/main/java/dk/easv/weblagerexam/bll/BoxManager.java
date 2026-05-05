@@ -6,6 +6,7 @@ import dk.easv.weblagerexam.dal.DAOManager;
 
 public class BoxManager {
     private DAOManager dao =  new DAOManager();
+    LogManager logManager = new LogManager();
 
     public void createBox(int profileId){
         //profileId mustbe valid
@@ -18,6 +19,8 @@ public class BoxManager {
         if(boxId <= 0){
             throw new IllegalArgumentException("Box ID must be greater than 0");
         }
-        dao.getBoxDAO().deleteBox(boxId);
+        dao.getBoxDAO().softDeleteBox(boxId);
+
+        logManager.logBoxDeleted(boxId, boxId );
     }
 }

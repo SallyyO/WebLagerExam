@@ -25,7 +25,7 @@ public class BoxDAO {
 
     public List<Box> getBoxesByProfileId(int profileId) {
         List<Box> boxes = new ArrayList<>();
-        String sql = "SELECT * FROM Boxes WHERE profileId = ?";
+        String sql = "SELECT * FROM Boxes WHERE profileId = ? AND isDeleted=0";
         try (Connection con = conMan.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, profileId);
@@ -41,8 +41,8 @@ public class BoxDAO {
         return boxes;
     }
 
-    public void deleteBox(int boxId){
-        String sql = "DELETE FROM Boxes WHERE id = ?";
+    public void softDeleteBox(int boxId){
+        String sql = "UPDATE  Boxes SET isDeleted = 1 WHERE id = ?";
         try(Connection con = conMan.getConnection();
         PreparedStatement ps = con.prepareStatement(sql)){
             ps.setInt(1,boxId);

@@ -7,7 +7,8 @@ import dk.easv.weblagerexam.dal.ProfileDAO;
 import java.util.List;
 
 public class ProfileManager {
-    private DAOManager dao =  new DAOManager();
+    private final DAOManager dao =  new DAOManager();
+     private final LogManager  logManager = new LogManager();
 
     public void createProfile(String name) {
         // name cannot be empty
@@ -25,6 +26,13 @@ public class ProfileManager {
         }
 
         dao.getProfileDAO().addProfile(new Profile(name.trim()));
+    }
+
+    public void deleteProfile(Profile profileID) throws Exception {
+        dao.getProfileDAO().softDeleteProfile(profileID);
+
+        logManager.logProfileDeleted(profileID.getId(), "Profile #" + profileID.getName());
+
     }
 
     public List<Profile> getAllProfiles() {

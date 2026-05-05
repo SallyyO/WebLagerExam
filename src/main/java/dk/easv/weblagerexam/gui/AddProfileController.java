@@ -16,7 +16,7 @@ public class AddProfileController {
     @FXML
     private TextField profileNameField;
 
-    private ProfileManager profileManager = new ProfileManager();
+    private final ProfileManager profileManager = new ProfileManager();
 
     @FXML
     private void handleAddProfile(ActionEvent event) {
