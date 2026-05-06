@@ -15,7 +15,7 @@ public class ProfileManager {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Profile name cannot be null");
         }
-        // name shouldn't be too shirt
+        // name shouldn't be too short
         if(name.trim().length() < 3) {
             throw new IllegalArgumentException("Profile name cannot be less than 3 characters");
         }
