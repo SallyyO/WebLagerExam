@@ -6,7 +6,6 @@ import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.bll.UserManager;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +17,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class AdminController {
 

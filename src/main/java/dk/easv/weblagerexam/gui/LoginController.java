@@ -51,7 +51,7 @@ public class LoginController {
 
                     stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../admin.fxml"))));
                 } else {
-                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../scanning_page.fxml"))));
+                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../user.fxml"))));
                 }
             } catch (Exception e) {
                 lblErr.setVisible(true);

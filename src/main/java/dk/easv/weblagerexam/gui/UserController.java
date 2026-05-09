@@ -1,10 +1,25 @@
 package dk.easv.weblagerexam.gui;
 
+import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class UserController {
+
+    @FXML
+    private Label lblUsername;
+
+    @FXML
+    private Label lblInitials;
 
     @FXML
     private Button boxesBtn;
@@ -28,6 +43,23 @@ public class UserController {
     private Button viewScansBtn;
 
     @FXML
+    public void initialize() {
+
+        User user = SessionManager.getCurrentUser();
+
+        if (user != null) {
+
+            lblUsername.setText(
+                    user.getUsername()
+            );
+
+            lblInitials.setText(
+                    user.getInitials()
+            );
+        }
+    }
+
+    @FXML
     void onBoxesBtnClicked(ActionEvent event) {
 
     }
@@ -39,6 +71,20 @@ public class UserController {
 
     @FXML
     void onNewScanBtnClicked(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/scanning_page.fxml")
+            );
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Add User");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
