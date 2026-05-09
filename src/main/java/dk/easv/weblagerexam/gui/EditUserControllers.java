@@ -24,7 +24,7 @@ public class EditUserControllers {
     public ListView<Profile> assignedProfilesListView;
 
     private UserManager userManager = new UserManager();
-    private final ProfileManager profileManager = new ProfileManager();
+    private ProfileManager profileManager = new ProfileManager();
     private User selectedUser;
 
     public void initialize() {}

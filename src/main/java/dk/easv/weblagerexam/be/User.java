@@ -7,37 +7,35 @@ public class User {
     private int id;
     private String username;
     private String role;
-    private String email;
+    private String initials;
     private String password;
     private String salt;
-
-    private List<Profile> profiles;
     private boolean isDeleted;
 
-    public User(int id, String username, String role, String email, String password, String salt)
+    private List<Profile> profiles;
+
+    public User(int id, String username, String role, String initials, String password, String salt)
     {
         this.id = id;
         this.username = username;
         this.role = role;
-        this.email = email;
+        this.initials = initials;
         this.password = password;
         this.salt = salt;
         this.profiles = new ArrayList<>();
     }
 
-    public User(String username, String role, String email, String password, String salt)
+    public User(String username, String role, String initials, String password, String salt)
     {
         this.username = username;
         this.role = role;
-        this.email = email;
+        this.initials = initials;
         this.password = password;
         this.salt = salt;
     }
 
-
-
-    public User(String email, String password){
-        this.email = email;
+    public User(String initials, String password){
+        this.initials = initials;
         this.password = password;
     }
 
@@ -48,35 +46,27 @@ public class User {
     }
 
     public int getId() {return id;}
-
     public void setId(int id) {this.id = id;}
 
     public String getUsername() {return username;}
-
     public void setUsername(String username) {this.username = username;}
 
     public String getRole() {return role;}
-
     public void setRole(String role) {this.role = role;}
 
-    public String getEmail() {return email;}
-
-    public void setEmail(String email) {this.email = email;}
+    public String getInitials() {return initials;}
+    public void setInitials(String initials) {this.initials = initials;}
 
     public String getPassword() {return password;}
-
     public void setPassword(String password) {this.password = password;}
 
     public String getSalt() {return salt;}
-
     public void setSalt(String salt) {this.salt = salt;}
 
     public List<Profile> getProfiles() {return profiles;}
-
     public void setProfiles(List<Profile> profiles) {this.profiles = profiles;}
 
     public boolean isDeleted() {return isDeleted;}
     public void setDeleted(boolean deleted) {this.isDeleted = deleted;}
-
 
 }

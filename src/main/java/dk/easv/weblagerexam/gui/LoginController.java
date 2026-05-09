@@ -2,8 +2,8 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.User;
-import dk.easv.weblagerexam.bll.MockAuthService;
 import dk.easv.weblagerexam.bll.PasswordManager;
+import dk.easv.weblagerexam.bll.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -25,14 +25,13 @@ public class LoginController {
 
     PasswordManager passwordManager = new PasswordManager();
 
-    MockAuthService authService = new MockAuthService();
 
     @FXML
     public void initialize() {
         txtUsernameField.textProperty().addListener((_, _, _) -> updateButton());
         txtPasswordField.textProperty().addListener((_, _, _) -> updateButton());
-        txtUsernameField.insertText(0, "admin@example.com");
-        txtPasswordField.insertText(0, "admin");
+        //txtUsernameField.insertText(0, "example@weblager.dk");
+        //txtPasswordField.insertText(0, "admin");
     }
 
     private void updateButton() {
@@ -40,22 +39,19 @@ public class LoginController {
     }
 
     public void btnSignIn() {
-        String email = txtUsernameField.getText();
+        String initials = txtUsernameField.getText();
         String password = txtPasswordField.getText();
 
-        //User user = authService.login(email, password);
-
-        //When we get real users in the db (from Saroj)
-        if (passwordManager.checkLogin(email, password)) {
+        if (passwordManager.checkLogin(initials, password)) {
             User user = passwordManager.getUser();
+            SessionManager.setCurrentUser(user);
             try {
                 Stage stage = (Stage) txtUsernameField.getScene().getWindow();
                 if (user.getRole().equals("Admin")) {
-                    // TODO: set the active user in the header
 
                     stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../admin.fxml"))));
                 } else {
-                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../user.fxml"))));
+                    stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../scanning_page.fxml"))));
                 }
             } catch (Exception e) {
                 lblErr.setVisible(true);
@@ -65,20 +61,5 @@ public class LoginController {
             lblErr.setVisible(true);
             lblErr.setText("Wrong login or password!");
         }
-
-        /* if (user != null) {
-            try {
-                Stage stage = (Stage) txtUsernameField.getScene().getWindow();
-
-                if (user.getRole().equals("Admin")) {
-                    stage.getScene().setRoot(FXMLLoader.load(
-                            Objects.requireNonNull(getClass().getResource("../admin.fxml"))));
-                } else {
-                    stage.getScene().setRoot(FXMLLoader.load(
-                            Objects.requireNonNull(getClass().getResource("../user.fxml"))));
-                }
-
-         */
-
     }
 }

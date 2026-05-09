@@ -1,31 +1,43 @@
 package dk.easv.weblagerexam.bll;
 
 import dk.easv.weblagerexam.be.Profile;
+import dk.easv.weblagerexam.be.ProfileSettings;
 import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.dal.ProfileDAO;
 
 import java.util.List;
 
 public class ProfileManager {
-    private final DAOManager dao =  new DAOManager();
-     private final LogManager  logManager = new LogManager();
 
-    public void createProfile(String name) {
-        // name cannot be empty
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Profile name cannot be null");
-        }
-        // name shouldn't be too short
-        if(name.trim().length() < 3) {
-            throw new IllegalArgumentException("Profile name cannot be less than 3 characters");
-        }
-        // no same profile names
-        for(Profile existing : dao.getProfileDAO().getAllProfiles())
-        if(existing.getName().equalsIgnoreCase(name.trim())){
-            throw new IllegalArgumentException("Profile already exists");
-        }
+    private final ProfileDAO profileDAO = new ProfileDAO();
+    private final DAOManager dao =  new DAOManager(); //Idk why it didn't want to work, i kept getting errors. This will be changed tho
+    private final LogManager  logManager = new LogManager();
 
-        dao.getProfileDAO().addProfile(new Profile(name.trim()));
+
+
+    public Profile createProfile(String name, ProfileSettings settings, Double value) {
+        Profile profile = new Profile(name);
+        profile.setSettings(settings);
+        profile.setSettingsValue(value);
+        profileDAO.saveProfile(profile); // sets profile.id from DB
+
+        return profile;
+    }
+
+    public List<Profile> getAllProfiles() {
+        return profileDAO.getAllProfiles();
+    }
+
+    public List<Profile> getProfilesForUser(int userId) {
+        return profileDAO.getProfilesForUser(userId);
+    }
+
+    public void assignProfileToUser(int userId, int profileId) {
+        profileDAO.assignProfileToUser(userId, profileId);
+    }
+
+    public void removeProfileFromUser(int userId, int profileId) {
+        profileDAO.removeProfileFromUser(userId, profileId);
     }
 
     public void deleteProfile(Profile profileID) throws Exception {
@@ -34,9 +46,4 @@ public class ProfileManager {
         logManager.logProfileDeleted(profileID.getId(), "Profile #" + profileID.getName());
 
     }
-
-    public List<Profile> getAllProfiles() {
-        return dao.getProfileDAO().getAllProfiles();
-    }
-
 }

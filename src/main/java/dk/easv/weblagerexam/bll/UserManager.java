@@ -15,7 +15,7 @@ public class UserManager {
 
     }
 
-    public void createUser(String username, String role, String email, String password) throws Exception {
+    public void createUser(String username, String role, String initials, String password) throws Exception {
         // fields can't be empty
         if (username == null || username.trim().isEmpty()) {
             throw new Exception("Username can't be empty");
@@ -25,8 +25,8 @@ public class UserManager {
                 || !role.equals("User")) {
             throw new Exception("Role can't be empty and need to be \"Admin\" or \"User\"");
         }
-        if (email == null || email.trim().isEmpty()) {
-            throw new Exception("Email can't be empty");
+        if (initials == null || initials.trim().isEmpty()) {
+            throw new Exception("Initials can't be empty");
         }
         if (password == null || password.trim().isEmpty()) {
             throw new Exception("Password can't be empty");
@@ -45,7 +45,7 @@ public class UserManager {
         String salt = PasswordHasher.generateSalt();
         String hash = PasswordHasher.hashPassword(password, salt);
 
-        dao.getUserDAO().addUser(new User(username.trim(), role, email.trim(), hash, salt));
+        dao.getUserDAO().addUser(new User(username.trim(), role, initials.trim(), hash, salt));
 
     }
 

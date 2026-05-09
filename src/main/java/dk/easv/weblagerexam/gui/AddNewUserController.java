@@ -1,8 +1,6 @@
 package dk.easv.weblagerexam.gui;
 
-import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.PasswordManager;
-import dk.easv.weblagerexam.bll.UserManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -13,7 +11,7 @@ public class AddNewUserController {
     private TextField txtUsername;
 
     @FXML
-    private TextField txtEmail;
+    private TextField txtInitials;
 
     @FXML
     private PasswordField txtPassword;
@@ -36,17 +34,17 @@ public class AddNewUserController {
     void onSaveClicked() {
         try {
             String username = txtUsername.getText().trim();
-            String email = txtEmail.getText().trim();
+            String initials = txtInitials.getText().trim();
             String password = txtPassword.getText().trim();
             String role = roleComboBox.getValue();
 
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || role == null) {
+            if (username.isEmpty() || initials.isEmpty() || password.isEmpty() || role == null) {
                 showError("Please fill out all fields");
                 return;
             }
 
             PasswordManager pm = new PasswordManager();
-            pm.AddUser(role, username, email, password);
+            pm.AddUser(role, username, initials, password);
 
             closeWindow();
 

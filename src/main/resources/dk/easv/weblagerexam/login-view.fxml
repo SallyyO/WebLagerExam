@@ -14,12 +14,12 @@
 
 <BorderPane prefHeight="750.0" prefWidth="1020.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.LoginController">
 
-    <!-- ================= HEADER ================= -->
+    <!-- Header -->
     <top>
         <fx:include source="/dk/easv/weblagerexam/header-view.fxml"/>
     </top>
 
-    <!-- ================= CENTER (Login) ================= -->
+    <!-- Center login -->
     <center>
         <StackPane>
             <VBox alignment="TOP_CENTER" spacing="30">
@@ -45,8 +45,8 @@
 
                     <!-- Username Field -->
                     <VBox spacing="8">
-                        <Label styleClass="label-medium" text="Email" />
-                        <TextField fx:id="txtUsernameField" prefHeight="30" promptText="Please enter your email" styleClass="text-field" />
+                        <Label styleClass="label-medium" text="Initials" />
+                        <TextField fx:id="txtUsernameField" prefHeight="30" promptText="Please enter your initials" styleClass="text-field" />
                     </VBox>
 
                     <!-- Password Field -->

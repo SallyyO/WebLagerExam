@@ -18,13 +18,15 @@ public class AddProfileController {
 
     private final ProfileManager profileManager = new ProfileManager();
 
-    @FXML
+    /* @FXML
     private void handleAddProfile(ActionEvent event) {
         String name = profileNameField.getText();
             profileManager.createProfile(name);
             Stage stage = (Stage) profileNameField.getScene().getWindow();
             stage.close();
     }
+
+     */
 
     //Code for adminController
     // there should be loadProfiles() method with observable list to update the profile

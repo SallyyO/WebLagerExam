@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<BorderPane prefWidth="480" prefHeight="420"
+            styleClass="modal"
+            stylesheets="@CSS/app.css"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="dk.easv.weblagerexam.gui.NewProfileController">
+
+    <!-- Header -->
+    <top>
+        <VBox>
+
+            <!-- HEADER BAR -->
+            <HBox alignment="CENTER_LEFT"
+                  prefHeight="60"
+                  styleClass="modal-header">
+
+                <padding>
+                    <Insets left="20"/>
+                </padding>
+
+                <!-- Logo -->
+                <ImageView fitHeight="30"
+                           preserveRatio="true">
+
+                    <image>
+                        <Image url="@/Images/LogoBlueH.png"/>
+                    </image>
+
+                </ImageView>
+
+                <!-- Spacer -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Title -->
+                <Label text="Create New Profile"
+                       styleClass="text-h3"/>
+            </HBox>
+
+            <Label text="Will be applied to all files in a box during scanning and export"
+                   styleClass="text-helper"
+                   wrapText="true"
+                   style="-fx-padding: 0 20 10 20;"/>
+
+        </VBox>
+    </top>
+
+    <!-- Form body -->
+    <center>
+        <VBox styleClass="modal-content" spacing="18">
+            <padding><Insets top="12" right="0" bottom="0" left="0"/></padding>
+
+            <!-- Profile name -->
+            <VBox spacing="6">
+                <Label text="Profile Name" styleClass="label-medium"/>
+                <TextField fx:id="txtName" promptText="e.g. Grayscale"/>
+                <Label fx:id="lblNameError" styleClass="error"
+                       visible="false" managed="false"/>
+            </VBox>
+
+            <!-- Settings type -->
+            <VBox spacing="6">
+                <Label text="Profile setting" styleClass="label-medium"/>
+                <ComboBox fx:id="cmbSettings"
+                          promptText="Select the settings to apply"
+                          maxWidth="Infinity"
+                          onAction="#onSettingsChanged"/>
+                <Label fx:id="lblSettingsError" styleClass="error"
+                       visible="false" managed="false"/>
+            </VBox>
+
+            <!-- Value input — shown only for ROTATE and BRIGHTEN -->
+            <VBox fx:id="valueSection" spacing="6" visible="false" managed="false">
+                <Label fx:id="lblValueDescription" text="Value" styleClass="label-medium"/>
+                <TextField fx:id="txtValue" promptText="Enter a number"/>
+                <Label fx:id="lblValueError" styleClass="error"
+                       visible="false" managed="false"/>
+            </VBox>
+
+            <!-- Live description -->
+            <Label fx:id="lblPreview" text="" styleClass="text-helper" wrapText="true"/>
+
+        </VBox>
+    </center>
+
+    <!-- Footer buttons -->
+    <bottom>
+        <HBox styleClass="modal-footer" spacing="9" alignment="CENTER_RIGHT">
+            <Button text="Cancel" onAction="#cancel"
+                    styleClass="button, button-tertiary"/>
+            <Button fx:id="btnCreate" text="Create Profile" onAction="#createProfile"
+                    styleClass="button, button-primary"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

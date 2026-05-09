@@ -6,7 +6,6 @@ public class DAOManager {
     private BoxDAO boxDAO = new BoxDAO();
     private LogDAO logDAO = new LogDAO();
 
-
     public DAOManager() {
         userDAO = new UserDAO();
     }

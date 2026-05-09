@@ -10,22 +10,22 @@ import java.util.List;
 public class UserDAO {
     ConnectionManager conMan = new ConnectionManager();
 
-    public User getUser(String email) {
+    public User getUser(String initials) {
         try (Connection con = conMan.getConnection()) {
-            String sql = "SELECT * FROM Users WHERE email = ?";
+            String sql = "SELECT * FROM Users WHERE initials = ?";
             PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setString(1, email);
+            stmt.setString(1, initials);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt("id");
                 String role = rs.getString("role");
                 String username = rs.getString("username");
-                //No point asking for email since we already have it
                 String password = rs.getString("password");
                 String salt = rs.getString("salt");
-                return new User(id,username, role, email, password, salt);
+
+                return new User(id, username, role, initials, password, salt);
             } else {
-                return null; // No user found with the given email
+                return null;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -34,11 +34,11 @@ public class UserDAO {
 
     public void addUser(User user) {
         try (Connection con = conMan.getConnection()) {
-            String sql = "INSERT INTO Users (role, username, email, password, salt) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Users (role, username, initials, password, salt) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, user.getRole());
             stmt.setString(2, user.getUsername());
-            stmt.setString(3, user.getEmail());
+            stmt.setString(3, user.getInitials());
             stmt.setString(4, user.getPassword());
             stmt.setString(5, user.getSalt());
             stmt.executeUpdate();
@@ -63,9 +63,8 @@ public class UserDAO {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
-        // only fetching non deleted users
         try (Connection con = conMan.getConnection()) {
-            String sql = "SELECT * FROM Users WHERE isDeleted=0";
+            String sql = "SELECT * FROM Users";
             PreparedStatement stmt = con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
 
@@ -73,11 +72,11 @@ public class UserDAO {
                 int id = rs.getInt("id");
                 String role = rs.getString("role");
                 String username = rs.getString("username");
-                String email = rs.getString("email");
+                String initials = rs.getString("initials");
                 String password = rs.getString("password");
                 String salt = rs.getString("salt");
 
-                users.add(new User(id, username, role, email, password, salt));
+                users.add(new User(id, username, role, initials, password, salt));
             }
 
         } catch (SQLException e) {
@@ -124,7 +123,7 @@ public class UserDAO {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                profiles.add(new Profile(rs.getInt("id"), rs.getString("name"),rs.getInt("customer_id")));
+                profiles.add(new Profile(rs.getInt("id"), rs.getString("name")));
 
             }
 

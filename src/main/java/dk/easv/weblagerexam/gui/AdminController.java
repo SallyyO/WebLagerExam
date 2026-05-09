@@ -1,7 +1,9 @@
 package dk.easv.weblagerexam.gui;
 
+import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.LogManager;
+import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.bll.UserManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,8 +18,15 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class AdminController {
+
+    @FXML
+    private Label lblUsername;
+
+    @FXML
+    private Label lblInitials;
 
     @FXML
     private Button addUserBtn;
@@ -52,16 +61,29 @@ public class AdminController {
     private UserManager userManager = new UserManager();
     LogManager logManager = new LogManager();
 
+
     @FXML
     public void initialize() {
+
+        User user = SessionManager.getCurrentUser();
+
+        if (user != null) {
+
+            lblUsername.setText(
+                    user.getUsername()
+            );
+
+            lblInitials.setText(
+                    user.getInitials()
+            );
+        }
+
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
 
         loadUsers();
-
     }
-
 
 
     @FXML
@@ -118,7 +140,7 @@ public class AdminController {
             return;
         }
         try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("FXML/editUser.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("editUser.fxml"));
             Parent root = loader.load();
 
             EditUserControllers controller = loader.getController();
@@ -152,7 +174,7 @@ public class AdminController {
             mainTable.setManaged(false);
             // TODO: Change the table for a log table
             //mainTable.setItems(
-                    //FXCollections.observableArrayList(logManager.getAllLogs())
+            //FXCollections.observableArrayList(logManager.getAllLogs())
             //);
         } catch (Exception e) {
             showError("Could not load Log", e.getMessage());
@@ -166,22 +188,14 @@ public class AdminController {
     }
 
     private void loadUsers()  {
-       /* try{
+       try{
             mainTable.setItems(
                     FXCollections.observableArrayList(userManager.getAllUsers()));
         }
         catch (Exception e){
             showError("Could not load users", e.getMessage());
         }
-        */
-        ObservableList<User> mockUsers = FXCollections.observableArrayList();
 
-        mockUsers.add(new User(1, "Obama What's His last Name?", "Admin"));
-        mockUsers.add(new User(2, "Bob", "User"));
-        mockUsers.add(new User(3, "Lange Grethe", "User"));
-        mockUsers.add(new User(4, "Bobby", "Admin"));
-
-        mainTable.setItems(mockUsers);
     }
 
     private void showError(String title, String message) {
@@ -190,4 +204,31 @@ public class AdminController {
         alert.setContentText(message);
         alert.show();
     }
+    /* we need a button for this
+    @FXML
+    private void openNewProfileDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(
+                    getClass().getResource("/dk/easv/weblagerexam/newProfile.fxml")));
+            Parent root = loader.load();
+            NewProfileController controller = loader.getController();
+
+            Stage dialog = new Stage();
+            dialog.setTitle("Create Profile");
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initOwner(!!!!insert button.getScene().getWindow());
+            dialog.setScene(new Scene(root));
+            dialog.setResizable(false);
+            dialog.showAndWait();
+
+            if (controller.isConfirmed()) {
+                Profile created = controller.getCreatedProfile();
+                System.out.println("Created profile: " + created.getName());
+                // Refresh your profile list in the admin UI here
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not open profile dialog", e);
+        }
+    }
+    */
 }

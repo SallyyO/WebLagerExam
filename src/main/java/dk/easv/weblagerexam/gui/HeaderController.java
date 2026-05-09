@@ -61,6 +61,18 @@ public class HeaderController {
                 parts[parts.length - 1].substring(0, 1)).toUpperCase();
     }
 
+    public void setUser(String fullName, String initials) {
+        usernameLabel.setText(fullName);
+
+        // Use DB initials directly rather than computing from name
+        avatarLabel.setText(initials != null && !initials.isBlank()
+                ? initials.toUpperCase()
+                : getInitials(fullName));  // fallback if initials column is empty
+
+        userSection.setVisible(true);
+        userSection.setManaged(true);
+    }
+
     public void clearUser() {
         hideUser();
     }
