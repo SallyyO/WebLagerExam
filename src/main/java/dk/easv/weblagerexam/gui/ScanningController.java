@@ -14,6 +14,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -38,6 +39,7 @@ public class ScanningController{
     @FXML private Button btnPauseScan;
     @FXML private Button btnStopScan;
     @FXML private Label lblStatus;
+    @FXML private ProgressBar progressBar;
 
     @FXML private Label lblUsername;
     @FXML private Label lblInitials;
@@ -95,18 +97,16 @@ public class ScanningController{
     @FXML
     public void startScan() {
 
-       /* Removed for now to look at the scanning without all this stuff
+       //Removed for now to look at the scanning without all this stuff
        // Show the prescan stuff first
         Box selectedBox = showPreScanDialog();
         if (selectedBox == null) return; // user canceled
         activeProfile = selectedBox.getProfile();
 
         activeBox = selectedBox;
-        System.out.println(
-                "Starting scan for Box #" + activeBox.getId()
-        );
+        documentManager.setActiveBoxId(activeBox.getId());
 
-        */
+
 
         paused  = false;
         stopped = false;
@@ -114,6 +114,9 @@ public class ScanningController{
         btnStartScan.setDisable(true);
         btnPauseScan.setDisable(false);
         btnStopScan.setDisable(false);
+        progressBar.setVisible(true);
+        progressBar.setManaged(true);
+        progressBar.setProgress(-1);
         btnPauseScan.setText("Pause");
         lblStatus.setText("Scanning...");
 
@@ -121,40 +124,56 @@ public class ScanningController{
             @Override
             protected Void call() throws Exception {
 
-                while (!stopped) {  // run until user stops
+                try {
+                    while (!stopped) {
 
-                    while (paused && !stopped) {
-                        Thread.sleep(200);
-                    }
-                    if (stopped) break;
-
-                    File file = dao.getLocalTiffDAO().fetchNext();
-
-                    DocumentManager.ScanResult result =
-                            documentManager.processFileScan(file);
-
-                    Platform.runLater(() -> {
-                        lblStatus.setText(
-                                "Scanned: " + documentManager.getTotalScans()
-                                        + " file(s) — "
-                                        + documentManager.getTotalDocuments()
-                                        + " completed document(s)"
-                        );
-
-                        if (result == DocumentManager.ScanResult.BARCODE) {
-                            // A barcode was just scanned — it's now page 1 of the
-                            // NEW current document. Show that new (barcode-only) doc.
-                            loadDocument(documentManager.getCurrentDocument());
-                        } else {
-                            // Normal page added — show live current document
-                            loadDocument(documentManager.getCurrentDocument());
+                        while (paused && !stopped) {
+                            Thread.sleep(200);
                         }
-                    });
+                        if (stopped) break;
 
-                    Thread.sleep(500);
+                        File file = dao.getLocalTiffDAO().fetchNext();
+                        DocumentManager.ScanResult result = documentManager.processFileScan(file);
+
+                        // Convert image on background thread, we dont want it to do all the heavy lifting here
+                        Image image = TiffConverter.toJavaFXImage(
+                                file.getImageData(), activeProfile);
+
+                        Platform.runLater(() -> {
+                            // Full bar
+                            progressBar.setProgress(1.0);
+
+                            // RETURN TO ANIMATED STATE
+                            new Thread(() -> {
+                                try {
+                                    Thread.sleep(200);
+                                } catch (InterruptedException ignored) {}
+
+                                Platform.runLater(() ->
+                                        progressBar.setProgress(-1));
+                            }).start();
+
+                            lblStatus.setText(
+                                    "Scanned: "
+                                            + documentManager.getTotalScans()
+                                            + " file(s) — "
+                                            + documentManager.getTotalDocuments()
+                                            + " completed document(s)"
+                            );
+                            // Pass the already-converted image so JavaFX thread aint doing any heavy work
+                            loadDocumentWithImage(documentManager.getCurrentDocument(),
+                                    file, image);
+                        });
+
+                        Thread.sleep(500);
+                    }
+
+                } catch (Exception e) {
+                    // Trying to figure out why it stops after 6 files
+                    System.err.println("Scan loop stopped due to exception: " + e.getMessage());
+                    e.printStackTrace();
                 }
 
-                // User clicked stop — save whatever is being built
                 documentManager.finalizeLastDocument();
 
                 Platform.runLater(() -> {
@@ -163,13 +182,17 @@ public class ScanningController{
                         loadDocument(completed.getLast());
 
                     lblStatus.setText(
-                            "Stopped — "
+                            (stopped ? "Stopped" : "Done") + " — "
                                     + documentManager.getTotalDocuments() + " document(s), "
                                     + documentManager.getTotalScans() + " total scan(s)"
                     );
                     btnStartScan.setDisable(false);
                     btnPauseScan.setDisable(true);
                     btnStopScan.setDisable(true);
+
+                    // HIDE BAR WHEN FINISHED
+                    progressBar.setVisible(false);
+                    progressBar.setManaged(false);
                 });
 
                 return null;
@@ -264,9 +287,14 @@ public class ScanningController{
         paused = !paused;
         if (paused) {
             btnPauseScan.setText("Resume");
+            // Frozen bar = paused state
+            progressBar.setProgress(0);
+
             lblStatus.setText("Paused — " + documentManager.getTotalScans() + " scanned so far");
         } else {
             btnPauseScan.setText("Pause");
+            // Back to animated scanning state
+            progressBar.setProgress(-1);
             lblStatus.setText("Resuming...");
         }
     }
@@ -451,6 +479,25 @@ public class ScanningController{
 
         } catch (Exception e) {
             throw new RuntimeException("Could not open pre-scan dialog", e);
+        }
+    }
+
+    private void loadDocumentWithImage(Document document, File latestFile, Image latestImage) {
+        thumbnailContainer.getChildren().clear();
+
+        List<File> files = new ArrayList<>(document.getFiles());
+        for (File file : files) {
+            // Use the pre-converted image for the latest file
+            Image image = file == latestFile
+                    ? latestImage
+                    : TiffConverter.toJavaFXImage(file.getImageData(), activeProfile);
+            if (image == null) image = new WritableImage(120, 160);
+            addThumbnail(document, file, image);
+        }
+
+        // Show latest file in main preview
+        if (latestImage != null) {
+            mainPreview.setImage(latestImage);
         }
     }
 }

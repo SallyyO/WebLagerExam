@@ -18,6 +18,7 @@
 <?import javafx.scene.shape.Circle?>
 
 
+<?import javafx.scene.control.ProgressBar?>
 <BorderPane prefWidth="1200" prefHeight="800"
             stylesheets="@CSS/app.css"
             xmlns:fx="http://javafx.com/fxml"
@@ -92,6 +93,19 @@
                 <Label fx:id="lblStatus"
                        text="Ready"
                        styleClass="text-helper"/>
+
+                <!-- Skeleton-style loading bar — hidden until scanning starts -->
+                <ProgressBar fx:id="progressBar"
+                             prefWidth="120"
+                             prefHeight="6"
+                             progress="-1"
+                             visible="false"
+                             managed="false"
+                             style="-fx-accent: #2D3D4F;
+
+                    -fx-background-color: #E2E4E8;
+                    -fx-background-radius: 3;
+                    -fx-border-radius: 3;"/>
 
             </HBox>
         </VBox>

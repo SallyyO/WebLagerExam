@@ -29,12 +29,12 @@ public class PreScanController {
     public void initialize() {
         User currentUser = SessionManager.getCurrentUser();
 
-        // Load profiles for the current user
         try {
             List<Profile> profiles = dao.getProfileDAO().getProfilesForUser(currentUser.getId());
             cmbProfile.getItems().addAll(profiles);
         } catch (Exception e) {
             System.err.println("Could not load profiles: " + e.getMessage());
+            e.printStackTrace(); // print full stack
         }
 
         // Only allow numbers in Box ID field
@@ -56,11 +56,14 @@ public class PreScanController {
             return;
         }
 
+        int boxId = Integer.parseInt(boxIdText);
+
         User currentUser = SessionManager.getCurrentUser();
         Profile selectedProfile = cmbProfile.getValue();
         int profileId = selectedProfile != null ? selectedProfile.getId() : 0;
 
         Box box = new Box(currentUser.getId());
+        box.setBoxId(boxId);
         box.setProfileId(profileId);
         box.setProfile(selectedProfile); // stores the full object
         dao.getBoxDAO().saveBox(box);

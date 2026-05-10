@@ -50,31 +50,25 @@ public class DocumentDAO {
 
     private void saveFiles(Connection con, Document doc) {
 
-        String sql = "INSERT INTO [File] (file_name, file_number, document_id,is_barcode," +
-                " file_data, is_deleted) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [File] (file_number, document_id, is_barcode," +
+                " file_data, is_deleted) VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             for (File file : doc.getFiles()) {
 
-                stmt.setString(1, file.getFileName());
-                stmt.setInt(2, file.getFileNumber());
-                stmt.setInt(3, doc.getId());
-                stmt.setBoolean(4, file.isBarcode());
-                stmt.setBytes(5, file.getImageData());
-                stmt.setBoolean(6, false);
-                stmt.addBatch();
-            }
+                stmt.setInt(1, file.getFileNumber());
+                stmt.setInt(2, doc.getId());
+                stmt.setBoolean(3, file.isBarcode());
+                stmt.setBytes(4, file.getImageData());
+                stmt.setBoolean(5, false);
 
-            stmt.executeBatch();
+                stmt.executeUpdate();
 
-            // Read generated IDs so file.getId() works for updateFileOrder later
-            ResultSet keys = stmt.getGeneratedKeys();
-            List<File> files = doc.getFiles();
-            int i = 0;
-            while (keys.next() && i < files.size()) {
-                files.get(i).setId(keys.getInt(1));
-                i++;
+                ResultSet keys = stmt.getGeneratedKeys();
+                if (keys.next()) {
+                    file.setId(keys.getInt(1));
+                }
             }
 
         } catch (SQLException e) {

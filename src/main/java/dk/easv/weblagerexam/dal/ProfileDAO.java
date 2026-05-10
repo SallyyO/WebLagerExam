@@ -11,29 +11,6 @@ public class ProfileDAO {
 
     ConnectionManager conMan = new ConnectionManager();
 
-    public void addProfile(Profile profile) {
-        String sql = "INSERT INTO Profiles (name, settings, settingsvalue) VALUES (?, ?, ?)";
-        try (Connection con = conMan.getConnection()) {
-            PreparedStatement ps = con.prepareStatement(sql);
-
-            ps.setString(1, profile.getName());
-
-            // enum → String for DB
-            ps.setString(2, profile.getSettings().name());
-
-            // nullable Double handling
-            if (profile.getSettingsValue() != null) {
-                ps.setDouble(3, profile.getSettingsValue());
-            } else {
-                ps.setNull(3, java.sql.Types.DOUBLE);
-            }
-
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     // Get all profiles
     public List<Profile> getAllProfiles() {
 
@@ -48,28 +25,63 @@ public class ProfileDAO {
         return fetchProfiles(sql, null);
     }
 
+    public void saveProfile(Profile profile) {
+        String sql = """
+                INSERT INTO Profiles (name, settingstype, settingsvalue)
+                VALUES (?, ?, ?)
+                """;
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(
+                    sql, Statement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, profile.getName());
+            stmt.setString(2, profile.getSettings() != null
+                    ? profile.getSettings().name()
+                    : null);
+            if (profile.getSettingsValue() != null) {
+                stmt.setDouble(3, profile.getSettingsValue());
+            } else {
+                stmt.setNull(3, java.sql.Types.DOUBLE);
+            }
+            stmt.executeUpdate();
+            ResultSet keys = stmt.getGeneratedKeys();
+            if (keys.next()) {
+                profile.setId(keys.getInt(1));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // Get profiles that are assigned to a user
     public List<Profile> getProfilesForUser(int userId) {
 
+        // DEBUGGING IGNORE THISSS
+        System.out.println("Loading profiles for user ID: " + userId);
         String sql = """
                 SELECT p.id,
                        p.name,
                        p.settingstype,
                        p.settingsvalue
                 FROM Profiles p
-                INNER JOIN UserProfile up
-                    ON p.id = up.profile_id
-                WHERE up.user_id = ?
+                INNER JOIN UsersProfiles up
+                    ON p.id = up.profileId
+                WHERE up.userId = ?
                 """;
 
-        return fetchProfiles(sql, userId);
+        List<Profile> result = fetchProfiles(sql, userId);
+
+        // DEBUGGING PT 2
+        System.out.println("Profiles found for user " + userId + ": " + result.size());
+        result.forEach(p -> System.out.println("  - " + p.getId() + ": " + p.getName()));
+
+        return result;
     }
 
     //Assign profile to a user
     public void assignProfileToUser(int userId, int profileId) {
 
         String sql = """
-                INSERT INTO UsersProfile (user_id, profile_id)
+                INSERT INTO UsersProfiles (userId, profileId)
                 VALUES (?, ?)
                 """;
 
@@ -91,9 +103,9 @@ public class ProfileDAO {
     public void removeProfileFromUser(int userId, int profileId) {
 
         String sql = """
-                DELETE FROM UsersProfile
-                WHERE user_id = ?
-                  AND profile_id = ?
+                DELETE FROM UsersProfiles
+                WHERE userId = ?
+                  AND profile?d = ?
                 """;
 
         try (Connection con = conMan.getConnection()) {
@@ -110,7 +122,6 @@ public class ProfileDAO {
         }
     }
 
-    // shared helper
     private List<Profile> fetchProfiles(String sql, Integer userId) {
 
         List<Profile> profiles = new ArrayList<>();
@@ -130,16 +141,14 @@ public class ProfileDAO {
                 // Read enum/string from DB
                 String typeStr = rs.getString("settingstype");
 
-                ProfileSettings type =
-                        typeStr != null
-                                ? ProfileSettings.valueOf(typeStr)
-                                : null;
+                ProfileSettings type = typeStr != null
+                        ? ProfileSettings.valueOf(typeStr)
+                        : null;
 
                 // Read nullable double
-                Double value =
-                        rs.getObject("settingsvalue") != null
-                                ? rs.getDouble("settingsvalue")
-                                : null;
+                Double value = rs.getObject("settingsvalue") != null
+                        ? rs.getDouble("settingsvalue")
+                        : null;
 
                 profiles.add(
                         new Profile(
@@ -153,33 +162,6 @@ public class ProfileDAO {
 
             return profiles;
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void saveProfile(Profile profile) {
-        String sql = """
-                INSERT INTO Profiles (name, settingstype, settingsvalue)
-                VALUES (?, ?, ?)
-                """;
-        try (Connection con = conMan.getConnection()) {
-            PreparedStatement stmt = con.prepareStatement(
-                    sql, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, profile.getName());
-            stmt.setString(2, profile.getSettings() != null
-                    ? profile.getSettings().name()
-                    : null);
-            if (profile.getSettingsValue() != null) {
-                stmt.setDouble(3, profile.getSettingsValue());
-            } else {
-                stmt.setNull(3, java.sql.Types.FLOAT);
-            }
-            stmt.executeUpdate();
-            ResultSet keys = stmt.getGeneratedKeys();
-            if (keys.next()) {
-                profile.setId(keys.getInt(1));
-            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

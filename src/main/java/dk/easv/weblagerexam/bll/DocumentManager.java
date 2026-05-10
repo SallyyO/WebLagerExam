@@ -16,6 +16,7 @@ public class DocumentManager {
     private final DocumentDAO documentDAO;
     private final DAOManager dao = new DAOManager();
 
+
     public DocumentManager() {
         apiDao = new ApiDAO();
         documentDAO = new DocumentDAO();
@@ -26,10 +27,12 @@ public class DocumentManager {
     private int totalDocuments = 0;
     private final List<Document> completedDocuments = new ArrayList<>();
     private Box activeBox;
+    private int activeBoxId = 0;
 
     public void setActiveBox(Box box) {
         this.activeBox = box;
     }
+    public void setActiveBoxId(int boxId) {this.activeBoxId = boxId;}
 
     /**
      * Processes a scanned or fetched file
@@ -39,6 +42,7 @@ public class DocumentManager {
         totalScans++;
         if (file.isBarcode()) {
             if (!currentDocument.isEmpty()) {
+                currentDocument.setBoxId(activeBoxId);
                 dao.getDocumentDAO().saveDocument(currentDocument);
                 completedDocuments.add(currentDocument);
                 totalDocuments++;
@@ -59,6 +63,7 @@ public class DocumentManager {
 
     public void finalizeLastDocument() throws Exception {
         if (!currentDocument.isEmpty()) {
+            currentDocument.setBoxId(activeBoxId);
             dao.getDocumentDAO().saveDocument(currentDocument);
             completedDocuments.add(currentDocument);
             totalDocuments++;

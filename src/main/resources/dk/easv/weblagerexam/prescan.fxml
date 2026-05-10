@@ -69,7 +69,7 @@
             <!-- Profile selection -->
             <VBox spacing="6">
                 <Label text="Profile" styleClass="label-medium"/>
-                <Label text="Optional — applies settings to all scanned files."
+                <Label text="Applies settings to all scanned files."
                        styleClass="text-helper"/>
                 <ComboBox fx:id="cmbProfile"
                           promptText="No profile selected"

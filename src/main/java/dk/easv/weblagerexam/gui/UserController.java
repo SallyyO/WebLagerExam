@@ -5,6 +5,7 @@ import dk.easv.weblagerexam.bll.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -75,17 +76,22 @@ public class UserController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/dk/easv/weblagerexam/scanning_page.fxml")
             );
+
             Parent root = loader.load();
 
-            Stage stage = new Stage();
-            stage.setTitle("Add User");
+            // Get current window (to replace it)
+            Stage stage = (Stage) ((Node) event.getSource())
+                    .getScene()
+                    .getWindow();
+
             stage.setScene(new Scene(root));
-            stage.show();
+            stage.setTitle("Scanning");
+
+            stage.centerOnScreen();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @FXML

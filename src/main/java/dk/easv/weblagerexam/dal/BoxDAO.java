@@ -10,7 +10,7 @@ public class BoxDAO {
     private ConnectionManager conMan = new ConnectionManager();
 
     public void addBox(Box box) {
-        String sql = "INSERT INTO Boxes (profileId) VALUES ( ?)";
+        String sql = "INSERT INTO Box (profileId) VALUES ( ?)";
         try (Connection con = conMan.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, box.getProfileId());
@@ -21,23 +21,28 @@ public class BoxDAO {
     }
 
     public int saveBox(Box box) {
-        String sql = "INSERT INTO Box (user_id, profile_id) VALUES (?, ?)";
+        String sql = "INSERT INTO Box (box_id, userId, profileId) VALUES (?, ?, ?)";
+
         try (Connection con = conMan.getConnection()) {
+
             PreparedStatement stmt = con.prepareStatement(
                     sql, Statement.RETURN_GENERATED_KEYS);
-            stmt.setInt(1, box.getUserId());
-            if (box.getProfileId() > 0) {
-                stmt.setInt(2, box.getProfileId());
-            } else {
-                stmt.setNull(2, java.sql.Types.INTEGER);
-            }
+
+            stmt.setInt(1, box.getBoxId());
+            stmt.setInt(2, box.getUserId());
+            stmt.setInt(3, box.getProfileId());
+
             stmt.executeUpdate();
+
             ResultSet keys = stmt.getGeneratedKeys();
+
             if (keys.next()) {
                 box.setId(keys.getInt(1));
                 return box.getId();
             }
+
             throw new RuntimeException("No ID generated for Box");
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -74,13 +79,13 @@ public class BoxDAO {
     }
 
     public List<Box> getAllBoxes() {
-        String sql = "SELECT id, profile_id FROM Box";
+        String sql = "SELECT id, profileId FROM Box";
         List<Box> boxes = new ArrayList<>();
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                boxes.add(new Box(rs.getInt("id"), rs.getInt("profile_id")));
+                boxes.add(new Box(rs.getInt("id"), rs.getInt("profileId")));
             }
             return boxes;
         } catch (SQLException e) {
@@ -89,7 +94,7 @@ public class BoxDAO {
     }
 
     public List<Box> getBoxesByUser(int userId) {
-        String sql = "SELECT id, user_id, profile_id FROM Box WHERE user_id = ?";
+        String sql = "SELECT id, userId, profileId FROM Box WHERE userId = ?";
         List<Box> boxes = new ArrayList<>();
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);
@@ -98,8 +103,8 @@ public class BoxDAO {
             while (rs.next()) {
                 boxes.add(new Box(
                         rs.getInt("id"),
-                        rs.getInt("user_id"),
-                        rs.getInt("profile_id")
+                        rs.getInt("userId"),
+                        rs.getInt("profileId")
                 ));
             }
             return boxes;
