@@ -12,7 +12,7 @@ public class DocumentDAO {
     ConnectionManager conMan = new ConnectionManager();
 
     public int saveDocument(Document doc) {
-        String sql = "INSERT INTO documents (box_id, created_at) VALUES (?, SYSDATETIME())\";";
+        String sql = "INSERT INTO Document (box_id, created_at) VALUES (?, SYSDATETIME())\";";
 
         try (Connection con = conMan.getConnection()) {
 
@@ -50,7 +50,7 @@ public class DocumentDAO {
 
     private void saveFiles(Connection con, Document doc) {
 
-        String sql = "INSERT INTO files(file_name, file_number, document_id,is_barcode," +
+        String sql = "INSERT INTO File (file_name, file_number, document_id,is_barcode," +
                 " file_data, is_deleted) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -83,7 +83,7 @@ public class DocumentDAO {
     }
 
     public void updateMetadata(int documentId, String metadata) {
-        String sql = "UPDATE documents SET metadata = ? WHERE id = ?";
+        String sql = "UPDATE Document SET metadata = ? WHERE id = ?";
 
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);
@@ -96,7 +96,7 @@ public class DocumentDAO {
     }
 
     public int getTotalDocumentCount() {
-        String sql = "SELECT COUNT(*) FROM documents";
+        String sql = "SELECT COUNT(*) FROM Document";
 
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);
@@ -111,7 +111,7 @@ public class DocumentDAO {
     }
 
     public void updateFileOrder(Document doc) {
-        String sql = "UPDATE files SET file_number = ? WHERE document_id = ? AND id = ?";
+        String sql = "UPDATE File SET file_number = ? WHERE document_id = ? AND id = ?";
 
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);

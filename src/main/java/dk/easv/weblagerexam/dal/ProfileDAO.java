@@ -69,7 +69,7 @@ public class ProfileDAO {
     public void assignProfileToUser(int userId, int profileId) {
 
         String sql = """
-                INSERT INTO UserProfile (user_id, profile_id)
+                INSERT INTO UsersProfile (user_id, profile_id)
                 VALUES (?, ?)
                 """;
 
@@ -91,7 +91,7 @@ public class ProfileDAO {
     public void removeProfileFromUser(int userId, int profileId) {
 
         String sql = """
-                DELETE FROM UserProfile
+                DELETE FROM UsersProfile
                 WHERE user_id = ?
                   AND profile_id = ?
                 """;

@@ -4,6 +4,7 @@ import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.Document;
 import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.dal.ApiDAO;
+import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.dal.DocumentDAO;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class DocumentManager {
 
     private final ApiDAO apiDao;
     private final DocumentDAO documentDAO;
+    private final DAOManager dao = new DAOManager();
 
     public DocumentManager() {
         apiDao = new ApiDAO();
@@ -29,23 +31,20 @@ public class DocumentManager {
         this.activeBox = box;
     }
 
-    //Was used when we fetched from the api
-    public ScanResult processNextScan() throws Exception {
-        File file = apiDao.fetchNext();
+    /**
+     * Processes a scanned or fetched file
+     * works with both the locally stored ones and with files fetched from the api
+     */
+    public ScanResult processFileScan(File file) throws Exception {
         totalScans++;
-
         if (file.isBarcode()) {
-            // Finalize whatever was being built
             if (!currentDocument.isEmpty()) {
-                documentDAO.saveDocument(currentDocument);
+                dao.getDocumentDAO().saveDocument(currentDocument);
                 completedDocuments.add(currentDocument);
                 totalDocuments++;
             }
-
-            // Start the NEW document with the barcode page as its first file
             currentDocument = new Document();
-            currentDocument.addFile(file); // barcode is always page 1
-
+            currentDocument.addFile(file);
             return ScanResult.BARCODE;
         } else {
             currentDocument.addFile(file);
@@ -53,31 +52,14 @@ public class DocumentManager {
         }
     }
 
-    /**
-     * Same logic as processNextScan() but accepts a pre-fetched File.
-     * Used for the local tiff-stuff rn
-     */
-    public ScanResult processFileScan(File file) throws Exception {
-        totalScans++;
-
-        if (file.isBarcode()) {
-            if (!currentDocument.isEmpty()) {
-                documentDAO.saveDocument(currentDocument);
-                completedDocuments.add(currentDocument);
-                totalDocuments++;
-            }
-            currentDocument = new Document();
-            currentDocument.addFile(file); // barcode is page 1 of new doc
-            return ScanResult.BARCODE;
-        } else {
-            currentDocument.addFile(file);
-            return ScanResult.PAGE_ADDED;
-        }
+    //Just fetches files from API and sends them to the method above this
+    public ScanResult processNextScan() throws Exception {
+        return processFileScan(dao.getApiDAO().fetchNext());
     }
 
     public void finalizeLastDocument() throws Exception {
         if (!currentDocument.isEmpty()) {
-            documentDAO.saveDocument(currentDocument);
+            dao.getDocumentDAO().saveDocument(currentDocument);
             completedDocuments.add(currentDocument);
             totalDocuments++;
             currentDocument = new Document();
@@ -85,20 +67,20 @@ public class DocumentManager {
     }
 
     public void saveMetadata(int documentId, String metadata) throws Exception {
-        documentDAO.updateMetadata(documentId, metadata);
+        dao.getDocumentDAO().updateMetadata(documentId, metadata);
     }
 
     // Getters
 
     public Document getCurrentDocument() {return currentDocument;}
 
-    public boolean hasMore() throws Exception {return apiDao.hasMore();}
+    public boolean hasMore() throws Exception {return dao.getApiDAO().hasMore();}
 
     public int getTotalScans() {return totalScans;}
 
     public int getTotalDocuments() {return totalDocuments;}
 
-    public int getTotalAvailable() throws Exception {return apiDao.getTotalCount();}
+    public int getTotalAvailable() throws Exception {return dao.getApiDAO().getTotalCount();}
 
     public List<Document> getCompletedDocuments() {return completedDocuments;}
 

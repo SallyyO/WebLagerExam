@@ -3,14 +3,12 @@ package dk.easv.weblagerexam.bll;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.ProfileSettings;
 import dk.easv.weblagerexam.dal.DAOManager;
-import dk.easv.weblagerexam.dal.ProfileDAO;
 
 import java.util.List;
 
 public class ProfileManager {
 
-    private final ProfileDAO profileDAO = new ProfileDAO();
-    private final DAOManager dao =  new DAOManager(); //Idk why it didn't want to work, i kept getting errors. This will be changed tho
+    private final DAOManager dao =  new DAOManager();
     private final LogManager  logManager = new LogManager();
 
 
@@ -19,25 +17,25 @@ public class ProfileManager {
         Profile profile = new Profile(name);
         profile.setSettings(settings);
         profile.setSettingsValue(value);
-        profileDAO.saveProfile(profile); // sets profile.id from DB
+        dao.getProfileDAO().saveProfile(profile); // sets profile.id from DB
 
         return profile;
     }
 
     public List<Profile> getAllProfiles() {
-        return profileDAO.getAllProfiles();
+        return dao.getProfileDAO().getAllProfiles();
     }
 
     public List<Profile> getProfilesForUser(int userId) {
-        return profileDAO.getProfilesForUser(userId);
+        return dao.getProfileDAO().getProfilesForUser(userId);
     }
 
     public void assignProfileToUser(int userId, int profileId) {
-        profileDAO.assignProfileToUser(userId, profileId);
+        dao.getProfileDAO().assignProfileToUser(userId, profileId);
     }
 
     public void removeProfileFromUser(int userId, int profileId) {
-        profileDAO.removeProfileFromUser(userId, profileId);
+        dao.getProfileDAO().removeProfileFromUser(userId, profileId);
     }
 
     public void deleteProfile(Profile profileID) throws Exception {

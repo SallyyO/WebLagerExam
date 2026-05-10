@@ -3,8 +3,8 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.*;
 import dk.easv.weblagerexam.bll.DocumentManager;
 import dk.easv.weblagerexam.bll.SessionManager;
+import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.dal.DocumentDAO;
-import dk.easv.weblagerexam.dal.LocalTiffDAO;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -53,6 +53,10 @@ public class ScanningController{
     private static final double ZOOM_MAX = 4.0;
     private static final double ZOOM_STEP = 0.1;
 
+    private VBox dragSource = null;
+    private final DocumentManager documentManager = new DocumentManager();
+    private final DAOManager dao = new DAOManager();
+
     @FXML
     public void initialize() {
 
@@ -80,10 +84,6 @@ public class ScanningController{
             }
         });
     }
-
-    private VBox dragSource = null;
-    private final DocumentManager documentManager = new DocumentManager();
-    private final LocalTiffDAO localTiffDAO = new LocalTiffDAO();
 
     // Lets the background thread see changes immediately
     private volatile boolean paused = false;
@@ -128,7 +128,7 @@ public class ScanningController{
                     }
                     if (stopped) break;
 
-                    File file = localTiffDAO.fetchNext();
+                    File file = dao.getLocalTiffDAO().fetchNext();
 
                     DocumentManager.ScanResult result =
                             documentManager.processFileScan(file);

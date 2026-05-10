@@ -4,8 +4,7 @@ import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.SessionManager;
-import dk.easv.weblagerexam.dal.BoxDAO;
-import dk.easv.weblagerexam.dal.ProfileDAO;
+import dk.easv.weblagerexam.dal.DAOManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -21,8 +20,7 @@ public class PreScanController {
     @FXML private Label lblBoxError;
     @FXML private Button btnStart;
 
-    private final ProfileDAO profileDAO = new ProfileDAO();
-    private final BoxDAO boxDAO = new BoxDAO();
+    private final DAOManager dao = new DAOManager();
 
     private Box resultBox = null;
     private boolean confirmed = false;
@@ -33,7 +31,7 @@ public class PreScanController {
 
         // Load profiles for the current user
         try {
-            List<Profile> profiles = profileDAO.getProfilesForUser(currentUser.getId());
+            List<Profile> profiles = dao.getProfileDAO().getProfilesForUser(currentUser.getId());
             cmbProfile.getItems().addAll(profiles);
         } catch (Exception e) {
             System.err.println("Could not load profiles: " + e.getMessage());
@@ -65,7 +63,7 @@ public class PreScanController {
         Box box = new Box(currentUser.getId());
         box.setProfileId(profileId);
         box.setProfile(selectedProfile); // stores the full object
-        boxDAO.saveBox(box);
+        dao.getBoxDAO().saveBox(box);
 
         resultBox = box;
         confirmed = true;

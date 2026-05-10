@@ -5,23 +5,37 @@ public class DAOManager {
     private ProfileDAO profileDAO = new ProfileDAO();
     private BoxDAO boxDAO = new BoxDAO();
     private LogDAO logDAO = new LogDAO();
+    private DocumentDAO documentDAO = new DocumentDAO();
+    private LocalTiffDAO localTiffDAO = new LocalTiffDAO();
+    private ApiDAO apiDAO = new ApiDAO();
 
-    public DAOManager() {
-        userDAO = new UserDAO();
-    }
 
-    public UserDAO getUserDAO()
-    {
+    public UserDAO getUserDAO() {
         return userDAO;
     }
-    public ProfileDAO  getProfileDAO()
-    {
+
+    public ProfileDAO getProfileDAO() {
         return profileDAO;
     }
-    public BoxDAO getBoxDAO(){
+
+    public BoxDAO getBoxDAO() {
         return boxDAO;
     }
-    public LogDAO getLogDAO(){
+
+    public LogDAO getLogDAO() {
         return logDAO;
     }
+
+    public DocumentDAO getDocumentDAO() {
+        return documentDAO;
+    }
+
+    public LocalTiffDAO getLocalTiffDAO() {
+        return localTiffDAO;
+    }
+
+    public ApiDAO getApiDAO() {
+        return apiDAO;
+    }
 }
+

@@ -65,7 +65,7 @@ public class ApiDAO {
 
     /**
      * Uses ZXing to attempt to decode any barcode in the image.
-     * Look at pages to see if there are any barcodes — ZXing will decode them hopefully
+     * Looks at pages to see if there are any barcodes — ZXing will decode them hopefully
      * ignore this stuff for now tho
      */
     private boolean containsBarcode(byte[] data) {
@@ -112,7 +112,6 @@ public class ApiDAO {
 
     public static BufferedImage readTiff(byte[] data) {
         try {
-            // TwelveMonkeys registered via ServiceLoader — ImageIO.read() just works now
             return ImageIO.read(new ByteArrayInputStream(data));
         } catch (Exception e) {
             return null;
