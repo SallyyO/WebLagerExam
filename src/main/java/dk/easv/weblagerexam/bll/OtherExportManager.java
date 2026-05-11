@@ -9,7 +9,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.List;
 
-public class ExportManager {
+public class OtherExportManager {
 
     /**
      * Exports all documents in a box to a folder named {profileName}_{boxId}.
