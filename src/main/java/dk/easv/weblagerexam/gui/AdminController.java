@@ -92,9 +92,12 @@ public class AdminController {
             );
             Parent root = loader.load();
 
+
             Stage stage = new Stage();
             stage.setTitle("Add User");
             stage.setScene(new Scene(root));
+            AddNewUserController controller = (AddNewUserController) loader.getController();
+            controller.setAdminController(this);
             stage.show();
 
         } catch (IOException e) {
@@ -138,11 +141,12 @@ public class AdminController {
             return;
         }
         try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("editUser.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dk/easv/weblagerexam/addNewUser.fxml"));
             Parent root = loader.load();
 
-            EditUserControllers controller = loader.getController();
+            AddNewUserController controller = loader.getController();
             controller.setUser(selectedUser);
+
 
             Stage stage = new Stage();
             stage.setTitle("Edit User");
@@ -185,7 +189,7 @@ public class AdminController {
         loadUsers();
     }
 
-    private void loadUsers()  {
+    public void loadUsers()  {
        try{
             mainTable.setItems(
                     FXCollections.observableArrayList(userManager.getAllUsers()));

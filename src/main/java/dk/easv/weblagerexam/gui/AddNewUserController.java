@@ -1,5 +1,6 @@
 package dk.easv.weblagerexam.gui;
 
+import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.PasswordManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -30,28 +31,48 @@ public class AddNewUserController {
         roleComboBox.getItems().addAll("Admin", "User");
     }
 
-    @FXML
-    void onSaveClicked() {
-        try {
-            String username = txtUsername.getText().trim();
-            String initials = txtInitials.getText().trim();
-            String password = txtPassword.getText().trim();
-            String role = roleComboBox.getValue();
+    private AdminController adminController;
+    private User user;
 
-            if (username.isEmpty() || initials.isEmpty() || password.isEmpty() || role == null) {
-                showError("Please fill out all fields");
-                return;
+    @FXML
+    void onSaveClicked() throws Exception {
+        PasswordManager pm = new PasswordManager();
+        if (user != null) {
+            if (!txtPassword.getText().isEmpty()) {
+                String newPassword = txtPassword.getText();
+                pm.editUser(user.getId(), txtUsername.getText(), txtInitials.getText(), roleComboBox.getSelectionModel().getSelectedItem(), txtPassword.getText());
+            }
+            else {
+                pm.editUser(user.getId(),txtUsername.getText(), txtInitials.getText(), roleComboBox.getSelectionModel().getSelectedItem(), null);
             }
 
-            PasswordManager pm = new PasswordManager();
-            pm.AddUser(role, username, initials, password);
+            }
+         else {
+            try {
+                String username = txtUsername.getText().trim();
+                String initials = txtInitials.getText().trim();
+                String password = txtPassword.getText().trim();
+                String role = roleComboBox.getValue();
 
-            closeWindow();
+                if (username.isEmpty() || initials.isEmpty() || password.isEmpty() || role == null) {
+                    showError("Please fill out all fields");
+                    return;
+                }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("Error: " + e.getMessage());
+
+                pm.AddUser(role, username, initials, password);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                showError("Error: " + e.getMessage());
+            }
         }
+        if (adminController != null) {
+            adminController.loadUsers();
+        }
+        closeWindow();
+
+
     }
 
     @FXML
@@ -69,5 +90,16 @@ public class AddNewUserController {
         alert.setTitle("Error");
         alert.setContentText(msg);
         alert.show();
+    }
+
+    public void setAdminController(AdminController adminController) {
+        this.adminController = adminController;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        this.txtUsername.setText(user.getUsername());
+        this.txtInitials.setText(user.getInitials());
+        this.roleComboBox.setValue(user.getRole());
     }
 }

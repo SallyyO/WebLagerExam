@@ -13,7 +13,7 @@ public class BoxDAO {
         String sql = "INSERT INTO Box (box_id, meta_data,userId, profileId) VALUES (?,?,?,?)";
         try (Connection con = conMan.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, box.getBoxId());
+            ps.setInt(1, box.getBoxId());
             ps.setString(2,box.getMetaData());
             ps.setInt(3, box.getUserId());
             ps.setInt(4, box.getProfileId());
@@ -32,7 +32,7 @@ public class BoxDAO {
             PreparedStatement stmt = con.prepareStatement(
                     sql, Statement.RETURN_GENERATED_KEYS);
 
-            stmt.setString(1, box.getBoxId());
+            stmt.setInt(1, box.getBoxId());
             stmt.setString(2, box.getMetaData());
             stmt.setInt(3, box.getUserId());
             stmt.setInt(4, box.getProfileId());
