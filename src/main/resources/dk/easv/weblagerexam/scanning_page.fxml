@@ -71,6 +71,10 @@
                          -fx-border-width: 0 0 1 0;
                          -fx-background-color: white;">
 
+                <Button text="← Back"
+                        onAction="#onBackClicked"
+                        styleClass="btn-primary"/>
+
                 <Button fx:id="btnStartScan"
                         text="Start Scan"
                         onAction="#startScan"

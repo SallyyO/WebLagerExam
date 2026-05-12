@@ -8,8 +8,10 @@ import dk.easv.weblagerexam.dal.DocumentDAO;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -27,6 +29,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -54,6 +57,10 @@ public class ScanningController{
     private static final double ZOOM_MIN = 0.3;
     private static final double ZOOM_MAX = 4.0;
     private static final double ZOOM_STEP = 0.1;
+
+    private List<File> currentFiles = new ArrayList<>(); // flat list of all files in view
+    private int currentFileIndex = 0; // which file is shown in mainPreview
+    private double currentRotation = 0; // current rotation of displayed image
 
     private VBox dragSource = null;
     private final DocumentManager documentManager = new DocumentManager();
@@ -85,6 +92,21 @@ public class ScanningController{
                 mainPreview.setFitHeight(700 * zoomFactor);
             }
         });
+
+
+        // handle keyboard focus n all
+        mainScrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.setOnKeyPressed(event -> {
+                    switch (event.getCode()) {
+                        case S -> nextFile();
+                        case W  -> previousFile();
+                        case R     -> rotateCurrentFile(90);
+                        case L     -> rotateCurrentFile(-90);
+                    }
+                });
+            }
+        });
     }
 
     // Lets the background thread see changes immediately
@@ -92,13 +114,10 @@ public class ScanningController{
     private volatile boolean stopped = false;
 
 
-    // scanning controls
 
     @FXML
     public void startScan() {
 
-       //Removed for now to look at the scanning without all this stuff
-       // Show the prescan stuff first
         Box selectedBox = showPreScanDialog();
         if (selectedBox == null) return; // user canceled
         activeProfile = selectedBox.getProfile();
@@ -169,7 +188,7 @@ public class ScanningController{
                     }
 
                 } catch (Exception e) {
-                    // Trying to figure out why it stops after 6 files
+
                     System.err.println("Scan loop stopped due to exception: " + e.getMessage());
                     e.printStackTrace();
                 }
@@ -312,26 +331,34 @@ public class ScanningController{
 
     public void loadDocument(Document document) {
         thumbnailContainer.getChildren().clear();
+        currentFiles = new ArrayList<>(document.getFiles());
+        currentFileIndex = 0;
+        currentRotation = 0;
 
-        List<File> files = new ArrayList<>(document.getFiles());
-        for (File file : files) {
+        for (int i = 0; i < currentFiles.size(); i++) {
+            File file = currentFiles.get(i);
             Image image = TiffConverter.toJavaFXImage(file.getImageData(), activeProfile);
             if (image == null) image = new WritableImage(120, 160);
-            addThumbnail(document, file, image);
+            addThumbnail(document, file, image, i); // pass index
         }
 
-        if (!document.getFiles().isEmpty()) {
+        if (!currentFiles.isEmpty()) {
             Image first = TiffConverter.toJavaFXImage(
-                    document.getFiles().getFirst().getImageData(), activeProfile);
+                    currentFiles.getFirst().getImageData(), activeProfile);
             mainPreview.setImage(first);
+            mainPreview.setRotate(0);
         }
+
+        // Request focus so keyboard events work immediately
+        mainScrollPane.requestFocus();
     }
 
-    private void addThumbnail(Document document, File file, Image image) {
+    private void addThumbnail(Document document, File file, Image image, int index) {
         ImageView thumb = new ImageView(image);
         thumb.setFitWidth(120);
         thumb.setFitHeight(150);
         thumb.setPreserveRatio(true);
+
 
         Label pageLabel = new Label("Page " + file.getFileNumber());
 
@@ -402,8 +429,14 @@ public class ScanningController{
         thumbBox.setOnMouseEntered(e -> thumbBox.setStyle(hoverStyle));
         thumbBox.setOnMouseExited(e  -> thumbBox.setStyle(baseStyle));
 
-        // Click → show in main preview
-        thumbBox.setOnMouseClicked(e -> mainPreview.setImage(image));
+        // Update click handler to also track the current index
+        thumbBox.setOnMouseClicked(e -> {
+            currentFileIndex = index;
+            currentRotation = 0;
+            mainPreview.setImage(image);
+            mainPreview.setRotate(0);
+            highlightThumbnail(index);
+        });
 
         // drag & drop to change the order of the files
 
@@ -486,18 +519,20 @@ public class ScanningController{
         thumbnailContainer.getChildren().clear();
 
         List<File> files = new ArrayList<>(document.getFiles());
-        for (File file : files) {
-            // Use the pre-converted image for the latest file
+        currentFiles = files; // keep currentFiles in sync
+
+        for (int i = 0; i < files.size(); i++) {
+            File file = files.get(i);
             Image image = file == latestFile
                     ? latestImage
                     : TiffConverter.toJavaFXImage(file.getImageData(), activeProfile);
             if (image == null) image = new WritableImage(120, 160);
-            addThumbnail(document, file, image);
+            addThumbnail(document, file, image, i); // pass index
         }
 
-        // Show latest file in main preview
         if (latestImage != null) {
             mainPreview.setImage(latestImage);
+            currentFileIndex = files.indexOf(latestFile);
         }
     }
 
@@ -506,5 +541,109 @@ public class ScanningController{
         activeProfile = box.getProfile(); // may be null if profile not loaded
         documentManager.setActiveBoxId(box.getId());
         lblStatus.setText("Resuming scan for Box #" + box.getBoxId() + "...");
+    }
+
+    private void nextFile() {
+        if (currentFiles.isEmpty()) return;
+        currentFileIndex = (currentFileIndex + 1) % currentFiles.size();
+        showFileAtIndex(currentFileIndex);
+    }
+
+    private void previousFile() {
+        if (currentFiles.isEmpty()) return;
+        currentFileIndex = (currentFileIndex - 1 + currentFiles.size()) % currentFiles.size();
+        showFileAtIndex(currentFileIndex);
+    }
+
+    private void showFileAtIndex(int index) {
+        if (index < 0 || index >= currentFiles.size()) return;
+
+        File file = currentFiles.get(index);
+        currentRotation = 0; // reset rotation when switching files
+
+        Image image = TiffConverter.toJavaFXImage(file.getImageData(), activeProfile);
+        if (image != null) {
+            mainPreview.setImage(image);
+            mainPreview.setRotate(currentRotation);
+        }
+
+        // Highlight the matching thumbnail
+        highlightThumbnail(index);
+
+        lblStatus.setText("File " + (index + 1) + " of " + currentFiles.size()
+                + " — press W/S to navigate between files, R/L to rotate");
+    }
+
+    private void rotateCurrentFile(double degrees) {
+        currentRotation = (currentRotation + degrees) % 360;
+        mainPreview.setRotate(currentRotation);
+    }
+
+    private void highlightThumbnail(int index) {
+        for (int i = 0; i < thumbnailContainer.getChildren().size(); i++) {
+            if (thumbnailContainer.getChildren().get(i) instanceof VBox thumbBox) {
+                if (i == index) {
+                    // Selected thumbnail — primary border
+                    thumbBox.setStyle("""
+                    -fx-padding: 6;
+                    -fx-background-color: #F1F5F9;
+                    -fx-border-color: #2D3D4F;
+                    -fx-border-width: 2;
+                    -fx-border-radius: 6;
+                    -fx-background-radius: 6;
+                    -fx-cursor: hand;
+                """);
+                } else {
+                    // Restore default — you'll need to know if it's a barcode
+                    // Get the file to check isBarcode
+                    if (i < currentFiles.size()) {
+                        File f = currentFiles.get(i);
+                        thumbBox.setStyle(f.isBarcode()
+                                ? """
+                            -fx-padding: 6;
+                            -fx-background-color: #FFF5F5;
+                            -fx-border-color: #2D3D4F;
+                            -fx-border-width: 1;
+                            -fx-border-radius: 6;
+                            -fx-background-radius: 6;
+                            -fx-cursor: hand;
+                          """
+                                : """
+                            -fx-padding: 6;
+                            -fx-background-color: #FFFFFF;
+                            -fx-border-color: #E2E4E8;
+                            -fx-border-width: 1;
+                            -fx-border-radius: 6;
+                            -fx-background-radius: 6;
+                            -fx-cursor: hand;
+                          """);
+                    }
+                }
+            }
+        }
+    }
+
+    @FXML
+    private void onBackClicked(ActionEvent event) {
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/user.fxml")
+            );
+
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource())
+                    .getScene()
+                    .getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("Homepage");
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
