@@ -1,5 +1,7 @@
 package dk.easv.weblagerexam.gui;
 
+import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -23,6 +25,23 @@ public class DeleteScanController {
 
     @FXML
     private TextField searchTextfield;
+
+    @FXML
+    public void initialize() {
+
+        User user = SessionManager.getCurrentUser();
+
+        if (user != null) {
+
+            lblUsername.setText(
+                    user.getUsername()
+            );
+
+            lblInitials.setText(
+                    user.getInitials()
+            );
+        }
+    }
 
     @FXML
     void handleListClick(MouseEvent event) {
