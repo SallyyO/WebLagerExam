@@ -41,7 +41,7 @@ public class UserController {
     private Button splitDocumentsBtn;
 
     @FXML
-    private Button viewScansBtn;
+    private Button deleteScansBtn;
 
     @FXML
     public void initialize() {
@@ -105,7 +105,7 @@ public class UserController {
     }
 
     @FXML
-    void onViewScansBtnClicked(ActionEvent event) {
+    void onDeleteScansBtnClicked(ActionEvent event) {
 
     }
 
