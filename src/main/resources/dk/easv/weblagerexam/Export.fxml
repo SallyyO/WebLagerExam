@@ -1,118 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<VBox spacing="15"
-      prefWidth="400"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="dk.easv.weblagerexam.gui.ExportController"
-      style="-fx-background-color: #F5F5F5; -fx-padding: 15;">
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefWidth="400" spacing="15" style="-fx-background-color: #F5F5F5; -fx-padding: 15;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/25" fx:controller="dk.easv.weblagerexam.gui.ExportController">
 
     <!-- Title -->
-    <Label text="Export TIFF"
-           style="-fx-font-family: 'Montserrat';
-                  -fx-font-size: 21;
-                  -fx-font-weight: bold;
-                  -fx-text-fill: #2D3D4F;"/>
+    <Label style="-fx-font-family: 'Montserrat';                   -fx-font-size: 21;                   -fx-font-weight: bold;                   -fx-text-fill: #2D3D4F;" text="Export TIFF" />
 
     <!-- Divider -->
-    <Separator style="-fx-background-color: #E2E4E8;"/>
+    <Separator style="-fx-background-color: #E2E4E8;" />
 
     <!-- Export info card -->
-    <VBox spacing="6"
-          style="-fx-background-color: #ffffff;
-                 -fx-padding: 12;
-                 -fx-background-radius: 6;
-                 -fx-border-color: #E2E4E8;
-                 -fx-border-radius: 6;
-                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 2);">
+    <VBox spacing="6" style="-fx-background-color: #ffffff;                  -fx-padding: 12;                  -fx-background-radius: 6;                  -fx-border-color: #E2E4E8;                  -fx-border-radius: 6;                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 2);">
 
-        <Label fx:id="profileNameLabel" text="Profile: "
-               style="-fx-font-family: 'Montserrat';
-                      -fx-font-size: 12;
-                      -fx-text-fill: #2D3D4F;"/>
+        <Label fx:id="profileNameLabel" style="-fx-font-family: 'Montserrat';                       -fx-font-size: 12;                       -fx-text-fill: #2D3D4F;" text="Profile: " />
 
-        <Label fx:id="boxIdLabel" text="Box: "
-               style="-fx-font-family: 'Montserrat';
-                      -fx-font-size: 12;
-                      -fx-text-fill: #2D3D4F;"/>
+        <Label fx:id="boxIdLabel" style="-fx-font-family: 'Montserrat';                       -fx-font-size: 12;                       -fx-text-fill: #2D3D4F;" text="Box: " />
 
-        <Label fx:id="pageCountLabel" text="Total pages: "
-               style="-fx-font-family: 'Montserrat';
-                      -fx-font-size: 12;
-                      -fx-text-fill: #2D3D4F;"/>
+        <Label fx:id="pageCountLabel" style="-fx-font-family: 'Montserrat';                       -fx-font-size: 12;                       -fx-text-fill: #2D3D4F;" text="Total pages: " />
     </VBox>
 
     <!-- Folder selection card -->
-    <VBox spacing="6"
-          style="-fx-background-color: #ffffff;
-                 -fx-padding: 12;
-                 -fx-background-radius: 6;
-                 -fx-border-color: #E2E4E8;
-                 -fx-border-radius: 6;
-                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 2);">
+    <VBox spacing="6" style="-fx-background-color: #ffffff;                  -fx-padding: 12;                  -fx-background-radius: 6;                  -fx-border-color: #E2E4E8;                  -fx-border-radius: 6;                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 2);">
 
-        <Label text="Export Folder"
-               style="-fx-font-family: 'Montserrat';
-                      -fx-font-size: 12;
-                      -fx-font-weight: bold;
-                      -fx-text-fill: #2D3D4F;"/>
+        <Label style="-fx-font-family: 'Montserrat';                       -fx-font-size: 12;                       -fx-font-weight: bold;                       -fx-text-fill: #2D3D4F;" text="Export Folder" />
 
-        <HBox spacing="9" alignment="CENTER_LEFT">
+        <HBox alignment="CENTER_LEFT" spacing="9">
 
-            <Button fx:id="btnSelectFolder"
-                    text="Choose Folder"
-                    onAction="#onSelectFolderClicked"
-                    prefHeight="30"
-                    style="-fx-font-family: 'Montserrat';
-                           -fx-font-size: 12;
-                           -fx-font-weight: 500;
-                           -fx-background-color: #64748B;
-                           -fx-text-fill: white;
-                           -fx-background-radius: 6;
-                           -fx-cursor: hand;
-                           -fx-padding: 0 9 0 9;"/>
+            <Button fx:id="btnSelectFolder" onAction="#onSelectFolderClicked" prefHeight="30" style="-fx-font-family: 'Montserrat';                            -fx-font-size: 12;                            -fx-font-weight: 500;                            -fx-background-color: #64748B;                            -fx-text-fill: white;                            -fx-background-radius: 6;                            -fx-cursor: hand;                            -fx-padding: 0 9 0 9;" text="Choose Folder" />
 
-            <Label fx:id="selectedFolderLabel"
-                   text="No folder selected"
-                   style="-fx-font-family: 'Montserrat';
-                          -fx-font-size: 12;
-                          -fx-text-fill: #BFBFBF;"/>
+            <Label fx:id="selectedFolderLabel" style="-fx-font-family: 'Montserrat';                           -fx-font-size: 12;                           -fx-text-fill: #BFBFBF;" text="No folder selected" />
         </HBox>
     </VBox>
 
     <!-- Action buttons -->
     <HBox spacing="9">
 
-        <Button fx:id="btnExport"
-                text="Export"
-                onAction="#onExportClicked"
-                prefHeight="33"
-                maxWidth="Infinity"
-                HBox.hgrow="ALWAYS"
-                style="-fx-font-family: 'Montserrat';
-                       -fx-font-size: 12;
-                       -fx-font-weight: 500;
-                       -fx-background-color: #2D3D4F;
-                       -fx-text-fill: white;
-                       -fx-background-radius: 6;
-                       -fx-cursor: hand;"/>
+        <Button fx:id="btnExport" maxWidth="Infinity" onAction="#onExportClicked" prefHeight="33" style="-fx-font-family: 'Montserrat';                        -fx-font-size: 12;                        -fx-font-weight: 500;                        -fx-background-color: #2D3D4F;                        -fx-text-fill: white;                        -fx-background-radius: 6;                        -fx-cursor: hand;" text="Export" HBox.hgrow="ALWAYS" />
 
-        <Button text="Cancel"
-                onAction="#onCancelClicked"
-                prefHeight="33"
-                maxWidth="Infinity"
-                HBox.hgrow="ALWAYS"
-                style="-fx-font-family: 'Montserrat';
-                       -fx-font-size: 12;
-                       -fx-font-weight: 500;
-                       -fx-background-color: #F9F9F9;
-                       -fx-text-fill: #2D3D4F;
-                       -fx-background-radius: 6;
-                       -fx-border-color: #E2E4E8;
-                       -fx-border-radius: 6;
-                       -fx-cursor: hand;"/>
+        <Button fx:id="btnCancel" maxWidth="Infinity" onAction="#onCancelClicked" prefHeight="33" style="-fx-font-family: 'Montserrat';                        -fx-font-size: 12;                        -fx-font-weight: 500;                        -fx-background-color: #F9F9F9;                        -fx-text-fill: #2D3D4F;                        -fx-background-radius: 6;                        -fx-border-color: #E2E4E8;                        -fx-border-radius: 6;                        -fx-cursor: hand;" text="Cancel" HBox.hgrow="ALWAYS" />
     </HBox>
 
 </VBox>

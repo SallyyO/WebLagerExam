@@ -27,13 +27,14 @@ public class ExportController {
     public Label selectedFolderLabel;
     @FXML
     private Button btnExport;
+    @FXML private Button btnCancel;
 
 
     private ExportManager exportManager = new ExportManager();
 
     private String selectedFolderPath = null;
     private List<byte[]> tiffPages;
-    private Profile profiles;
+    private Profile profile;
     private Box box;
 
     public void initialize() {
@@ -42,11 +43,11 @@ public class ExportController {
 
     public void setExportData(List<byte[]> tiffPages, Profile profiles, Box box) {
         this.tiffPages = tiffPages;
-        this.profiles = profiles;
+        this.profile = profiles;
         this.box = box;
 
         profileNameLabel.setText("Profile: " + profiles.getName());
-        boxIdLabel.setText("Box ID: " + box.getId());
+        boxIdLabel.setText("Box ID: " + box.getBoxId());
         pageCountLabel.setText("Total pages: " + tiffPages.size());
     }
 
@@ -71,8 +72,8 @@ public class ExportController {
             exportManager.exportMultiPageTiff(
                     tiffPages,
                     selectedFolderPath,
-                    profiles.getName(),
-                    box.getId());
+                    profile.getName(),
+                    String.valueOf(box.getBoxId()));
 
             // Show success message
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -89,6 +90,7 @@ public class ExportController {
             alert.setContentText("Could not export file: " + e.getMessage());
             alert.show();
         }
+    }
 
         @FXML
         public void onCancelClicked (ActionEvent actionEvent){
@@ -96,4 +98,3 @@ public class ExportController {
             stage.close();
         }
     }
-}

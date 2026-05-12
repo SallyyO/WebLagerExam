@@ -6,7 +6,8 @@ public class Box {
     private int profileId; // foreign key back to Profile
     private Profile profile; //gets populated after selection in the prescan
     private boolean isDeleted;
-    private int boxId;
+    private String boxId;
+    private String metaData;
 
     public Box(int id, int profileId) {
         this.id = id;
@@ -47,8 +48,16 @@ public class Box {
     }
     public Profile getProfile() { return profile; }
     public void setProfile(Profile profile) { this.profile = profile; }
-    public int getBoxId() {return boxId;}
-    public void setBoxId(int boxId) {this.boxId = boxId;}
+    public String getBoxId() {return boxId;}
+    public void setBoxId(String boxId) {this.boxId = boxId;}
+
+    public String getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
+    }
 
     @Override
     public String toString() {

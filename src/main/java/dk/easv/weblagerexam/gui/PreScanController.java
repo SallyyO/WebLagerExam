@@ -63,7 +63,7 @@ public class PreScanController {
         int profileId = selectedProfile != null ? selectedProfile.getId() : 0;
 
         Box box = new Box(currentUser.getId());
-        box.setBoxId(boxId);
+        box.setBoxId(String.valueOf(boxId));
         box.setProfileId(profileId);
         box.setProfile(selectedProfile); // stores the full object
         dao.getBoxDAO().saveBox(box);

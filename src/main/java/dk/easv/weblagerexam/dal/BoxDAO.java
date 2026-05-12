@@ -10,15 +10,19 @@ public class BoxDAO {
     private ConnectionManager conMan = new ConnectionManager();
 
     public void addBox(Box box) {
-        String sql = "INSERT INTO Box (profileId) VALUES ( ?)";
+        String sql = "INSERT INTO Box (box_id, meta_data,userId, profileId) VALUES (?,?,?,?)";
         try (Connection con = conMan.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, box.getProfileId());
+            ps.setString(1, box.getBoxId());
+            ps.setString(2,box.getMetaData());
+            ps.setInt(3, box.getUserId());
+            ps.setInt(4, box.getProfileId());
             ps.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
     }
+
 
     public int saveBox(Box box) {
         String sql = "INSERT INTO Box (box_id, userId, profileId) VALUES (?, ?, ?)";
@@ -28,9 +32,10 @@ public class BoxDAO {
             PreparedStatement stmt = con.prepareStatement(
                     sql, Statement.RETURN_GENERATED_KEYS);
 
-            stmt.setInt(1, box.getBoxId());
-            stmt.setInt(2, box.getUserId());
-            stmt.setInt(3, box.getProfileId());
+            stmt.setString(1, box.getBoxId());
+            stmt.setString(2, box.getMetaData());
+            stmt.setInt(3, box.getUserId());
+            stmt.setInt(4, box.getProfileId());
 
             stmt.executeUpdate();
 
@@ -50,7 +55,7 @@ public class BoxDAO {
 
     public List<Box> getBoxesByProfileId(int profileId) {
         List<Box> boxes = new ArrayList<>();
-        String sql = "SELECT * FROM Box WHERE profileId = ?";
+        String sql = "SELECT * FROM Box WHERE profileId = ? AND is_deleted=0";
         try (Connection con = conMan.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, profileId);

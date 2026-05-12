@@ -1,7 +1,5 @@
 package dk.easv.weblagerexam.bll;
 
-import dk.easv.weblagerexam.be.File;
-
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -10,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.io.File;
 
 public class ExportManager {
     // Export a list of TIFF byte arrays as one multi-page TIFF file
