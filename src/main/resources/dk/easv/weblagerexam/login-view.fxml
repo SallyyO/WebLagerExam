@@ -30,7 +30,7 @@
 
                 <VBox alignment="CENTER" spacing="12">
                     <Label prefHeight="27.0" prefWidth="165.0" styleClass="text-h1" text="DigiDoc Scan" />
-                    <Label styleClass="text-h2" text="Tired of trying to read what your 'very important but also very crumpled' document says? We got you" />
+                    <Label styleClass="text-h2" text="DigiDoc! Digital docs! DigiDocs are the Champions!" />
                 </VBox>
 
                 <!-- Spacer to push form toward center -->
