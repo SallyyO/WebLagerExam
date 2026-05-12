@@ -106,12 +106,25 @@ public class UserController {
 
     @FXML
     void onDeleteScansBtnClicked(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/delete_scan.fxml")
+            );
 
+            Parent root = loader.load();
+
+            // Get current window (to replace it)
+            Stage stage = (Stage) ((Node) event.getSource())
+                    .getScene()
+                    .getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("Deleting");
+
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
-    @FXML
-    void onsplitDocumentsBtnClicked(ActionEvent event) {
-
-    }
-
 }
