@@ -3,6 +3,7 @@ package dk.easv.weblagerexam.dal;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 
+import javax.print.attribute.standard.Finishings;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,28 @@ public class UserDAO {
         }
     }
 
+    public User getUserById(int id) {
+        try (Connection con = conMan.getConnection()) {
+            String sql = "SELECT * FROM Users WHERE id = ?";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String role = rs.getString("role");
+                String username = rs.getString("username");
+                String password = rs.getString("password");
+                String salt = rs.getString("salt");
+                String initials = rs.getString("initials");
+
+                return new User(id, username, role, initials, password, salt);
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void addUser(User user) {
         try (Connection con = conMan.getConnection()) {
             String sql = "INSERT INTO Users (role, username, initials, password, salt) VALUES (?, ?, ?, ?, ?)";
@@ -46,9 +69,33 @@ public class UserDAO {
             throw new RuntimeException(e);
         }
     }
+    public void editUser(User user) {
+        try (Connection con = conMan.getConnection()) {
+            String sql;
+            if (user.getPassword() != null) {
+                 sql = "UPDATE Users SET username = ?, role = ?, initials = ?, password = ? WHERE id = ?";
+            } else {
+                 sql = "UPDATE Users SET username = ?, role = ?, initials = ? WHERE id = ?";
+            }
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getRole());
+            stmt.setString(3, user.getInitials());
+            if (user.getPassword() != null) {
+                stmt.setString(4, user.getPassword());
+                stmt.setInt(5, user.getId());
+            } else {
+                stmt.setInt(4, user.getId());
+            }
+            stmt.executeUpdate();
 
-    public void softDeleteUser(int userID) {
-        String sql = "UPDATE  Users SET isDeleted =1 WHERE id = ?";
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+        public void softDeleteUser(int userID) {
+        String sql = "UPDATE  Users SET isDeleted = 1 WHERE id = ?";
         try(Connection con = conMan.getConnection();
             PreparedStatement ps =  con.prepareStatement(sql)){
             ps.setInt(1, userID);
