@@ -75,7 +75,15 @@ public class DocumentManager {
         dao.getDocumentDAO().updateMetadata(documentId, metadata);
     }
 
-    // Getters
+    public File getLatestFileForUser(int userId) {
+        return dao.getDocumentDAO().getLatestFileForUser(userId);
+    }
+
+    public Box getBoxForFile(int fileId) {
+        return dao.getDocumentDAO().getBoxForFile(fileId);
+    }
+
+
 
     public Document getCurrentDocument() {return currentDocument;}
 

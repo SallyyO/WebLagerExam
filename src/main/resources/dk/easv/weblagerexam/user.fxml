@@ -88,20 +88,33 @@
             </VBox>
 
             <!-- MAIN CONTENT AREA -->
-            <VBox stylesheets="@CSS/app.css" HBox.hgrow="ALWAYS">
-            <ImageView fitHeight="500.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
-               <VBox.margin>
-                  <Insets left="355.0" />
-               </VBox.margin>
-               <image>
-                  <Image url="@/Images/WeblagerWhiteIcon.png" />
-               </image>
-            </ImageView>
-            <Label styleClass="text-body" stylesheets="@CSS/app.css" text="Continue scan?">
-               <VBox.margin>
-                  <Insets left="355.0" />
-               </VBox.margin>
-            </Label>
+            <VBox fx:id="continueScanSection"
+                  stylesheets="@CSS/app.css"
+                  HBox.hgrow="ALWAYS"
+                  spacing="8"
+                  alignment="CENTER"
+                  style="-fx-cursor: hand;"
+                  onMouseClicked="#onContinueScanClicked">
+
+                <VBox.margin>
+                    <Insets left="355.0"/>
+                </VBox.margin>
+
+                <ImageView fx:id="latestScanPreview"
+                           fitHeight="500.0"
+                           fitWidth="250.0"
+                           pickOnBounds="true"
+                           preserveRatio="true">
+                    <!-- Default placeholder shown before latest scan loads -->
+                    <image>
+                        <Image url="@/Images/WeblagerWhiteIcon.png"/>
+                    </image>
+                </ImageView>
+
+                <Label fx:id="lblContinueScan"
+                       styleClass="text-body"
+                       text="Continue scan?"
+                       style="-fx-text-fill: #64748B;"/>
 
                 <!-- BOTTOM ACTION BUTTONS -->
                 <HBox alignment="CENTER" prefHeight="80" spacing="40" styleClass="modal-footer" VBox.vgrow="ALWAYS">

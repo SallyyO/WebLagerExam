@@ -1,7 +1,11 @@
 package dk.easv.weblagerexam.gui;
 
+import dk.easv.weblagerexam.be.Box;
+import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.SessionManager;
+import dk.easv.weblagerexam.dal.DAOManager;
+import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,9 +14,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import java.io.IOException;
+import javafx.scene.input.MouseEvent;
 
 public class UserController {
 
@@ -43,6 +50,13 @@ public class UserController {
     @FXML
     private Button deleteScansBtn;
 
+    @FXML private ImageView latestScanPreview;
+    @FXML private Label lblContinueScan;
+    @FXML private VBox continueScanSection;
+
+    private final DAOManager dao = new DAOManager();
+    private Box latestBox = null;
+
     @FXML
     public void initialize() {
 
@@ -50,15 +64,43 @@ public class UserController {
 
         if (user != null) {
 
-            lblUsername.setText(
-                    user.getUsername()
-            );
-
-            lblInitials.setText(
-                    user.getInitials()
-            );
+            lblUsername.setText(user.getUsername());
+            lblInitials.setText(user.getInitials());
+            loadLatestScan(user.getId());
         }
     }
+
+    private void loadLatestScan(int userId) {
+        try {
+            File latestFile = dao.getDocumentDAO().getLatestFileForUser(userId);
+
+            if (latestFile == null || latestFile.getImageData() == null) {
+                // No previous scan — hide the whole section
+                continueScanSection.setVisible(false);
+                continueScanSection.setManaged(false);
+                return;
+            }
+
+            // Convert and display the image
+            Image preview = TiffConverter.toJavaFXImage(latestFile.getImageData());
+            if (preview != null) {
+                latestScanPreview.setImage(preview);
+            }
+
+            // Find which box this belongs to so we can resume
+            latestBox = dao.getDocumentDAO().getBoxForFile(latestFile.getId());
+
+            lblContinueScan.setText(latestBox != null
+                    ? "Continue scan — Box #" + latestBox.getBoxId()
+                    : "Continue scan");
+
+        } catch (Exception e) {
+            System.err.println("Could not load latest scan: " + e.getMessage());
+            continueScanSection.setVisible(false);
+            continueScanSection.setManaged(false);
+        }
+    }
+
 
     @FXML
     void onBoxesBtnClicked(ActionEvent event) {
@@ -121,6 +163,26 @@ public class UserController {
             stage.setScene(new Scene(root));
             stage.setTitle("Deleting");
 
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onContinueScanClicked(MouseEvent mouseEvent) {
+        if (latestBox == null) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/scanning_page.fxml")
+            );
+            Parent root = loader.load();
+            ScanningController scanController = loader.getController();
+            scanController.resumeWithBox(latestBox);
+
+            Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Scanning");
             stage.centerOnScreen();
 
         } catch (IOException e) {

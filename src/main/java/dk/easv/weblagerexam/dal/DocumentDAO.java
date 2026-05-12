@@ -1,5 +1,6 @@
 package dk.easv.weblagerexam.dal;
 
+import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.Document;
 import dk.easv.weblagerexam.be.File;
 
@@ -116,6 +117,63 @@ public class DocumentDAO {
                 stmt.addBatch();
             }
             stmt.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public File getLatestFileForUser(int userId) {
+        String sql = """
+                SELECT TOP 1 f.id, f.file_number, f.file_data, f.is_barcode, f.document_id
+                FROM [File] f
+                INNER JOIN Document d ON f.document_id = d.id
+                INNER JOIN Box b      ON d.box_id       = b.id
+                WHERE b.userId = ?
+                ORDER BY f.id DESC
+                """;
+
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                File file = new File(rs.getBytes("file_data"), rs.getBoolean("is_barcode"));
+                file.setId(rs.getInt("id"));
+                file.setFileNumber(rs.getInt("file_number"));
+                return file;
+            }
+            return null; // no previous scans
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Also need to find which box that file belongs to, so we can resume
+    public Box getBoxForFile(int fileId) {
+        String sql = """
+                SELECT b.id, b.box_id, b.userId, b.profileId
+                FROM Box b
+                INNER JOIN Document d ON d.box_id    = b.id
+                INNER JOIN [File] f   ON f.document_id = d.id
+                WHERE f.id = ?
+                """;
+
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, fileId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Box box = new Box(rs.getInt("userId"));
+                box.setId(rs.getInt("id"));
+                box.setBoxId(rs.getInt("box_id"));
+                box.setProfileId(rs.getInt("profileId"));
+                return box;
+            }
+            return null;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

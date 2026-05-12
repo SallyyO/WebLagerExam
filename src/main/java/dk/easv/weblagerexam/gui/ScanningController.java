@@ -500,4 +500,11 @@ public class ScanningController{
             mainPreview.setImage(latestImage);
         }
     }
+
+    public void resumeWithBox(Box box) {
+        activeBox = box;
+        activeProfile = box.getProfile(); // may be null if profile not loaded
+        documentManager.setActiveBoxId(box.getId());
+        lblStatus.setText("Resuming scan for Box #" + box.getBoxId() + "...");
+    }
 }
