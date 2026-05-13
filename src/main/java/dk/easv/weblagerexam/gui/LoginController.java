@@ -50,8 +50,10 @@ public class LoginController {
                 if (user.getRole().equals("Admin")) {
 
                     stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../admin.fxml"))));
+                    stage.setTitle("Admin");
                 } else {
                     stage.getScene().setRoot(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../user.fxml"))));
+                    stage.setTitle("User");
                 }
             } catch (Exception e) {
                 lblErr.setVisible(true);
