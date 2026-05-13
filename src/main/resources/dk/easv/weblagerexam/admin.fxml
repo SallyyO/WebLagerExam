@@ -20,7 +20,7 @@
 
     <!-- TOP NAVIGATION BAR -->
     <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="70" styleClass="modal-header" stylesheets="@CSS/app.css">
+        <HBox fx:id="userBox" alignment="CENTER_LEFT" prefHeight="70" styleClass="modal-header" stylesheets="@CSS/app.css">
             <padding>
                 <Insets bottom="0" left="20" right="24" top="0" />
             </padding>

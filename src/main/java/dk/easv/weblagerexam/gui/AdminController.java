@@ -9,14 +9,17 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class AdminController {
 
@@ -56,6 +59,8 @@ public class AdminController {
     @FXML
     private Button usersButton;
 
+    @FXML private HBox userBox;
+
     private UserManager userManager = new UserManager();
     LogManager logManager = new LogManager();
 
@@ -81,6 +86,34 @@ public class AdminController {
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
 
         loadUsers();
+
+        // User dropdown menu
+        ContextMenu userMenu = new ContextMenu();
+
+        MenuItem logout = new MenuItem("Log out");
+
+        logout.setStyle("""
+    -fx-font-size: 14px;
+    -fx-padding: 6 20 6 20;
+""");
+
+        userMenu.getItems().add(logout);
+
+// Logout action
+        logout.setOnAction(e -> handleLogout());
+
+// Toggle menu on click
+        userBox.setOnMouseClicked(e -> {
+
+            if (userMenu.isShowing()) {
+                userMenu.hide();
+            } else {
+                userMenu.show(userBox,
+                        Side.BOTTOM,
+                        userBox.getWidth() - userMenu.getWidth(),
+                        0);
+            }
+        });
     }
 
 
@@ -233,4 +266,35 @@ public class AdminController {
         }
     }
     */
+
+    private void handleLogout() {
+
+        try {
+
+            SessionManager.clearSession();
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/login-view.fxml")
+            );
+
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+
+            scene.getStylesheets().add(
+                    Objects.requireNonNull(
+                            getClass().getResource("/dk/easv/weblagerexam/CSS/app.css")
+                    ).toExternalForm()
+            );
+
+            Stage stage = (Stage) userBox.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.setTitle("Login");
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
