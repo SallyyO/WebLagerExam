@@ -4,10 +4,17 @@ import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class DeleteScanController {
 
@@ -50,7 +57,26 @@ public class DeleteScanController {
 
     @FXML
     void onCloseBtnPress(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/user.fxml")
+            );
 
+            Parent root = loader.load();
+
+            // Get current window (to replace it)
+            Stage stage = (Stage) ((Node) event.getSource())
+                    .getScene()
+                    .getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("User");
+
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
