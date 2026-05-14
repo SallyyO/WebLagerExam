@@ -42,7 +42,7 @@
                 <Region HBox.hgrow="ALWAYS" />
 
                 <!-- Admin profile area -->
-                <HBox alignment="CENTER" spacing="12">
+                <HBox fx:id="userBox" alignment="CENTER" spacing="12">
                     <Label fx:id="lblUsername"
                            styleClass="text-h3">
                         <font>

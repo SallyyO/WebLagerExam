@@ -87,33 +87,8 @@ public class AdminController {
 
         loadUsers();
 
-        // User dropdown menu
-        ContextMenu userMenu = new ContextMenu();
-
-        MenuItem logout = new MenuItem("Log out");
-
-        logout.setStyle("""
-    -fx-font-size: 14px;
-    -fx-padding: 6 20 6 20;
-""");
-
-        userMenu.getItems().add(logout);
-
-// Logout action
-        logout.setOnAction(e -> handleLogout());
-
-// Toggle menu on click
-        userBox.setOnMouseClicked(e -> {
-
-            if (userMenu.isShowing()) {
-                userMenu.hide();
-            } else {
-                userMenu.show(userBox,
-                        Side.BOTTOM,
-                        userBox.getWidth() - userMenu.getWidth(),
-                        0);
-            }
-        });
+        userBox.setOnMouseClicked(e -> handleLogout());
+        Tooltip.install(userBox, new Tooltip("Click to log out"));
     }
 
 

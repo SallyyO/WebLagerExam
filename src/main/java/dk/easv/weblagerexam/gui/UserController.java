@@ -5,6 +5,7 @@ import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.dal.DAOManager;
+import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,11 +15,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.Objects;
+
 import javafx.scene.input.MouseEvent;
 
 public class UserController {
@@ -54,6 +59,8 @@ public class UserController {
     @FXML private Label lblContinueScan;
     @FXML private VBox continueScanSection;
 
+    @FXML private HBox userBox;
+
     private final DAOManager dao = new DAOManager();
     private Box latestBox = null;
 
@@ -68,6 +75,11 @@ public class UserController {
             lblInitials.setText(user.getInitials());
             loadLatestScan(user.getId());
         }
+
+        userBox.setOnMouseClicked(e ->
+                LogoutUtil.logout((Stage) userBox.getScene().getWindow())
+        );
+        Tooltip.install(userBox, new Tooltip("Click to log out"));
     }
 
     private void loadLatestScan(int userId) {
@@ -189,4 +201,5 @@ public class UserController {
             e.printStackTrace();
         }
     }
+
 }

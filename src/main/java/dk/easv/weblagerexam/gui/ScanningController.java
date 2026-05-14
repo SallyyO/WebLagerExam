@@ -5,6 +5,7 @@ import dk.easv.weblagerexam.bll.DocumentManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.dal.DocumentDAO;
+import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -14,16 +15,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -50,13 +49,11 @@ public class ScanningController{
     @FXML private ScrollPane mainScrollPane;
     @FXML private StackPane mainImageContainer;
 
+    @FXML private HBox userBox;
+
+
     private Box activeBox;
     private Profile activeProfile = null;
-
-    private double zoomFactor = 1.0;
-    private static final double ZOOM_MIN = 0.3;
-    private static final double ZOOM_MAX = 4.0;
-    private static final double ZOOM_STEP = 0.1;
 
     private List<File> currentFiles = new ArrayList<>(); // flat list of all files in view
     private int currentFileIndex = 0; // which file is shown in mainPreview
@@ -82,19 +79,12 @@ public class ScanningController{
             );
         }
 
-        //ctrl + scroll to zoom
-        mainScrollPane.setOnScroll(event -> {
-            if (event.isControlDown()) {
-                event.consume();
-                double delta = event.getDeltaY() > 0 ? ZOOM_STEP : -ZOOM_STEP;
-                zoomFactor = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoomFactor + delta));
-                mainPreview.setFitWidth(800 * zoomFactor);
-                mainPreview.setFitHeight(700 * zoomFactor);
-            }
-        });
+        userBox.setOnMouseClicked(e ->
+                LogoutUtil.logout((Stage) userBox.getScene().getWindow())
+        );
+        Tooltip.install(userBox, new Tooltip("Click to log out"));
 
-
-        // handle keyboard focus n all
+        // handle keyboard focus n some shortcuts
         mainScrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.setOnKeyPressed(event -> {
