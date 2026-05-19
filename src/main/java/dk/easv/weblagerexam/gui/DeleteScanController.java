@@ -1,7 +1,11 @@
 package dk.easv.weblagerexam.gui;
 
+import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.FileManager;
 import dk.easv.weblagerexam.bll.SessionManager;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,10 +23,7 @@ import java.io.IOException;
 public class DeleteScanController {
 
     @FXML
-    private Label countLabel;
-
-    @FXML
-    private ListView<?> fileListView;
+    private ListView<File> fileListView;
 
     @FXML
     private Label lblInitials;
@@ -32,6 +33,10 @@ public class DeleteScanController {
 
     @FXML
     private TextField searchTextfield;
+
+    private final FileManager fileManager = new FileManager();
+
+    private final ObservableList<File> files = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
@@ -48,6 +53,27 @@ public class DeleteScanController {
                     user.getInitials()
             );
         }
+
+        loadFiles();
+
+        fileListView.setCellFactory(param -> new javafx.scene.control.ListCell<>() {
+            @Override
+            protected void updateItem(File item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText("ID: " + item.getId() + " | File Number: " + item.getFileNumber() + " | Barcode: " + item.isBarcode());
+                }
+            }
+        });
+    }
+    private void loadFiles() {
+
+        files.setAll(fileManager.getAllFiles());
+
+        fileListView.setItems(files);
     }
 
     @FXML
@@ -81,23 +107,32 @@ public class DeleteScanController {
 
     @FXML
     void onHardDeleteBtnPress(ActionEvent event) {
+        File selectedFile = fileListView.getSelectionModel().getSelectedItem();
 
+        if (selectedFile == null) {
+            return;
+        }
+
+        fileManager.hardDeleteFile(selectedFile.getId());
+
+        loadFiles();
     }
 
     @FXML
     void onRefreshBtnPress(ActionEvent event) {
-
+        loadFiles();
     }
 
     @FXML
     void onSearchBtnPress(ActionEvent event) {
+        String searchText = searchTextfield.getText();
 
+        if (searchText == null || searchText.isBlank()) {
+            loadFiles();
+            return;
+        }
+
+        files.setAll(fileManager.searchFiles(searchText));
     }
-
-    @FXML
-    void onSoftDeleteBtnPress(ActionEvent event) {
-
-    }
-
 }
 
