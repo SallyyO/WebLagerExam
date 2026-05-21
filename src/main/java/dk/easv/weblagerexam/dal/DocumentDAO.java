@@ -179,4 +179,19 @@ public class DocumentDAO {
         }
     }
 
+    public boolean barcodeExistsInDB(String barcodeValue) {
+        String sql = "SELECT COUNT(*) FROM [File] WHERE barcode_value = ? AND is_deleted = 0"; // is deleted is 0, so that soft deleted are ignored
+        try (Connection con = conMan.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, barcodeValue);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

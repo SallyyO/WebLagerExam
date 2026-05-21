@@ -19,8 +19,8 @@ public class LocalTiffDAO {
     private final String barcodeFile = "TestTiffs/01.tiff"; //(if possible tho, i'd like 1 more)')
     private final Random random = new Random();
 
-    private boolean barcodeDeliveredThisCycle = false;
-    private int scansThisCycle = 0;
+    private boolean barcodeDeliveredThisCycle = false; // no barcode has been delieverd yet
+    private int scansThisCycle = 0; // how many normal files have been returned after the barcode
     private static final int FILES_PER_DOCUMENT = 4;
 
     // Shuffle queue — refills when empty so no repeats

@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
 public class ScanningController{
 
@@ -142,6 +143,11 @@ public class ScanningController{
                         if (stopped) break;
 
                         File file = dao.getLocalTiffDAO().fetchNext();
+
+                        if(!checkBarcodeAndAlert(file)){
+                            stopped = true; // stop the scan loop
+                            break;
+                        }
                         DocumentManager.ScanResult result = documentManager.processFileScan(file);
 
                         // Convert image on background thread, we dont want it to do all the heavy lifting here
@@ -636,4 +642,45 @@ public class ScanningController{
             e.printStackTrace();
         }
     }
+
+    // GUI method to check if barcode has been scanned
+    private boolean checkBarcodeAndAlert(File file) throws InterruptedException {
+        if(!file.isBarcode()) return true; // not a barcode,continue normally
+
+        String barcodeValue = file.getBarcodeValue();
+        if(barcodeValue == null || barcodeValue.isBlank()) return true;
+
+        // Check if barcode already exists in DB
+        if(documentManager.isBarcodeAlreadyScanned(barcodeValue)) return true;
+
+        CountDownLatch latch = new CountDownLatch(1); // Thread 1 is scanning, 2 shows the popup
+        boolean[] shouldContinue = {true}; // we have this array because later we can modify it inside the lambda expression Platform.later()
+
+
+        Platform.runLater(()->{
+            try{
+                FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/dk/easv/weblagerexam/BarcodeAlert.fxml")));
+                Parent root = loader.load();
+
+                BarcodeAlertController controller = loader.getController();
+                controller.setBarcodeValue(barcodeValue);
+
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.setTitle("Duplicate Barcode");
+                stage.setScene(new Scene(root));
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.showAndWait();
+
+                shouldContinue[0] = controller.isContinueScanning();
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                latch.countDown(); // signal background thread to continue count goes from 1 to 0
+            }
+        });
+    latch.await(); // background thread waits here until user closes popup
+    return shouldContinue[0]; // resumes or stop scanning
+}
 }

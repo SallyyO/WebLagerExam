@@ -98,4 +98,9 @@ public class DocumentManager {
     public List<Document> getCompletedDocuments() {return completedDocuments;}
 
     public enum ScanResult {PAGE_ADDED, BARCODE}
+
+    public boolean isBarcodeAlreadyScanned(String barcodeValue){
+        if (barcodeValue == null || barcodeValue.isBlank()) return false;
+        return dao.getDocumentDAO().barcodeExistsInDB(barcodeValue);
+    }
 }

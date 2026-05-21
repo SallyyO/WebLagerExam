@@ -30,7 +30,7 @@ public class ExportManager {
         ImageWriter writer = writers.next(); // gets the first available TIFF writer
 
         //creates a stream connected to the output TIFF file
-        try(FileImageOutputStream output = new FileImageOutputStream(outputFile)){
+        try(FileImageOutputStream output = new FileImageOutputStream(outputFile)){ // create stream writing directly into TIFF files
             writer.setOutput(output); // prepare or tell the writer to write multiple images into one TIFF
             writer.prepareWriteSequence(null);
 

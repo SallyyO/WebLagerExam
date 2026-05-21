@@ -18,7 +18,7 @@ public class FileSettings {
 
         return switch (profile.getSettings()) {
             case GRAYSCALE   -> toGrayscale(source);
-            case ROTATE      -> rotate(source, profile.getSettingsValue());
+            case ROTATE      -> rotate(source, profile.getSettingsValue()); // rotates using profiles value
             case ROTATE_AUTO -> rotateToHorizontal(source);
             case BRIGHTEN    -> brighten(source, profile.getSettingsValue());
         };
@@ -79,6 +79,7 @@ public class FileSettings {
         BufferedImage result = new BufferedImage(
                 src.getWidth(), src.getHeight(), src.getType());
 
+        // loop through every pixel
         for (int y = 0; y < src.getHeight(); y++) {
             for (int x = 0; x < src.getWidth(); x++) {
                 int rgb = src.getRGB(x, y);
