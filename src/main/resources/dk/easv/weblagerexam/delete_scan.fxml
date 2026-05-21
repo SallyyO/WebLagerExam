@@ -77,11 +77,11 @@
             <HBox alignment="CENTER_LEFT" styleClass="modal-header" stylesheets="@CSS/app.css">
                 <padding><Insets bottom="6" left="8" top="6" /></padding>
                 <Label prefWidth="60" styleClass="text-body" stylesheets="@CSS/app.css" text="ID" />
-                <Label prefWidth="260" styleClass="text-body" stylesheets="@CSS/app.css" text="File Name" />
-                <Label prefWidth="110" styleClass="text-body" stylesheets="@CSS/app.css" text="Document ID" />
-                <Label prefWidth="60" styleClass="text-body" stylesheets="@CSS/app.css" text="Order" />
-                <Label prefWidth="70" styleClass="text-body" stylesheets="@CSS/app.css" text="Barcode" />
-                <Label prefWidth="120" styleClass="text-body" stylesheets="@CSS/app.css" text="Action" />
+                <Label prefHeight="17.0" prefWidth="100.0" styleClass="text-body" stylesheets="@CSS/app.css" text="File Number" />
+                <Label prefWidth="110" styleClass="text-body" stylesheets="@CSS/app.css" text="Barcode" />
+                <Label prefHeight="17.0" prefWidth="87.0" styleClass="text-body" stylesheets="@CSS/app.css" />
+                <Label prefWidth="70" styleClass="text-body" stylesheets="@CSS/app.css" />
+                <Label prefWidth="120" styleClass="text-body" stylesheets="@CSS/app.css" />
             </HBox>
 
             <ListView fx:id="fileListView" onMouseClicked="#handleListClick" styleClass="modal-content" stylesheets="@CSS/app.css" VBox.vgrow="ALWAYS" />
@@ -93,15 +93,7 @@
         <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-background-color: #ffffff;                      -fx-border-color: #dde1e7;                      -fx-border-width: 1 0 0 0;">
             <padding><Insets bottom="12" left="20" right="20" top="12" /></padding>
 
-            <Label fx:id="countLabel" style="-fx-font-size: 12; -fx-text-fill: #7f8c8d;" HBox.hgrow="ALWAYS" />
-
             <Region HBox.hgrow="ALWAYS" />
-
-            <Button onAction="#onSoftDeleteBtnPress" stylesheets="@CSS/app.css" text="Soft Delete Selected">
-            <styleClass>
-               <String fx:value="button-primary" />
-               <String fx:value="text-button" />
-            </styleClass></Button>
             <Button onAction="#onHardDeleteBtnPress" stylesheets="@CSS/app.css" text="Hard Delete Selected">
             <styleClass>
                <String fx:value="button-primary" />
