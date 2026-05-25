@@ -14,7 +14,7 @@ public class OtherExportManager {
     /**
      * Exports all documents in a box to a folder named {profileName}_{boxId}.
      * Each document becomes a subfolder. Each file is saved as a TIFF.
-     * Profile transforms are applied to every image during export.
+     * Profile settings are applied to every image during export.
      * Pretty sure this is how they want it to be.
      */
     public Path exportBox(Box box, List<Document> documents, Path exportRoot)

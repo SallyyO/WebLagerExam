@@ -6,6 +6,7 @@ import dk.easv.weblagerexam.bll.ProfileManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 
 public class NewProfileController {
 
@@ -29,7 +30,7 @@ public class NewProfileController {
         cmbSettings.getItems().addAll(ProfileSettings.values());
 
         // Update the value section and preview whenever selection changes
-        cmbSettings.setConverter(new javafx.util.StringConverter<>() {
+        cmbSettings.setConverter(new StringConverter<>() {
             @Override
             public String toString(ProfileSettings s) {
                 if (s == null) return "";
@@ -38,6 +39,11 @@ public class NewProfileController {
                     case ROTATE      -> "Rotate by degrees";
                     case ROTATE_AUTO -> "Rotate to Horizontal";
                     case BRIGHTEN    -> "Brighten";
+
+                    case RAVENCLAW   -> "Ravenclaw (Blue)";
+                    case GRYFFINDOR  -> "Gryffindor (Red)";
+                    case SLYTHERIN   -> "Slytherin (Green)";
+                    case HUFFLEPUFF  -> "Hufflepuff (Yellow)";
                 };
             }
             @Override
@@ -76,6 +82,29 @@ public class NewProfileController {
                         "30");
                 lblPreview.setText(
                         "All pages will have their brightness increased by the given amount.");
+            }
+            case RAVENCLAW -> {
+                hideValueSection();
+                lblPreview.setText(
+                        "All pages will be converted to a blue monochrome style.");
+            }
+
+            case GRYFFINDOR -> {
+                hideValueSection();
+                lblPreview.setText(
+                        "All pages will be converted to a red monochrome style.");
+            }
+
+            case SLYTHERIN -> {
+                hideValueSection();
+                lblPreview.setText(
+                        "All pages will be converted to a green monochrome style.");
+            }
+
+            case HUFFLEPUFF -> {
+                hideValueSection();
+                lblPreview.setText(
+                        "All pages will be converted to a yellow monochrome style.");
             }
         }
     }
@@ -121,7 +150,7 @@ public class NewProfileController {
         }
 
         if (cmbSettings.getValue() == null) {
-            showError(lblSettingsError, "Please select a transformation");
+            showError(lblSettingsError, "Please select a profile");
             valid = false;
         } else {
             hideError(lblSettingsError);

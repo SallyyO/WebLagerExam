@@ -3,6 +3,7 @@ package dk.easv.weblagerexam.dal;
 
 
 import dk.easv.weblagerexam.be.File;
+import dk.easv.weblagerexam.util.BarcodeReader;
 
 import java.io.InputStream;
 import java.util.*;
@@ -16,7 +17,7 @@ public class LocalTiffDAO {
             "TestTiffs/24.tiff"
     ));
 
-    private final String barcodeFile = "TestTiffs/01.tiff"; //(if possible tho, i'd like 1 more)')
+    private final String barcodeFile = "TestTiffs/01.tiff"; //(if possible tho, i'd like 1 more)
     private final Random random = new Random();
 
     private boolean barcodeDeliveredThisCycle = false; // no barcode has been delieverd yet
@@ -57,10 +58,16 @@ public class LocalTiffDAO {
             byte[] data = is.readAllBytes();
 
             File file = new File(data, isBarcode);
-            // Extract just the filename part: like "TestTiffs/02.tiff" turns into "02.tiff"
             file.setFileName(path.contains("/")
                     ? path.substring(path.lastIndexOf('/') + 1)
                     : path);
+
+            // Decode barcode content and store it in the File object
+            if (isBarcode) {
+                String content = BarcodeReader.decode(data);
+                file.setBarcodeContent(content);
+            }
+
             return file;
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -5,6 +5,7 @@ import dk.easv.weblagerexam.be.Document;
 import dk.easv.weblagerexam.be.File;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentDAO {
@@ -150,7 +151,7 @@ public class DocumentDAO {
         }
     }
 
-    // Also need to find which box that file belongs to, so we can resume
+
     public Box getBoxForFile(int fileId) {
         String sql = """
                 SELECT b.id, b.box_id, b.userId, b.profileId
@@ -179,16 +180,74 @@ public class DocumentDAO {
         }
     }
 
-    public boolean barcodeExistsInDB(String barcodeValue) {
-        String sql = "SELECT COUNT(*) FROM [File] WHERE barcode_value = ? AND is_deleted = 0"; // is deleted is 0, so that soft deleted are ignored
-        try (Connection con = conMan.getConnection();
-        PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, barcodeValue);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
+    public List<Document> getDocumentsForBox(int boxId) {
+        String sql = """
+            SELECT id, box_id, created_at
+            FROM Document
+            WHERE box_id = ?
+            ORDER BY id ASC
+            """;
+
+        List<Document> documents = new ArrayList<>();
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, boxId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Document doc = new Document();
+                doc.setId(rs.getInt("id"));
+                doc.setBoxId(rs.getInt("box_id"));
+                documents.add(doc);
             }
-            return false;
+            return documents;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<File> getFilesForDocument(int documentId) {
+        String sql = """
+            SELECT id, file_number, is_barcode
+            FROM [File]
+            WHERE document_id = ?
+            ORDER BY file_number ASC
+            """;
+
+        List<File> files = new ArrayList<>();
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, documentId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                File file = new File(null, rs.getBoolean("is_barcode"));
+                file.setId(rs.getInt("id"));
+                file.setFileNumber(rs.getInt("file_number"));
+                files.add(file);
+            }
+            return files;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public File getFileById(int fileId) {
+        String sql = """
+            SELECT id, file_number, is_barcode, file_data
+            FROM [File]
+            WHERE id = ?
+            """;
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, fileId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                File file = new File(rs.getBytes("file_data"),
+                        rs.getBoolean("is_barcode"));
+                file.setId(rs.getInt("id"));
+                file.setFileNumber(rs.getInt("file_number"));
+                return file;
+            }
+            return null;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
