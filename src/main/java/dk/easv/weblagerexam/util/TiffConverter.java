@@ -42,4 +42,31 @@ public class TiffConverter {
                 pw.setArgb(x, y, buffered.getRGB(x, y));
         return fxImage;
     }
+
+    public static Image toJavaFXImageThumbnail(byte[] imageData, Profile profile) {
+        if (imageData == null || imageData.length == 0) return null;
+        try {
+            BufferedImage buffered = ImageIO.read(new ByteArrayInputStream(imageData));
+            if (buffered == null) return null;
+
+            // Downscale to thumbnail size BEFORE applying profile settings (to reduce memory)
+            int thumbWidth  = 120;
+            int thumbHeight = (int)(buffered.getHeight() * (120.0 / buffered.getWidth()));
+            BufferedImage small = new BufferedImage(thumbWidth, thumbHeight,
+                    BufferedImage.TYPE_INT_RGB);
+            small.getGraphics().drawImage(
+                    buffered.getScaledInstance(thumbWidth, thumbHeight,
+                            java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+            buffered.flush(); // release the full-res image immediately
+            buffered = null;
+
+            // Apply profile settings on the small image
+            BufferedImage settingsApplied = FileSettings.apply(small, profile);
+            return toFXImage(settingsApplied);
+
+        } catch (Exception e) {
+            System.err.println("TiffConverter thumbnail error: " + e.getMessage());
+            return null;
+        }
+    }
 }

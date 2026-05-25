@@ -243,6 +243,24 @@ By doing it like this, we are telling it to start from the top and
     -fx-progress-color: #2D3D4F;
 }
 
+/* Progress bar track */
+.progress-bar .track {
+    -fx-background-color: #E2E4E8;
+    -fx-background-radius: 3;
+}
+
+/* The animated fill bar */
+.progress-bar .bar {
+    -fx-background-color: #2D3D4F;
+    -fx-background-radius: 3;
+    -fx-background-insets: 0;
+}
+
+/* Indeterminate animation bar */
+.progress-bar:indeterminate .bar {
+    -fx-background-color: #2D3D4F;
+}
+
 /* || MODALS */
 
 .modal {

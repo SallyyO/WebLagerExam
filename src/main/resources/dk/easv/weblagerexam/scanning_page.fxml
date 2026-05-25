@@ -16,9 +16,8 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.shape.Circle?>
-
-
 <?import javafx.scene.control.ProgressBar?>
+
 <BorderPane prefWidth="1200" prefHeight="800"
             stylesheets="@CSS/app.css"
             xmlns:fx="http://javafx.com/fxml"
@@ -100,22 +99,50 @@
 
                 <!-- Skeleton-style loading bar — hidden until scanning starts -->
                 <ProgressBar fx:id="progressBar"
-                             prefWidth="120"
-                             prefHeight="6"
+                             prefWidth="200"
+                             prefHeight="8"
                              progress="-1"
                              visible="false"
-                             managed="false"
-                             style="-fx-accent: #2D3D4F;
-
-                    -fx-background-color: #E2E4E8;
-                    -fx-background-radius: 3;
-                    -fx-border-radius: 3;"/>
+                             managed="false"/>
 
             </HBox>
         </VBox>
     </top>
 
-    <!-- main preview, scroll + zoom -->
+    <left>
+        <VBox style="-fx-background-color: #F9F9F9;
+                     -fx-border-color: #E2E4E8;
+                     -fx-border-width: 0 1 0 0;"
+              prefWidth="200">
+
+            <!-- Header row with refresh button -->
+            <HBox alignment="CENTER_LEFT" spacing="6"
+                  style="-fx-padding: 10 10 6 10;
+                         -fx-border-color: #E2E4E8;
+                         -fx-border-width: 0 0 1 0;">
+                <Label text="Navigator" styleClass="label-medium"
+                       style="-fx-font-weight: 600;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnRefreshTree" text="↻"
+                        onAction="#refreshTree"
+                        styleClass="button, button-tertiary"
+                        style="-fx-pref-width: 28; -fx-pref-height: 28;
+                               -fx-font-size: 14px;"
+                        prefWidth="28" prefHeight="28"/>
+            </HBox>
+
+            <!-- Scrollable tree -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                        style="-fx-background-color: transparent;
+                               -fx-background: transparent;">
+                <VBox fx:id="treeContainer"
+                      style="-fx-padding: 6;"/>
+            </ScrollPane>
+        </VBox>
+    </left>
+
+    <!-- main preview, scrollable-->
     <center>
         <ScrollPane fx:id="mainScrollPane"
                     fitToWidth="false"
@@ -125,12 +152,12 @@
                            -fx-background: #F1F5F9;">
             <StackPane fx:id="mainImageContainer"
                        style="-fx-background-color: #F1F5F9;
-                              -fx-min-width: 800;
+                              -fx-min-width: 600;
                               -fx-min-height: 700;
                               -fx-alignment: center;">
                 <ImageView fx:id="mainPreview"
                            preserveRatio="true"
-                           fitWidth="800"
+                           fitWidth="600"
                            fitHeight="700"/>
             </StackPane>
         </ScrollPane>
@@ -151,5 +178,4 @@
                   style="-fx-padding: 10;"/>
         </ScrollPane>
     </right>
-
 </BorderPane>

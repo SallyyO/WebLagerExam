@@ -8,7 +8,10 @@ import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.dal.DocumentDAO;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DocumentManager {
 
@@ -28,6 +31,8 @@ public class DocumentManager {
     private final List<Document> completedDocuments = new ArrayList<>();
     private Box activeBox;
     private int activeBoxId = 0;
+    private final Set<String> seenBarcodes = ConcurrentHashMap.newKeySet();
+    private final Set<String> approvedDuplicateBarcodes = ConcurrentHashMap.newKeySet();
 
     public void setActiveBox(Box box) {
         this.activeBox = box;
@@ -41,6 +46,12 @@ public class DocumentManager {
     public ScanResult processFileScan(File file) throws Exception {
         totalScans++;
         if (file.isBarcode()) {
+            // Check for duplicate BEFORE doing anything else
+            String duplicate = checkDuplicateBarcode(file);
+            if (duplicate != null) {
+                return ScanResult.DUPLICATE_BARCODE; // caller handles the warning
+            }
+
             if (!currentDocument.isEmpty()) {
                 currentDocument.setBoxId(activeBoxId);
                 dao.getDocumentDAO().saveDocument(currentDocument);
@@ -83,6 +94,55 @@ public class DocumentManager {
         return dao.getDocumentDAO().getBoxForFile(fileId);
     }
 
+    // returns the duplicate content if already seen, null if new
+    public String checkDuplicateBarcode(File file) {
+        if (!file.isBarcode()) return null;
+        String content = file.getBarcodeContent();
+        if (content == null || content.isBlank()) return null;
+
+        // First time seeing barcode
+        if (!seenBarcodes.contains(content)) {
+            seenBarcodes.add(content);
+            return null;
+        }
+
+        // Already approved by user during this session
+        if (approvedDuplicateBarcodes.contains(content)) {
+            return null;
+        }
+
+        // Duplicate not yet approved
+        return content;
+    }
+
+    /**
+     * Forces a duplicate barcode to be treated as a new document split.
+     * Called when the user clicks "Accept" on the duplicate warning.
+     * Was needed bc... we only have 1 barcode rn hahah
+     */
+    public void forceProcessBarcode(File file) throws Exception {
+        // Re-add to seenBarcodes in case it was a third scan of the same barcode
+        if (file.getBarcodeContent() != null) {
+            seenBarcodes.add(file.getBarcodeContent());
+        }
+
+        // Same logic as a normal barcode hit
+        if (!currentDocument.isEmpty()) {
+            currentDocument.setBoxId(activeBoxId);
+            dao.getDocumentDAO().saveDocument(currentDocument);
+            completedDocuments.add(currentDocument);
+            totalDocuments++;
+        }
+        currentDocument = new Document();
+        currentDocument.addFile(file);
+    }
+
+    public void approveDuplicateBarcode(String barcodeContent) {
+
+        if (barcodeContent != null) {
+            approvedDuplicateBarcodes.add(barcodeContent);
+        }
+    }
 
 
     public Document getCurrentDocument() {return currentDocument;}
@@ -97,5 +157,6 @@ public class DocumentManager {
 
     public List<Document> getCompletedDocuments() {return completedDocuments;}
 
-    public enum ScanResult {PAGE_ADDED, BARCODE}
+    public enum ScanResult {PAGE_ADDED, BARCODE, DUPLICATE_BARCODE}
+
 }

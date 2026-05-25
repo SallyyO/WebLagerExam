@@ -94,18 +94,18 @@ public class BoxDAO {
     }
 
     public List<Box> getBoxesByUser(int userId) {
-        String sql = "SELECT id, userId, profileId FROM Box WHERE userId = ?";
+        String sql = "SELECT id, box_id, userId, profileId FROM Box WHERE userId = ?";
         List<Box> boxes = new ArrayList<>();
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                boxes.add(new Box(
-                        rs.getInt("id"),
-                        rs.getInt("userId"),
-                        rs.getInt("profileId")
-                ));
+                Box box = new Box(rs.getInt("userId"));
+                box.setId(rs.getInt("id"));           // DB primary key
+                box.setBoxId(rs.getInt("box_id"));    // user-entered number
+                box.setProfileId(rs.getInt("profileId"));
+                boxes.add(box);
             }
             return boxes;
         } catch (SQLException e) {

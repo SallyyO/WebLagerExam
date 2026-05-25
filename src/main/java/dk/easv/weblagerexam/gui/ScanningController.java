@@ -9,6 +9,10 @@ import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,9 +33,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class ScanningController{
 
@@ -51,32 +52,34 @@ public class ScanningController{
 
     @FXML private HBox userBox;
 
-
     private Box activeBox;
     private Profile activeProfile = null;
 
     private List<File> currentFiles = new ArrayList<>(); // flat list of all files in view
     private int currentFileIndex = 0; // which file is shown in mainPreview
-    private double currentRotation = 0; // current rotation of displayed image
+    private double currentRotation = 0; // current rotation of the displayed image
+
+    @FXML private VBox treeContainer;
+    @FXML private Button btnRefreshTree;
+
+    // Tracks which document is currently expanded in the tree
+    private final Set<Integer> expandedDocumentIds = new HashSet<>();
 
     private VBox dragSource = null;
     private final DocumentManager documentManager = new DocumentManager();
     private final DAOManager dao = new DAOManager();
 
+    private final BlockingQueue<File> scanQueue = new LinkedBlockingQueue<>(100); //max 100 scans in the queue
+    private Thread processorThread;
+    private Thread scannerThread;
+
     @FXML
     public void initialize() {
 
         User user = SessionManager.getCurrentUser();
-
         if (user != null) {
-
-            lblUsername.setText(
-                    user.getUsername()
-            );
-
-            lblInitials.setText(
-                    user.getInitials()
-            );
+            lblUsername.setText(user.getUsername());
+            lblInitials.setText(user.getInitials());
         }
 
         userBox.setOnMouseClicked(e ->
@@ -97,6 +100,8 @@ public class ScanningController{
                 });
             }
         });
+
+        loadTree();
     }
 
     // Lets the background thread see changes immediately
@@ -109,106 +114,33 @@ public class ScanningController{
     public void startScan() {
 
         Box selectedBox = showPreScanDialog();
-        if (selectedBox == null) return; // user canceled
-        activeProfile = selectedBox.getProfile();
 
+        if (selectedBox == null) {
+            return;}
+
+        activeProfile = selectedBox.getProfile();
         activeBox = selectedBox;
+
         documentManager.setActiveBoxId(activeBox.getId());
 
-
-
-        paused  = false;
+        paused = false;
         stopped = false;
 
         btnStartScan.setDisable(true);
         btnPauseScan.setDisable(false);
         btnStopScan.setDisable(false);
+
+        btnPauseScan.setText("Pause");
+
         progressBar.setVisible(true);
         progressBar.setManaged(true);
         progressBar.setProgress(-1);
-        btnPauseScan.setText("Pause");
+
         lblStatus.setText("Scanning...");
 
-        Task<Void> scanTask = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
+        startScannerThread();
 
-                try {
-                    while (!stopped) {
-
-                        while (paused && !stopped) {
-                            Thread.sleep(200);
-                        }
-                        if (stopped) break;
-
-                        File file = dao.getLocalTiffDAO().fetchNext();
-                        DocumentManager.ScanResult result = documentManager.processFileScan(file);
-
-                        // Convert image on background thread, we dont want it to do all the heavy lifting here
-                        Image image = TiffConverter.toJavaFXImage(
-                                file.getImageData(), activeProfile);
-
-                        Platform.runLater(() -> {
-                            // Full bar
-                            progressBar.setProgress(1.0);
-
-                            // RETURN TO ANIMATED STATE
-                            new Thread(() -> {
-                                try {
-                                    Thread.sleep(200);
-                                } catch (InterruptedException ignored) {}
-
-                                Platform.runLater(() ->
-                                        progressBar.setProgress(-1));
-                            }).start();
-
-                            lblStatus.setText(
-                                    "Scanned: "
-                                            + documentManager.getTotalScans()
-                                            + " file(s) — "
-                                            + documentManager.getTotalDocuments()
-                                            + " completed document(s)"
-                            );
-                            // Pass the already-converted image so JavaFX thread aint doing any heavy work
-                            loadDocumentWithImage(documentManager.getCurrentDocument(),
-                                    file, image);
-                        });
-
-                        Thread.sleep(500);
-                    }
-
-                } catch (Exception e) {
-
-                    System.err.println("Scan loop stopped due to exception: " + e.getMessage());
-                    e.printStackTrace();
-                }
-
-                documentManager.finalizeLastDocument();
-
-                Platform.runLater(() -> {
-                    List<Document> completed = documentManager.getCompletedDocuments();
-                    if (!completed.isEmpty())
-                        loadDocument(completed.getLast());
-
-                    lblStatus.setText(
-                            (stopped ? "Stopped" : "Done") + " — "
-                                    + documentManager.getTotalDocuments() + " document(s), "
-                                    + documentManager.getTotalScans() + " total scan(s)"
-                    );
-                    btnStartScan.setDisable(false);
-                    btnPauseScan.setDisable(true);
-                    btnStopScan.setDisable(true);
-
-                    // HIDE BAR WHEN FINISHED
-                    progressBar.setVisible(false);
-                    progressBar.setManaged(false);
-                });
-
-                return null;
-            }
-        };
-
-        new Thread(scanTask).start();
+        startProcessorThread();
     }
 
     /* for the api
@@ -296,13 +228,11 @@ public class ScanningController{
         paused = !paused;
         if (paused) {
             btnPauseScan.setText("Resume");
-            // Frozen bar = paused state
             progressBar.setProgress(0);
-
-            lblStatus.setText("Paused — " + documentManager.getTotalScans() + " scanned so far");
+            lblStatus.setText("Paused — "
+                    + documentManager.getTotalScans() + " scanned so far");
         } else {
             btnPauseScan.setText("Pause");
-            // Back to animated scanning state
             progressBar.setProgress(-1);
             lblStatus.setText("Resuming...");
         }
@@ -310,11 +240,194 @@ public class ScanningController{
 
     @FXML
     public void stopScan() {
+
         stopped = true;
-        paused  = false; // unblock the pause loop so thread can exit
+        paused = false;
+
+        if (scannerThread != null) {
+            scannerThread.interrupt();
+        }
+
+        if (processorThread != null) {
+            processorThread.interrupt();
+        }
+
         lblStatus.setText("Stopping...");
+
         btnPauseScan.setDisable(true);
         btnStopScan.setDisable(true);
+    }
+
+    private void startScannerThread() {
+
+        scannerThread = new Thread(() -> {
+            try {
+                while (!stopped) {
+                    // Wait if paused
+                    while (paused && !stopped) {
+                        Thread.sleep(50);
+                    }
+                    if (stopped) break;
+
+                    // Only fetch when queue is nearly empty
+                    if (scanQueue.size() < 2) {
+                        File file = dao.getLocalTiffDAO().fetchNext();
+                        if (file != null) {
+                            scanQueue.put(file);
+                        }
+                    }
+
+                    Thread.sleep(100);
+                }
+            } catch (Exception e) {
+                if (!stopped) {
+                    System.err.println("Scanner thread error: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+        scannerThread.setDaemon(true);
+        scannerThread.start();
+    }
+
+    private void startProcessorThread() {
+
+        processorThread = new Thread(() -> {
+
+            try {
+
+                while (!stopped) {
+
+                    // Pause processing
+                    while (paused && !stopped) {
+                        Thread.sleep(50);
+                    }
+
+                    if (stopped) {
+                        break;
+                    }
+
+                    // Wait for next scan
+                    File file = scanQueue.take();
+
+                    DocumentManager.ScanResult result =
+                            documentManager.processFileScan(file);
+
+                    Image image = TiffConverter.toJavaFXImage(
+                                    file.getImageData(),
+                                    activeProfile
+                            );
+
+                    // DUPLICATE BARCODE
+                    if (result ==
+                            DocumentManager.ScanResult.DUPLICATE_BARCODE) {
+
+                        paused = true;
+
+                        Platform.runLater(() -> {
+
+                            lblStatus.setText(
+                                    "Scanned: "
+                                            + documentManager.getTotalScans()
+                                            + " file(s) — "
+                                            + documentManager.getTotalDocuments()
+                                            + " completed document(s)"
+                            );
+
+                            progressBar.setProgress(0);
+
+                            showDuplicateBarcodeWarning(
+                                    file.getBarcodeContent(),
+                                    file,
+                                    image
+                            );
+                        });
+
+                        continue;
+                    }
+
+                    // NORMAL UI UPDATE
+                    Platform.runLater(() -> {
+
+                        progressBar.setProgress(1.0);
+
+                        new Thread(() -> {
+
+                            try {
+                                Thread.sleep(200);
+                            }
+                            catch (InterruptedException ignored) {}
+
+                            Platform.runLater(() ->
+                                    progressBar.setProgress(-1));
+
+                        }).start();
+
+                        lblStatus.setText(
+                                "Scanned: "
+                                        + documentManager.getTotalScans()
+                                        + " file(s) — "
+                                        + documentManager.getTotalDocuments()
+                                        + " completed document(s)"
+                        );
+
+                        loadDocumentWithImage(
+                                documentManager.getCurrentDocument(),
+                                file,
+                                image
+                        );
+                        loadTree(); // refresh tree to show newly scanned documents
+                    });
+                    Thread.sleep(300);
+                }
+
+            } catch (Exception e) {
+
+                System.err.println(
+                        "Processor thread error: "
+                                + e.getMessage()
+                );
+
+                e.printStackTrace();
+            }
+
+            try {
+                documentManager.finalizeLastDocument();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            Platform.runLater(() -> {
+
+                List<Document> completed =
+                        documentManager.getCompletedDocuments();
+
+                if (!completed.isEmpty()) {
+                    loadDocument(completed.getLast());
+                }
+
+                lblStatus.setText(
+                        (stopped ? "Stopped" : "Done")
+                                + " — "
+                                + documentManager.getTotalDocuments()
+                                + " document(s), "
+                                + documentManager.getTotalScans()
+                                + " total scan(s)"
+                );
+
+                btnStartScan.setDisable(false);
+                btnPauseScan.setDisable(true);
+                btnStopScan.setDisable(true);
+
+                progressBar.setVisible(false);
+                progressBar.setManaged(false);
+            });
+
+        });
+
+        processorThread.setDaemon(true);
+
+        processorThread.start();
     }
 
     // Shows the files
@@ -323,24 +436,26 @@ public class ScanningController{
         thumbnailContainer.getChildren().clear();
         currentFiles = new ArrayList<>(document.getFiles());
         currentFileIndex = 0;
-        currentRotation = 0;
+        currentRotation  = 0;
 
         for (int i = 0; i < currentFiles.size(); i++) {
             File file = currentFiles.get(i);
-            Image image = TiffConverter.toJavaFXImage(file.getImageData(), activeProfile);
-            if (image == null) image = new WritableImage(120, 160);
-            addThumbnail(document, file, image, i); // pass index
+            // Thumbnail size only — saves memory
+            Image thumbImage = TiffConverter.toJavaFXImageThumbnail(
+                    file.getImageData(), activeProfile);
+            if (thumbImage == null) thumbImage = new WritableImage(120, 160);
+            addThumbnail(document, file, thumbImage, i);
         }
 
         if (!currentFiles.isEmpty()) {
+            // Full res only for main preview
             Image first = TiffConverter.toJavaFXImage(
                     currentFiles.getFirst().getImageData(), activeProfile);
             mainPreview.setImage(first);
             mainPreview.setRotate(0);
         }
 
-        // Request focus so keyboard events work immediately
-        mainScrollPane.requestFocus();
+        mainScrollPane.requestFocus(); //For the keyboard shortcuts
     }
 
     private void addThumbnail(Document document, File file, Image image, int index) {
@@ -426,6 +541,16 @@ public class ScanningController{
             mainPreview.setImage(image);
             mainPreview.setRotate(0);
             highlightThumbnail(index);
+
+            // Load full-res on demand on a background thread
+            new Thread(() -> {
+                Image fullRes = TiffConverter.toJavaFXImage(
+                        file.getImageData(), activeProfile);
+                Platform.runLater(() -> {
+                    if (fullRes != null) mainPreview.setImage(fullRes);
+                    else mainPreview.setImage(image); // fallback to thumbnail
+                });
+            }).start();
         });
 
         // drag & drop to change the order of the files
@@ -509,15 +634,18 @@ public class ScanningController{
         thumbnailContainer.getChildren().clear();
 
         List<File> files = new ArrayList<>(document.getFiles());
-        currentFiles = files; // keep currentFiles in sync
+        currentFiles = files;
 
         for (int i = 0; i < files.size(); i++) {
             File file = files.get(i);
-            Image image = file == latestFile
-                    ? latestImage
-                    : TiffConverter.toJavaFXImage(file.getImageData(), activeProfile);
-            if (image == null) image = new WritableImage(120, 160);
-            addThumbnail(document, file, image, i); // pass index
+
+            // Use thumbnail size for sidebar — not full res
+            Image thumbImage = file == latestFile
+                    ? latestImage  // already converted on background thread
+                    : TiffConverter.toJavaFXImageThumbnail(file.getImageData(), activeProfile);
+            if (thumbImage == null) thumbImage = new WritableImage(120, 160);
+
+            addThumbnail(document, file, thumbImage, i);
         }
 
         if (latestImage != null) {
@@ -636,4 +764,338 @@ public class ScanningController{
             e.printStackTrace();
         }
     }
+
+    private void showDuplicateBarcodeWarning(String barcodeContent, File file, Image image) {
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        alert.setTitle("Duplicate Barcode");
+        alert.setHeaderText("This barcode has already been scanned");
+        alert.setContentText(
+                "Barcode ID: " + barcodeContent + "\n\n"
+                        + "This separator sheet was already used in this session.\n"
+                        + "What would you like to do?"
+        );
+
+        ButtonType btnSkip = new ButtonType("Skip", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType btnAccept = new ButtonType("Accept", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(btnSkip, btnAccept);
+
+        alert.getDialogPane().setStyle("""
+                -fx-font-family: 'Montserrat';
+            -fx-font-size: 12px;
+            """);
+
+
+        alert.showAndWait().ifPresentOrElse(choice -> {
+
+            if (choice == btnAccept) {
+
+                documentManager.approveDuplicateBarcode(barcodeContent);
+
+                try {
+
+                    documentManager.forceProcessBarcode(file);
+
+                } catch (Exception e) {
+
+                    System.err.println(
+                            "Error force-processing barcode: "
+                                    + e.getMessage()
+                    );
+
+                    paused = false;
+                    progressBar.setProgress(-1);
+
+                    return;
+                }
+
+                // We don't call loadDocumentWithImage here (converts images on JavaFX thread)
+                // Instead we start a background thread to convert, then update UI
+                // It kinda crashed when i tried it with the image loading bc of the heavy processing on the JavaFX thread
+                Document current = documentManager.getCurrentDocument();
+                paused = false;
+
+                new Thread(() -> {
+
+                    List<File> files = new ArrayList<>(current.getFiles());
+
+                    List<Image> images = new ArrayList<>();
+
+                    for (File f : files) {
+
+                        Image img = f == file
+                                ? image
+                                : TiffConverter.toJavaFXImage(
+                                f.getImageData(),
+                                activeProfile
+                        );
+
+                        images.add(
+                                img != null
+                                        ? img
+                                        : new WritableImage(120, 160)
+                        );
+                    }
+
+                    Platform.runLater(() -> {
+
+                        thumbnailContainer.getChildren().clear();
+
+                        currentFiles = files;
+
+                        for (int i = 0; i < files.size(); i++) {
+
+                            addThumbnail(
+                                    current,
+                                    files.get(i),
+                                    images.get(i),
+                                    i
+                            );
+                        }
+
+                        if (!images.isEmpty()) {
+
+                            mainPreview.setImage(images.getFirst());
+
+                            currentFileIndex = 0;
+                            currentRotation = 0;
+
+                            mainPreview.setRotate(0);
+                        }
+
+                        lblStatus.setText(
+                                "Scanned: "
+                                        + documentManager.getTotalScans()
+                                        + " file(s) — "
+                                        + documentManager.getTotalDocuments()
+                                        + " completed document(s)"
+                        );
+
+                        progressBar.setProgress(-1);
+
+                    });
+
+                }).start();
+
+            } else {
+
+                // Skip clicked
+                paused = false;
+                progressBar.setProgress(-1);
+            }
+
+        }, () -> {
+
+            // Dialog closed with X button
+
+            paused = false;
+            progressBar.setProgress(-1);
+
+        });
+    }
+
+    // For the tree
+
+    @FXML
+    private void refreshTree() {
+        loadTree();
+    }
+
+    public void loadTree() {
+        treeContainer.getChildren().clear();
+
+        User user = SessionManager.getCurrentUser();
+        if (user == null) return;
+
+        List<Box> boxes;
+        try {
+            boxes = dao.getBoxDAO().getBoxesByUser(user.getId());
+        } catch (Exception e) {
+            System.err.println("Could not load boxes for tree: " + e.getMessage());
+            return;
+        }
+
+        if (boxes.isEmpty()) {
+            Label empty = new Label("No boxes yet");
+            empty.setStyle("-fx-text-fill: #64748B; -fx-font-size: 11px; -fx-padding: 6;");
+            treeContainer.getChildren().add(empty);
+            return;
+        }
+
+        for (Box box : boxes) {
+            treeContainer.getChildren().add(buildBoxNode(box));
+        }
+    }
+
+    private VBox buildBoxNode(Box box) {
+        VBox boxNode = new VBox(2);
+
+        HBox boxRow = new HBox(6);
+        boxRow.getStyleClass().addAll("radius-md");
+        boxRow.setStyle("-fx-padding: 5 6 5 6; -fx-cursor: hand;");
+
+        Label arrow = new Label("▶");
+        arrow.getStyleClass().add("text-helper");
+        arrow.setMinWidth(12);
+
+        // Shows the user-entered box number, falls back to DB id if box_id is 0 (it shouldn't be tho)
+        String displayId = box.getBoxId() > 0
+                ? String.valueOf(box.getBoxId())
+                : String.valueOf(box.getId());
+        Label boxLabel = new Label("Box #" + displayId);
+        boxLabel.getStyleClass().add("label-medium");
+
+        boxRow.getChildren().addAll(arrow, boxLabel);
+
+        VBox docContainer = new VBox(1);
+        docContainer.setVisible(false);
+        docContainer.setManaged(false);
+        docContainer.setStyle("-fx-padding: 0 0 0 14;");
+
+        boxRow.setOnMouseEntered(e ->
+                boxRow.setStyle("-fx-padding: 5 6 5 6; -fx-cursor: hand; " +
+                        "-fx-background-color: #F1F5F9; -fx-background-radius: 6;"));
+        boxRow.setOnMouseExited(e ->
+                boxRow.setStyle("-fx-padding: 5 6 5 6; -fx-cursor: hand;"));
+
+        boxRow.setOnMouseClicked(e -> {
+            boolean expanded = docContainer.isVisible();
+            if (!expanded) {
+                docContainer.getChildren().clear();
+                try {
+                    List<Document> docs = dao.getDocumentDAO()
+                            .getDocumentsForBox(box.getId());
+                    for (Document doc : docs) {
+                        docContainer.getChildren().add(buildDocumentNode(doc));
+                    }
+                    if (docs.isEmpty()) {
+                        Label empty = new Label("No documents");
+                        empty.getStyleClass().add("text-helper");
+                        empty.setStyle("-fx-padding: 3 6;");
+                        docContainer.getChildren().add(empty);
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Could not load documents: " + ex.getMessage());
+                }
+                arrow.setText("▼");
+            } else {
+                arrow.setText("▶");
+            }
+            docContainer.setVisible(!expanded);
+            docContainer.setManaged(!expanded);
+        });
+
+        boxNode.getChildren().addAll(boxRow, docContainer);
+        return boxNode;
+    }
+
+    private VBox buildDocumentNode(Document doc) {
+        VBox docNode = new VBox(1);
+
+        HBox docRow = new HBox(6);
+        docRow.setStyle("-fx-padding: 4 6 4 6; -fx-cursor: hand;");
+
+        Label arrow = new Label("▶");
+        arrow.getStyleClass().add("text-helper");
+        arrow.setMinWidth(12);
+
+        Label docLabel = new Label("Doc #" + doc.getId());
+        docLabel.getStyleClass().add("label-regular");
+
+        docRow.getChildren().addAll(arrow, docLabel);
+
+        VBox fileContainer = new VBox(1);
+        fileContainer.setVisible(false);
+        fileContainer.setManaged(false);
+        fileContainer.setStyle("-fx-padding: 0 0 0 14;");
+
+        docRow.setOnMouseEntered(e ->
+                docRow.setStyle("-fx-padding: 4 6 4 6; -fx-cursor: hand; " +
+                        "-fx-background-color: #F1F5F9; -fx-background-radius: 6;"));
+        docRow.setOnMouseExited(e ->
+                docRow.setStyle("-fx-padding: 4 6 4 6; -fx-cursor: hand;"));
+
+        docRow.setOnMouseClicked(e -> {
+            boolean expanded = fileContainer.isVisible();
+            if (!expanded) {
+                fileContainer.getChildren().clear();
+                try {
+                    List<File> files = dao.getDocumentDAO()
+                            .getFilesForDocument(doc.getId());
+                    for (File file : files) {
+                        fileContainer.getChildren().add(buildFileNode(doc, file));
+                    }
+                    if (files.isEmpty()) {
+                        Label empty = new Label("No files");
+                        empty.getStyleClass().add("text-helper");
+                        empty.setStyle("-fx-padding: 2 6;");
+                        fileContainer.getChildren().add(empty);
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Could not load files: " + ex.getMessage());
+                }
+                arrow.setText("▼");
+            } else {
+                arrow.setText("▶");
+            }
+            fileContainer.setVisible(!expanded);
+            fileContainer.setManaged(!expanded);
+        });
+
+        docNode.getChildren().addAll(docRow, fileContainer);
+        return docNode;
+    }
+
+    private HBox buildFileNode(Document doc, File file) {
+        HBox fileRow = new HBox(6);
+        fileRow.setStyle("-fx-padding: 3 6 3 6; -fx-cursor: hand;");
+
+        Label dot = new Label("●");
+        dot.setStyle("-fx-font-size: 8px; -fx-text-fill: "
+                + (file.isBarcode() ? "#FF3D32;" : "#E2E4E8;"));
+
+        String label = file.isBarcode() ? "Barcode" : "File #" + file.getFileNumber();
+        Label fileLabel = new Label(label);
+        fileLabel.getStyleClass().add("text-helper");
+
+        fileRow.getChildren().addAll(dot, fileLabel);
+
+        fileRow.setOnMouseEntered(e ->
+                fileRow.setStyle("-fx-padding: 3 6 3 6; -fx-cursor: hand; " +
+                        "-fx-background-color: #F1F5F9; -fx-background-radius: 6;"));
+        fileRow.setOnMouseExited(e ->
+                fileRow.setStyle("-fx-padding: 3 6 3 6; -fx-cursor: hand;"));
+
+        fileRow.setOnMouseClicked(e -> navigateToFile(doc, file));
+
+        return fileRow;
+    }
+
+    /**
+     * Loads the full file data from DB and shows it in the main preview.
+     * The tree only stores IDs, so we need to get the image when a file is clicked.
+     */
+    private void navigateToFile(Document doc, File file) {
+        new Thread(() -> {
+            File fullFile = dao.getDocumentDAO().getFileById(file.getId());
+            if (fullFile == null || fullFile.getImageData() == null) {
+                Platform.runLater(() ->
+                        lblStatus.setText("File #" + file.getId() + " has no image data"));
+                return;
+            }
+
+            Image fullRes = TiffConverter.toJavaFXImage(
+                    fullFile.getImageData(), activeProfile);
+
+            Platform.runLater(() -> {
+                if (fullRes != null) {
+                    mainPreview.setImage(fullRes);
+                    mainPreview.setRotate(0);
+                    currentRotation = 0;
+                    lblStatus.setText("Viewing File #" + fullFile.getFileNumber()
+                            + " from Doc #" + doc.getId());
+                }
+            });
+        }).start();
+    }
+
 }

@@ -1,13 +1,18 @@
 package dk.easv.weblagerexam.be;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Box {
     private int id;
     private int userId;
     private int profileId; // foreign key back to Profile
-    private Profile profile; //gets populated after selection in the prescan
+    private Profile profile; //gets filled after selection in the prescan
     private boolean isDeleted;
     private int boxId;
     private String metaData;
+    private List<Document> documents = new ArrayList<>();
+
 
     public Box(int id, int profileId) {
         this.id = id;
@@ -58,6 +63,9 @@ public class Box {
     public void setMetaData(String metaData) {
         this.metaData = metaData;
     }
+
+    public List<Document> getDocuments() {return documents;}
+    public void setDocuments(List<Document> documents) {this.documents = documents;}
 
     @Override
     public String toString() {

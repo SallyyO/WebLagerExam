@@ -54,9 +54,6 @@ public class ProfileDAO {
 
     // Get profiles that are assigned to a user
     public List<Profile> getProfilesForUser(int userId) {
-
-        // DEBUGGING IGNORE THISSS
-        System.out.println("Loading profiles for user ID: " + userId);
         String sql = """
                 SELECT p.id,
                        p.name,
@@ -69,10 +66,6 @@ public class ProfileDAO {
                 """;
 
         List<Profile> result = fetchProfiles(sql, userId);
-
-        // DEBUGGING PT 2
-        System.out.println("Profiles found for user " + userId + ": " + result.size());
-        result.forEach(p -> System.out.println("  - " + p.getId() + ": " + p.getName()));
 
         return result;
     }

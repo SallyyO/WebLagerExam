@@ -85,18 +85,14 @@ public class ApiDAO {
             LuminanceSource source = new BufferedImageLuminanceSource(scaled);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
-            // Use multi-barcode reader since the separator sheet has TWO barcodes
-            //Probably doesn't matter since the second barcode isn't really usuable rn
+            // Using multi-barcode reader since the separator sheet has TWO barcodes
+            //Probably doesn't matter since the second barcode isn't really usable rn
             MultipleBarcodeReader multiReader =
                     new GenericMultipleBarcodeReader(new MultiFormatReader());
 
             Result[] results = multiReader.decodeMultiple(bitmap);
 
             if (results != null && results.length > 0) {
-                for (Result r : results) {
-                    System.out.println("  Barcode decoded: " + r.getText()
-                            + " [" + r.getBarcodeFormat() + "]");
-                }
                 return true;
             }
             return false;

@@ -11,6 +11,7 @@ public class File {
     private int fileNumber;
     private byte[] imageData;
     private boolean isBarcode;
+    private String barcodeContent;
 
     public File(byte[] imageData, boolean isBarcode) {
         this.imageData = imageData;
@@ -32,6 +33,9 @@ public class File {
 
     public boolean isBarcode() {return isBarcode;}
     public void setBarcode(boolean isBarcode) {this.isBarcode = isBarcode;}
+
+    public String getBarcodeContent() { return barcodeContent; }
+    public void setBarcodeContent(String barcodeContent) { this.barcodeContent = barcodeContent; }
 
     public boolean isDeleted() {
         return isDeleted;
