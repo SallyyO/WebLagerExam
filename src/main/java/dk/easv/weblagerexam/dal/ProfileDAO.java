@@ -170,4 +170,49 @@ public class ProfileDAO {
             throw new RuntimeException(e);
         }
     }
+
+    public Profile getProfileById(int profileId) {
+
+        String sql = """
+            SELECT id,
+                   name,
+                   settingstype,
+                   settingsvalue
+            FROM Profiles
+            WHERE id = ?
+            """;
+
+        try (Connection con = conMan.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, profileId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+
+                String typeStr = rs.getString("settingstype");
+
+                ProfileSettings type = typeStr != null
+                        ? ProfileSettings.valueOf(typeStr)
+                        : null;
+
+                Double value = rs.getObject("settingsvalue") != null
+                        ? rs.getDouble("settingsvalue")
+                        : null;
+
+                return new Profile(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        type,
+                        value
+                );
+            }
+
+            return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
