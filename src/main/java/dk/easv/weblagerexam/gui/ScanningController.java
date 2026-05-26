@@ -771,19 +771,42 @@ public class ScanningController{
         alert.setHeaderText("This barcode has already been scanned");
         alert.setContentText(
                 "Barcode ID: " + barcodeContent + "\n\n"
-                        + "This separator sheet was already used in this session.\n"
+                        + "Please check if this document has already been scanned.\n"
                         + "What would you like to do?"
         );
 
+        /* Image logo = new Image(
+                Objects.requireNonNull(
+                        getClass().getResourceAsStream("/Images/LogoBlueH.png")
+                )
+        );
+
+        ImageView logoView = new ImageView(logo);
+        logoView.setFitWidth(80);
+        logoView.setPreserveRatio(true);
+
+        alert.setGraphic(logoView);
+
+         */
+
         ButtonType btnSkip = new ButtonType("Skip", ButtonBar.ButtonData.CANCEL_CLOSE);
-        ButtonType btnAccept = new ButtonType("Accept", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnAccept = new ButtonType("Continue", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(btnSkip, btnAccept);
 
-        alert.getDialogPane().setStyle("""
-                -fx-font-family: 'Montserrat';
-            -fx-font-size: 12px;
-            """);
+        Button skipButton =
+                (Button) alert.getDialogPane().lookupButton(btnSkip);
 
+        Button acceptButton =
+                (Button) alert.getDialogPane().lookupButton(btnAccept);
+
+        skipButton.getStyleClass().addAll("button", "button-danger");
+        acceptButton.getStyleClass().addAll("button", "button-primary");
+
+        alert.getDialogPane().getStylesheets().add(
+                Objects.requireNonNull(
+                        getClass().getResource("/dk/easv/weblagerexam/CSS/app.css")
+                ).toExternalForm()
+        );
 
         alert.showAndWait().ifPresentOrElse(choice -> {
 
@@ -1051,7 +1074,7 @@ public class ScanningController{
 
         Label dot = new Label("●");
         dot.setStyle("-fx-font-size: 8px; -fx-text-fill: "
-                + (file.isBarcode() ? "#FF3D32;" : "#E2E4E8;"));
+                + (file.isBarcode() ? "#2D3D4F;" : "#E2E4E8;"));
 
         String label = file.isBarcode() ? "Barcode" : "File #" + file.getFileNumber();
         Label fileLabel = new Label(label);
@@ -1097,5 +1120,4 @@ public class ScanningController{
             });
         }).start();
     }
-
 }

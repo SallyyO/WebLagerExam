@@ -1,5 +1,6 @@
 package dk.easv.weblagerexam.be;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ public class Box {
     private boolean isDeleted;
     private int boxId;
     private String metaData;
+    private LocalDateTime createdAt = LocalDateTime.now();
     private List<Document> documents = new ArrayList<>();
 
 
@@ -63,6 +65,9 @@ public class Box {
     public void setMetaData(String metaData) {
         this.metaData = metaData;
     }
+
+    public LocalDateTime getCreatedAt() {return createdAt;}
+    public void setCreatedAt(LocalDateTime createdAt) {this.createdAt = createdAt;}
 
     public List<Document> getDocuments() {return documents;}
     public void setDocuments(List<Document> documents) {this.documents = documents;}

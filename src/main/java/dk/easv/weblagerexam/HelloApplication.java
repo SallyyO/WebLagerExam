@@ -4,9 +4,11 @@ package dk.easv.weblagerexam;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class HelloApplication extends Application {
     @Override
@@ -17,6 +19,7 @@ public class HelloApplication extends Application {
         scene.getStylesheets().add(
                 getClass().getResource("/dk/easv/weblagerexam/CSS/app.css").toExternalForm()
         );
+
         stage.setTitle("Login");
 
 

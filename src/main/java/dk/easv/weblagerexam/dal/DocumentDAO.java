@@ -253,4 +253,45 @@ public class DocumentDAO {
         }
     }
 
+    public List<File> getFilesForDocumentWithData(int documentId) {
+        String sql = """
+        SELECT id,
+               file_number,
+               is_barcode,
+               file_data
+        FROM [File]
+        WHERE document_id = ?
+        ORDER BY file_number
+        """;
+
+        List<File> files = new ArrayList<>();
+
+        try (Connection con = conMan.getConnection()) {
+
+            PreparedStatement stmt =
+                    con.prepareStatement(sql);
+
+            stmt.setInt(1, documentId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+
+                File file = new File(
+                        rs.getBytes("file_data"),
+                        rs.getBoolean("is_barcode")
+                );
+
+                file.setId(rs.getInt("id"));
+                file.setFileNumber(rs.getInt("file_number"));
+
+                files.add(file);
+            }
+
+            return files;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

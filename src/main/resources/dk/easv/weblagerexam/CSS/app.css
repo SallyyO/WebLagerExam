@@ -302,17 +302,6 @@ By doing it like this, we are telling it to start from the top and
     -fx-background-color: #F1F5F9;
 }
 
-/* Context menu styling */
-.context-menu {
-    -fx-background-color: white;
-    -fx-background-radius: 6;
-    -fx-border-color: #E2E4E8;
-    -fx-border-radius: 6;
-}
-
-.menu-item {
-    -fx-padding: 8 12 8 12;
-}
 
 /* Avatar circle */
 .avatar-circle {
@@ -330,4 +319,22 @@ By doing it like this, we are telling it to start from the top and
     -fx-text-fill: white;
     -fx-font-size: 12px;
     -fx-font-weight: 600;
+}
+/* || ICONS */
+.pi-icon {
+    -fx-font-family: "PrimeIcons";
+    -fx-font-size: 28px;
+    -fx-text-fill: #2D3D4F;
+}
+
+.pi-box {
+    content: "\e90d";
+}
+
+.pi-folder {
+    content: "\e963";
+}
+
+.pi-file-o {
+    content: "\e9a8";
 }

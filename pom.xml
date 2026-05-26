@@ -59,6 +59,11 @@
             <version>3.5.4</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>primeicons</artifactId>
+            <version>7.0.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
