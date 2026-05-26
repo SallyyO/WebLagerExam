@@ -5,6 +5,7 @@ import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -85,7 +86,7 @@ public class BoxBrowserController {
         selectedBox = null;
         selectedDocument = null;
 
-        lblLevelTitle.setText("My Boxes");
+        lblLevelTitle.setText("Boxes");
         updateBreadcrumb();
         folderGrid.getChildren().clear();
 
@@ -113,7 +114,7 @@ public class BoxBrowserController {
         currentLevel = Level.DOCUMENTS;
         selectedBox = box;
         selectedDocument = null;
-        System.out.println(selectedBox.getProfile()); 
+        System.out.println(selectedBox.getProfile());
 
         String displayId = box.getBoxId() > 0
                 ? String.valueOf(box.getBoxId())
@@ -433,7 +434,7 @@ public class BoxBrowserController {
     }
 
     @FXML
-    private void onBackClicked(MouseEvent event) {
+    private void onBackClicked(ActionEvent event) {
         switch (currentLevel) {
             case DOCUMENTS -> showBoxes();
             case FILES     -> showDocuments(selectedBox);

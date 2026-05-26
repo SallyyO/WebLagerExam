@@ -1,12 +1,14 @@
 package dk.easv.weblagerexam.dal;
 
 import dk.easv.weblagerexam.be.Box;
+import dk.easv.weblagerexam.be.Profile;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BoxDAO {
+    private final ProfileDAO profileDAO = new ProfileDAO();
     private ConnectionManager conMan = new ConnectionManager();
 
     public void addBox(Box box) {
@@ -100,11 +102,17 @@ public class BoxDAO {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
+            ProfileDAO profileDAO = new ProfileDAO();
+
             while (rs.next()) {
                 Box box = new Box(rs.getInt("userId"));
                 box.setId(rs.getInt("id"));           // DB primary key
                 box.setBoxId(rs.getInt("box_id"));    // user-entered number
-                box.setProfileId(rs.getInt("profileId"));
+                int profileId = rs.getInt("profileId");
+                box.setProfileId(profileId);
+
+                Profile profile = profileDAO.getProfileById(profileId);
+                box.setProfile(profile);
                 boxes.add(box);
             }
             return boxes;
