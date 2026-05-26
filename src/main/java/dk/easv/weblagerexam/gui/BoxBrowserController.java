@@ -3,6 +3,7 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.*;
 import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.bll.SessionManager;
+import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -15,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -77,6 +79,11 @@ public class BoxBrowserController {
         );
 
         showBoxes();
+
+        userBox.setOnMouseClicked(e ->
+                LogoutUtil.logout((Stage) userBox.getScene().getWindow())
+        );
+        Tooltip.install(userBox, new Tooltip("Click to log out"));
     }
 
     // Boxes
