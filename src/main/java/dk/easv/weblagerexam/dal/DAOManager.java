@@ -8,6 +8,7 @@ public class DAOManager {
     private DocumentDAO documentDAO = new DocumentDAO();
     private LocalTiffDAO localTiffDAO = new LocalTiffDAO();
     private ApiDAO apiDAO = new ApiDAO();
+    private FileDAO fileDAO = new FileDAO();
 
 
     public UserDAO getUserDAO() {
@@ -37,5 +38,7 @@ public class DAOManager {
     public ApiDAO getApiDAO() {
         return apiDAO;
     }
+
+    public FileDAO getFileDAO() {return fileDAO;};
 }
 

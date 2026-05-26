@@ -179,4 +179,33 @@ public class UserDAO {
         }
         return profiles;
     }
+
+    public List<User> searchUsers(String searchText) {
+        List<User> users = new ArrayList<>();
+
+        String sql = "SELECT * FROM Users WHERE username LIKE ? AND (isDeleted = 0 OR isDeleted IS NULL)";
+
+        try (Connection con = conMan.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + searchText + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String role = rs.getString("role");
+                String username = rs.getString("username");
+                String initials = rs.getString("initials");
+                String password = rs.getString("password");
+                String salt = rs.getString("salt");
+
+                users.add(new User(id, username, role, initials, password, salt));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return users;
+    }
 }

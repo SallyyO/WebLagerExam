@@ -1,11 +1,13 @@
 package dk.easv.weblagerexam.gui;
 
+import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.bll.UserManager;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,6 +19,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.collections.transformation.FilteredList;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -45,7 +48,7 @@ public class AdminController {
     private Button historyButton;
 
     @FXML
-    private TableColumn<User, Integer> idColumn;
+    private TableColumn<User, Void> actionsColumn;
 
     @FXML
     private TableView<User> mainTable;
@@ -61,9 +64,15 @@ public class AdminController {
 
     @FXML private HBox userBox;
 
+    @FXML
+    private TextField searchTextField;
+
     private UserManager userManager = new UserManager();
+
     LogManager logManager = new LogManager();
 
+    private final ObservableList<User> allUsers = FXCollections.observableArrayList();
+    private final FilteredList<User> filteredUsers = new FilteredList<>(allUsers, p -> true);
 
     @FXML
     public void initialize() {
@@ -81,16 +90,49 @@ public class AdminController {
             );
         }
 
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
 
+        setupActionsColumn();
+
+        mainTable.setItems(filteredUsers);
+
         loadUsers();
+
+        searchTextField.textProperty().addListener((obs, oldVal, newVal) -> filterTable(newVal));
 
         userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
     }
 
+    private void setupActionsColumn() {
+        actionsColumn.setCellFactory(col -> new TableCell<>() {
+            private final Button editBtn   = new Button("Edit");
+            private final Button deleteBtn = new Button("Delete");
+            private final HBox   box       = new HBox(6, editBtn, deleteBtn);
+
+            {
+                editBtn.getStyleClass().addAll("button-primary", "text-button");
+                deleteBtn.getStyleClass().addAll("button-primary", "text-button");
+
+                editBtn.setOnAction(e -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    handleEditUser(user);
+                });
+
+                deleteBtn.setOnAction(e -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    handleDeleteUser(user);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : box);
+            }
+        });
+    }
 
     @FXML
     void onAddUserBtnClicked(ActionEvent event) {
@@ -113,48 +155,30 @@ public class AdminController {
         }
     }
 
-
-
-    @FXML
-    void onDeleteUserBtnClicked(ActionEvent event) {
-        User selectedUser = mainTable.getSelectionModel().getSelectedItem();
-        if(selectedUser == null){
-            showError(" No user selected", "Select a User to Delete ");
-            return;
-        }
-        // confirm before deleting
+    private void handleDeleteUser(User selectedUser) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Delete User");
         confirm.setContentText("Are you sure you want to delete " + selectedUser.getUsername() + "?");
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                try{
-                    userManager.deleteUser((selectedUser.getId()));
+                try {
+                    userManager.deleteUser(selectedUser.getId());
                     loadUsers();
-
-                }
-                catch(Exception e){
+                } catch (Exception e) {
+                    e.printStackTrace();
                     showError("Could not delete User", e.getMessage());
                 }
             }
         });
-
     }
 
-    @FXML
-    void onEditUserBtnClicked(ActionEvent event) {
-        User selectedUser = mainTable.getSelectionModel().getSelectedItem();
-        if( selectedUser == null){
-            showError("No user selected", "Please select a user");
-            return;
-        }
-        try{
+    private void handleEditUser(User selectedUser) {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/dk/easv/weblagerexam/addNewUser.fxml"));
             Parent root = loader.load();
 
             AddNewUserController controller = loader.getController();
             controller.setUser(selectedUser);
-
 
             Stage stage = new Stage();
             stage.setTitle("Edit User");
@@ -162,11 +186,10 @@ public class AdminController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
             loadUsers();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Could not open Edit User Window", e.getMessage());
         }
-        catch(Exception e){
-            showError("Could not open Edit User Wndow", e.getMessage());
-        }
-
     }
 
     @FXML
@@ -177,7 +200,7 @@ public class AdminController {
     @FXML
     void onHistoryClicked(ActionEvent event) {
         try{
-            idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            //idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             usernameColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
             typeColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             mainTable.setVisible(false);
@@ -198,14 +221,27 @@ public class AdminController {
     }
 
     public void loadUsers()  {
-       try{
-            mainTable.setItems(
-                    FXCollections.observableArrayList(userManager.getAllUsers()));
-        }
-        catch (Exception e){
+        try {
+            allUsers.setAll(userManager.getAllUsers());
+        } catch (Exception e) {
+            e.printStackTrace();
             showError("Could not load users", e.getMessage());
         }
+    }
 
+    private void filterTable(String searchText) {
+        if (searchText == null || searchText.isBlank()) {
+            filteredUsers.setPredicate(p -> true);
+        } else {
+            String lower = searchText.toLowerCase();
+            filteredUsers.setPredicate(u ->
+                    u.getUsername() != null && u.getUsername().toLowerCase().contains(lower)
+            );
+        }
+    }
+
+    @FXML
+    void onProfilesClicked(ActionEvent event) {
     }
 
     private void showError(String title, String message) {

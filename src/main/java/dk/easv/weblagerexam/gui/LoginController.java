@@ -58,6 +58,7 @@ public class LoginController {
             } catch (Exception e) {
                 lblErr.setVisible(true);
                 lblErr.setText("An error occurred while loading the homepage");
+                e.printStackTrace();
             }
         } else {
             lblErr.setVisible(true);

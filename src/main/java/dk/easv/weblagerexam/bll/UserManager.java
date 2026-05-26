@@ -1,5 +1,6 @@
 package dk.easv.weblagerexam.bll;
 
+import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.dal.DAOManager;
@@ -73,4 +74,7 @@ public class UserManager {
     public List<Profile> getProfilesForUser(int userId) throws Exception {
         return dao.getUserDAO().getProfilesForUser(userId);
     }
+
+
+    public List<User> searchUsers(String searchText) {return dao.getUserDAO().searchUsers(searchText);}
 }
