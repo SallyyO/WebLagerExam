@@ -68,6 +68,9 @@
                         <String fx:value="button-secondary" />
                         <String fx:value="text-button" />
                     </styleClass>
+               <VBox.margin>
+                  <Insets left="6.0" right="6.0" top="6.0" />
+               </VBox.margin>
                 </Button>
 
                  <Button fx:id="boxesBtn" onAction="#onBoxesBtnClicked" prefHeight="55.0" prefWidth="210.0" stylesheets="@CSS/app.css" text="Boxes">
@@ -79,7 +82,7 @@
                          <String fx:value="text-button" />
                      </styleClass>
                <VBox.margin>
-                  <Insets top="9.0" />
+                  <Insets left="6.0" right="6.0" top="6.0" />
                </VBox.margin>
                  </Button>
 
@@ -88,33 +91,20 @@
             </VBox>
 
             <!-- MAIN CONTENT AREA -->
-            <VBox fx:id="continueScanSection"
-                  stylesheets="@CSS/app.css"
-                  HBox.hgrow="ALWAYS"
-                  spacing="8"
-                  alignment="CENTER"
-                  style="-fx-cursor: hand;"
-                  onMouseClicked="#onContinueScanClicked">
+            <VBox fx:id="continueScanSection" alignment="CENTER" onMouseClicked="#onContinueScanClicked" spacing="8" style="-fx-cursor: hand;" stylesheets="@CSS/app.css" HBox.hgrow="ALWAYS">
 
                 <VBox.margin>
-                    <Insets left="355.0"/>
+                    <Insets left="355.0" />
                 </VBox.margin>
 
-                <ImageView fx:id="latestScanPreview"
-                           fitHeight="500.0"
-                           fitWidth="250.0"
-                           pickOnBounds="true"
-                           preserveRatio="true">
+                <ImageView fx:id="latestScanPreview" fitHeight="500.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
                     <!-- Default placeholder shown before latest scan loads -->
                     <image>
-                        <Image url="@/Images/WeblagerWhiteIcon.png"/>
+                        <Image url="@/Images/WeblagerWhiteIcon.png" />
                     </image>
                 </ImageView>
 
-                <Label fx:id="lblContinueScan"
-                       styleClass="text-body"
-                       text="Continue scan?"
-                       style="-fx-text-fill: #64748B;"/>
+                <Label fx:id="lblContinueScan" style="-fx-text-fill: #64748B;" styleClass="text-body" text="Continue scan?" />
 
                 <!-- BOTTOM ACTION BUTTONS -->
                 <HBox alignment="CENTER" prefHeight="80" spacing="40" styleClass="modal-footer" VBox.vgrow="ALWAYS">
