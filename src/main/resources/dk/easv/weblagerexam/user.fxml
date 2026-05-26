@@ -14,7 +14,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="680" prefWidth="1120" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.UserController">
+<BorderPane prefHeight="680" prefWidth="1120" style="-fx-background-color: #ffffff;" stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.UserController">
 
     <!-- TOP NAVIGATION BAR -->
     <top>
@@ -90,62 +90,62 @@
                 <Region prefWidth="119.0" styleClass="modal-footer" VBox.vgrow="ALWAYS" />
             </VBox>
 
-            <!-- MAIN CONTENT AREA -->
-            <VBox fx:id="continueScanSection" alignment="CENTER" onMouseClicked="#onContinueScanClicked" spacing="8" style="-fx-cursor: hand;" stylesheets="@CSS/app.css" HBox.hgrow="ALWAYS">
+            <!-- MAIN CONTENT — always visible -->
+            <VBox HBox.hgrow="ALWAYS" alignment="CENTER">
 
-                <VBox.margin>
-                    <Insets left="355.0" />
-                </VBox.margin>
+                <!-- Continue scan section — hidden if no previous scans -->
+                <VBox fx:id="continueScanSection"
+                      alignment="CENTER"
+                      onMouseClicked="#onContinueScanClicked"
+                      spacing="8"
+                      style="-fx-cursor: hand;"
+                      stylesheets="@CSS/app.css"
+                      VBox.vgrow="ALWAYS">
 
-                <ImageView fx:id="latestScanPreview" fitHeight="500.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
-                    <!-- Default placeholder shown before latest scan loads -->
-                    <image>
-                        <Image url="@/Images/WeblagerWhiteIcon.png" />
-                    </image>
-                </ImageView>
+                    <ImageView fx:id="latestScanPreview"
+                               fitHeight="400.0" fitWidth="250.0"
+                               pickOnBounds="true" preserveRatio="true">
+                        <image><Image url="@/Images/WeblagerWhiteIcon.png"/></image>
+                    </ImageView>
 
-                <Label fx:id="lblContinueScan" style="-fx-text-fill: #64748B;" styleClass="text-body" text="Continue scan?" />
+                    <Label fx:id="lblContinueScan"
+                           style="-fx-text-fill: #64748B;"
+                           styleClass="text-body"
+                           text="Continue scan?"/>
+                </VBox>
 
                 <!-- BOTTOM ACTION BUTTONS -->
-                <HBox alignment="CENTER" prefHeight="80" spacing="40" styleClass="modal-footer" VBox.vgrow="ALWAYS">
+                <HBox alignment="CENTER" prefHeight="80" spacing="40"
+                      styleClass="modal-footer">
                     <padding>
-                        <Insets bottom="15" left="20" right="20" top="15" />
+                        <Insets bottom="15" left="20" right="20" top="15"/>
                     </padding>
-
-                    <Button fx:id="newScanBtn" onAction="#onNewScanBtnClicked" text="New Scan">
-                        <font>
-                            <Font name="System Bold" size="15" />
-                        </font>
+                    <Button fx:id="newScanBtn" onAction="#onNewScanBtnClicked"
+                            text="New Scan">
+                        <font><Font name="System Bold" size="15"/></font>
                         <styleClass>
-                            <String fx:value="button-primary" />
-                            <String fx:value="text-button" />
+                            <String fx:value="button-primary"/>
+                            <String fx:value="text-button"/>
                         </styleClass>
                     </Button>
-               <Button fx:id="exportBtn" onAction="#onExportBtnClicked" text="Export">
-                  <font>
-                     <Font name="System Bold" size="15" />
-                  </font>
-                  <styleClass>
-                     <String fx:value="button-primary" />
-                     <String fx:value="text-button" />
-                  </styleClass>
-                  <HBox.margin>
-                     <Insets />
-                  </HBox.margin>
-               </Button>
-               <Button fx:id="deleteScansBtn" onAction="#onDeleteScansBtnClicked" text="Delete Scans">
-                  <font>
-                     <Font name="System Bold" size="15" />
-                  </font>
-                  <styleClass>
-                     <String fx:value="button-primary" />
-                     <String fx:value="text-button" />
-                  </styleClass>
-               </Button>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
+                    <Button fx:id="exportBtn" onAction="#onExportBtnClicked"
+                            text="Export">
+                        <font><Font name="System Bold" size="15"/></font>
+                        <styleClass>
+                            <String fx:value="button-primary"/>
+                            <String fx:value="text-button"/>
+                        </styleClass>
+                    </Button>
+                    <Button fx:id="deleteScansBtn" onAction="#onDeleteScansBtnClicked"
+                            text="Delete Scans">
+                        <font><Font name="System Bold" size="15"/></font>
+                        <styleClass>
+                            <String fx:value="button-primary"/>
+                            <String fx:value="text-button"/>
+                        </styleClass>
+                    </Button>
                 </HBox>
+
             </VBox>
         </HBox>
     </center>

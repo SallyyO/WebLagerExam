@@ -7,6 +7,7 @@ import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -88,29 +89,33 @@ public class UserController {
             File latestFile = dao.getDocumentDAO().getLatestFileForUser(userId);
 
             if (latestFile == null || latestFile.getImageData() == null) {
-                // No previous scan — hide the whole section
-                continueScanSection.setVisible(false);
-                continueScanSection.setManaged(false);
+                // No scans yet — show placeholder text, keep section visible
+                lblContinueScan.setText("No scans yet — start a new scan below");
+                latestScanPreview.setImage(new Image(
+                        getClass().getResourceAsStream("/Images/WeblagerWhiteIcon.png")));
+                // Disable click since there's nothing to resume
+                continueScanSection.setOnMouseClicked(null);
+                continueScanSection.setStyle(""); // remove hand cursor
                 return;
             }
 
-            // Convert and display the image
-            Image preview = TiffConverter.toJavaFXImage(latestFile.getImageData());
-            if (preview != null) {
-                latestScanPreview.setImage(preview);
-            }
+            new Thread(() -> {
+                Image preview = TiffConverter.toJavaFXImage(latestFile.getImageData());
+                Box box = dao.getDocumentDAO().getBoxForFile(latestFile.getId());
+                latestBox = box;
 
-            // Find which box this belongs to so we can resume
-            latestBox = dao.getDocumentDAO().getBoxForFile(latestFile.getId());
-
-            lblContinueScan.setText(latestBox != null
-                    ? "Continue scan — Box #" + latestBox.getBoxId()
-                    : "Continue scan");
+                Platform.runLater(() -> {
+                    if (preview != null) latestScanPreview.setImage(preview);
+                    lblContinueScan.setText(box != null
+                            ? "Continue scan — Box #" + box.getBoxId()
+                            : "Continue scan");
+                });
+            }).start();
 
         } catch (Exception e) {
             System.err.println("Could not load latest scan: " + e.getMessage());
-            continueScanSection.setVisible(false);
-            continueScanSection.setManaged(false);
+            lblContinueScan.setText("Could not load latest scan");
+            continueScanSection.setOnMouseClicked(null);
         }
     }
 

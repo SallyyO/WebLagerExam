@@ -39,7 +39,7 @@ public class LoginController {
     }
 
     public void btnSignIn() {
-        String initials = txtUsernameField.getText();
+        String initials = txtUsernameField.getText().trim().toUpperCase();
         String password = txtPasswordField.getText();
 
         if (passwordManager.checkLogin(initials, password)) {
