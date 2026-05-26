@@ -7,7 +7,9 @@ import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -18,13 +20,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
-
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
 public class UserController {
@@ -65,6 +69,14 @@ public class UserController {
     private final DAOManager dao = new DAOManager();
     private Box latestBox = null;
 
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case B -> { onBoxesBtnClicked(new ActionEvent()); event.consume(); }
+            case N -> { onNewScanBtnClicked(new ActionEvent()); event.consume(); }
+            case D -> { onDeleteScansBtnClicked(new ActionEvent()); event.consume(); }
+        }
+    };
+
     @FXML
     public void initialize() {
 
@@ -81,6 +93,15 @@ public class UserController {
                 LogoutUtil.logout((Stage) userBox.getScene().getWindow())
         );
         Tooltip.install(userBox, new Tooltip("Click to log out"));
+
+        boxesBtn.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (oldScene != null) {
+                oldScene.removeEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
+            }
+            if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
+            }
+        });
     }
 
     private void loadLatestScan(int userId) {
@@ -117,17 +138,18 @@ public class UserController {
 
     @FXML
     void onBoxesBtnClicked(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dk/easv/weblagerexam/boxes-view.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Boxes");
-            stage.centerOnScreen();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/dk/easv/weblagerexam/boxes-view.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) boxesBtn.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.setTitle("Boxes");
+                stage.centerOnScreen();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @FXML
@@ -135,7 +157,6 @@ public class UserController {
         try{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Export.fxml"));
             Parent root = loader.load();
-
             Stage stage = new Stage();
             stage.setTitle("Export");
             stage.setScene(new Scene(root));
@@ -149,26 +170,26 @@ public class UserController {
 
     @FXML
     void onNewScanBtnClicked(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dk/easv/weblagerexam/scanning_page.fxml")
-            );
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/dk/easv/weblagerexam/scanning_page.fxml")
+                );
 
-            Parent root = loader.load();
+                Parent root = loader.load();
 
-            // Get current window (to replace it)
-            Stage stage = (Stage) ((Node) event.getSource())
-                    .getScene()
-                    .getWindow();
+                // Get current window (to replace it)
+                Stage stage = (Stage) boxesBtn.getScene().getWindow();
 
-            stage.setScene(new Scene(root));
-            stage.setTitle("Scanning");
+                stage.setScene(new Scene(root));
+                stage.setTitle("Scanning");
 
-            stage.centerOnScreen();
+                stage.centerOnScreen();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @FXML
@@ -183,26 +204,26 @@ public class UserController {
 
     @FXML
     void onDeleteScansBtnClicked(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dk/easv/weblagerexam/delete_scan.fxml")
-            );
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/dk/easv/weblagerexam/delete_scan.fxml")
+                );
 
-            Parent root = loader.load();
+                Parent root = loader.load();
 
-            // Get current window (to replace it)
-            Stage stage = (Stage) ((Node) event.getSource())
-                    .getScene()
-                    .getWindow();
+                // Get current window (to replace it)
+                Stage stage = (Stage) boxesBtn.getScene().getWindow();
 
-            stage.setScene(new Scene(root));
-            stage.setTitle("Deleting");
+                stage.setScene(new Scene(root));
+                stage.setTitle("Deleting");
 
-            stage.centerOnScreen();
+                stage.centerOnScreen();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void onContinueScanClicked(MouseEvent mouseEvent) {

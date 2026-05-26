@@ -20,7 +20,8 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.collections.transformation.FilteredList;
-
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -103,6 +104,18 @@ public class AdminController {
 
         userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
+
+        addUserBtn.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                    if (event.getCode() == KeyCode.A) {
+                        onAddUserBtnClicked(new ActionEvent());
+                        event.consume();
+                    }
+
+                });
+            }
+        });
     }
 
     private void setupActionsColumn() {

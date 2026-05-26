@@ -73,7 +73,7 @@
                </VBox.margin>
                 </Button>
 
-                 <Button fx:id="boxesBtn" onAction="#onBoxesBtnClicked" prefHeight="55.0" prefWidth="210.0" stylesheets="@CSS/app.css" text="Boxes">
+                 <Button fx:id="boxesBtn" onAction="#onBoxesBtnClicked" prefHeight="55.0" prefWidth="210.0" stylesheets="@CSS/app.css" text="Boxes [ B ]">
                      <font>
                          <Font name="System Bold" size="15" />
                      </font>
@@ -112,7 +112,7 @@
                         <Insets bottom="15" left="20" right="20" top="15" />
                     </padding>
 
-                    <Button fx:id="newScanBtn" onAction="#onNewScanBtnClicked" text="New Scan">
+                    <Button fx:id="newScanBtn" onAction="#onNewScanBtnClicked" text="New Scan [ N ]">
                         <font>
                             <Font name="System Bold" size="15" />
                         </font>
@@ -133,7 +133,7 @@
                      <Insets />
                   </HBox.margin>
                </Button>
-               <Button fx:id="deleteScansBtn" onAction="#onDeleteScansBtnClicked" text="Delete Scans">
+               <Button fx:id="deleteScansBtn" onAction="#onDeleteScansBtnClicked" text="Delete Scans [ D ]">
                   <font>
                      <Font name="System Bold" size="15" />
                   </font>

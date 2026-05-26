@@ -122,7 +122,7 @@
                     <padding>
                         <Insets bottom="15" left="20" right="20" top="15" />
                     </padding>
-                    <Button fx:id="addUserBtn" onAction="#onAddUserBtnClicked" prefHeight="30.0" prefWidth="145" text="Add">
+                    <Button fx:id="addUserBtn" onAction="#onAddUserBtnClicked" prefHeight="30.0" prefWidth="145" text="Add [ A ]">
                         <font><Font name="System Bold" size="15" /></font>
                         <styleClass>
                             <String fx:value="button-primary" />

@@ -17,7 +17,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-
+import javafx.concurrent.Task;
+import java.util.List;
 import java.io.IOException;
 
 public class DeleteScanController {
@@ -40,27 +41,20 @@ public class DeleteScanController {
 
     @FXML
     public void initialize() {
-
         User user = SessionManager.getCurrentUser();
 
         if (user != null) {
-
-            lblUsername.setText(
-                    user.getUsername()
-            );
-
-            lblInitials.setText(
-                    user.getInitials()
-            );
+            lblUsername.setText(user.getUsername());
+            lblInitials.setText(user.getInitials());
         }
 
-        loadFiles();
+        // Bind listview to files list once, here
+        fileListView.setItems(files);
 
         fileListView.setCellFactory(param -> new javafx.scene.control.ListCell<>() {
             @Override
             protected void updateItem(File item, boolean empty) {
                 super.updateItem(item, empty);
-
                 if (empty || item == null) {
                     setText(null);
                 } else {
@@ -68,12 +62,29 @@ public class DeleteScanController {
                 }
             }
         });
+
+        loadFiles();
     }
     private void loadFiles() {
+        Task<List<File>> task = new Task<>() {
+            @Override
+            protected List<File> call() {
+                List<File> result = fileManager.getAllFiles();
+                System.out.println("Files fetched from DB: " + (result != null ? result.size() : "null"));
+                return result;
+            }
+        };
 
-        files.setAll(fileManager.getAllFiles());
+        task.setOnSucceeded(e -> {
+            System.out.println("Task succeeded, updating list with: " + task.getValue().size() + " files");
+            files.setAll(task.getValue());
+            System.out.println("Observable list size after setAll: " + files.size());
+            System.out.println("ListView items size: " + fileListView.getItems().size());
+        });
 
-        fileListView.setItems(files);
+        task.setOnFailed(e -> System.err.println("Failed to load files: " + task.getException().getMessage()));
+
+        new Thread(task).start();
     }
 
     @FXML
@@ -109,13 +120,20 @@ public class DeleteScanController {
     void onHardDeleteBtnPress(ActionEvent event) {
         File selectedFile = fileListView.getSelectionModel().getSelectedItem();
 
-        if (selectedFile == null) {
-            return;
-        }
+        if (selectedFile == null) return;
 
-        fileManager.hardDeleteFile(selectedFile.getId());
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                fileManager.hardDeleteFile(selectedFile.getId());
+                return null;
+            }
+        };
 
-        loadFiles();
+        task.setOnSucceeded(e -> loadFiles());
+        task.setOnFailed(e -> System.err.println("Delete failed: " + task.getException().getMessage()));
+
+        new Thread(task).start();
     }
 
     @FXML
@@ -132,7 +150,17 @@ public class DeleteScanController {
             return;
         }
 
-        files.setAll(fileManager.searchFiles(searchText));
+        Task<List<File>> task = new Task<>() {
+            @Override
+            protected List<File> call() {
+                return fileManager.searchFiles(searchText);
+            }
+        };
+
+        task.setOnSucceeded(e -> files.setAll(task.getValue()));
+        task.setOnFailed(e -> System.err.println("Search failed: " + task.getException().getMessage()));
+
+        new Thread(task).start();
     }
 }
 
