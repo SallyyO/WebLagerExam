@@ -5,11 +5,14 @@ import dk.easv.weblagerexam.be.ProfileSettings;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProfileDAO {
 
     ConnectionManager conMan = new ConnectionManager();
+    private final Map<Integer, Profile> profileCache = new HashMap<>();
 
     // Get all profiles
     public List<Profile> getAllProfiles() {
@@ -98,7 +101,7 @@ public class ProfileDAO {
         String sql = """
                 DELETE FROM UsersProfiles
                 WHERE userId = ?
-                  AND profile?d = ?
+                  AND profileId = ?
                 """;
 
         try (Connection con = conMan.getConnection()) {
@@ -173,14 +176,18 @@ public class ProfileDAO {
 
     public Profile getProfileById(int profileId) {
 
+        if (profileCache.containsKey(profileId)) {
+            return profileCache.get(profileId);
+        }
+
         String sql = """
-            SELECT id,
-                   name,
-                   settingstype,
-                   settingsvalue
-            FROM Profiles
-            WHERE id = ?
-            """;
+                SELECT id,
+                       name,
+                       settingstype,
+                       settingsvalue
+                FROM Profiles
+                WHERE id = ?
+                """;
 
         try (Connection con = conMan.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -201,12 +208,15 @@ public class ProfileDAO {
                         ? rs.getDouble("settingsvalue")
                         : null;
 
-                return new Profile(
+                Profile profile = new Profile(
                         rs.getInt("id"),
                         rs.getString("name"),
                         type,
                         value
                 );
+
+                profileCache.put(profileId, profile);
+                return profile;
             }
 
             return null;
