@@ -11,12 +11,15 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.ScatterChart;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -115,6 +118,15 @@ public class BoxBrowserController {
         String displayId = box.getBoxId() > 0
                 ? String.valueOf(box.getBoxId())
                 : String.valueOf(box.getId());
+
+        /*
+
+        String displayId = (box.getBoxId() != null && !box.getBoxId().isBlank())
+        ? box.getBoxId()
+        : String.valueOf(box.getId());
+
+
+         */
         lblLevelTitle.setText("Box #" + displayId);
         updateBreadcrumb();
         folderGrid.getChildren().clear();
@@ -184,6 +196,15 @@ public class BoxBrowserController {
         String displayId = box.getBoxId() > 0
                 ? String.valueOf(box.getBoxId())
                 : String.valueOf(box.getCreatedAt());
+
+        /*
+
+        String displayId = (box.getBoxId() != null && !box.getBoxId().isBlank())
+        ? box.getBoxId()
+        : String.valueOf(box.getId());
+
+
+         */
 
         VBox folder = folderCard(
                 createIcon(PI_BOX),
@@ -323,6 +344,14 @@ public class BoxBrowserController {
             String displayId = selectedBox.getBoxId() > 0
                     ? String.valueOf(selectedBox.getBoxId())
                     : String.valueOf(selectedBox.getId());
+            /*
+
+        String displayId = (box.getBoxId() != null && !box.getBoxId().isBlank())
+        ? box.getBoxId()
+        : String.valueOf(box.getId());
+
+
+         */
             Label boxCrumb = crumbLabel("Box #" + displayId,
                     currentLevel != Level.DOCUMENTS);
             if (currentLevel == Level.FILES) {
@@ -423,4 +452,87 @@ public class BoxBrowserController {
             }
         }
     }
-}
+
+    @FXML
+    private void onExportClicked(MouseEvent event) {
+        if (selectedBox == null) {
+            showAlert("No Box Selected", "Please select a box first.");
+            return;
+        }
+
+        executor.submit(() -> {
+            try {
+                // Load all documents for this box from DB
+                List<Document> documents = dao.getDocumentDAO()
+                        .getDocumentsForBox(selectedBox.getId());
+
+                if (documents.isEmpty()) {
+                    Platform.runLater(() ->
+                            showAlert("Nothing to Export",
+                                    "This box has no documents to export."));
+                    return;
+                }
+
+                // Load full file data for each document
+                for (Document doc : documents) {
+                    List<File> files = dao.getDocumentDAO()
+                            .getFilesForDocumentWithData(doc.getId());
+                    doc.setFiles(files);
+                }
+
+                Platform.runLater(() -> {
+                    try {
+                        FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(
+                                getClass().getResource(
+                                        "/dk/easv/weblagerexam/Export.fxml")
+                        ));
+                        Parent root = loader.load();
+
+                        ExportController controller = loader.getController();
+
+                        // Collect all non-barcode pages as byte arrays
+                        List<byte[]> tiffPages = new ArrayList<>();
+                        for (Document doc : documents) {
+                            for (File file : doc.getFiles()) {
+                                if (!file.isBarcode()
+                                        && file.getImageData() != null) {
+                                    tiffPages.add(file.getImageData());
+                                }
+                            }
+                        }
+
+                        // Pass data to export popup
+                        controller.setExportData(
+                                tiffPages,
+                                selectedBox.getProfile(),
+                                selectedBox
+                        );
+
+                        Stage stage = new Stage();
+                        stage.setTitle("Export Box");
+                        stage.setScene(new Scene(root));
+                        stage.initModality(Modality.APPLICATION_MODAL);
+                        stage.showAndWait();
+
+                    } catch (Exception e) {
+                        showAlert("Export Failed",
+                                "Could not open export window: " + e.getMessage());
+                    }
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() ->
+                        showAlert("Export Failed",
+                                "Could not load documents: " + e.getMessage()));
+            }
+        });
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.show();
+    }
+
+    }
