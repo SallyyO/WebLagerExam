@@ -10,6 +10,7 @@ public class Document {
     private String metadata; // user fills this in after scanning?
     private List<File> files = new ArrayList<>();
     private LocalDateTime createdAt = LocalDateTime.now();
+    private int documentNumber;
     private boolean isDeleted;
 
     public Document() {
@@ -38,8 +39,8 @@ public class Document {
     public List<File> getFiles()  { return files; }
     public void setFiles(List<File> files) { this.files = files; }
     public int getFileCount(){ return files.size(); }
-    public boolean isEmpty(){
-        return files.isEmpty(); }
+
+    public boolean isEmpty(){return files.isEmpty(); }
 
     public int getId(){ return id; }
     public void setId(int id){ this.id = id; }
@@ -52,6 +53,9 @@ public class Document {
 
     public LocalDateTime getCreatedAt(){ return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt){ this.createdAt = createdAt; }
+
+    public int getDocumentNumber() {return documentNumber;}
+    public void setDocumentNumber(int documentNumber) {this.documentNumber = documentNumber;}
 
     public boolean isDeleted() {
         return isDeleted;}

@@ -33,11 +33,18 @@ public class DocumentManager {
     private int activeBoxId = 0;
     private final Set<String> seenBarcodes = ConcurrentHashMap.newKeySet();
     private final Set<String> approvedDuplicateBarcodes = ConcurrentHashMap.newKeySet();
+    private int currentDocumentNumber = 1;
 
     public void setActiveBox(Box box) {
         this.activeBox = box;
     }
-    public void setActiveBoxId(int boxId) {this.activeBoxId = boxId;}
+    public Box getActiveBox() {
+        return activeBox;
+    }
+
+    public void setActiveBoxId(int boxId) {
+        this.activeBoxId = boxId;
+        currentDocumentNumber = 1;}
 
     /**
      * Processes a scanned or fetched file
@@ -54,7 +61,9 @@ public class DocumentManager {
 
             if (!currentDocument.isEmpty()) {
                 currentDocument.setBoxId(activeBoxId);
+                currentDocument.setDocumentNumber(currentDocumentNumber);
                 dao.getDocumentDAO().saveDocument(currentDocument);
+                currentDocumentNumber++;
                 completedDocuments.add(currentDocument);
                 totalDocuments++;
             }
@@ -75,7 +84,9 @@ public class DocumentManager {
     public void finalizeLastDocument() throws Exception {
         if (!currentDocument.isEmpty()) {
             currentDocument.setBoxId(activeBoxId);
+            currentDocument.setDocumentNumber(currentDocumentNumber);
             dao.getDocumentDAO().saveDocument(currentDocument);
+            currentDocumentNumber++;
             completedDocuments.add(currentDocument);
             totalDocuments++;
             currentDocument = new Document();
@@ -129,7 +140,9 @@ public class DocumentManager {
         // Same logic as a normal barcode hit
         if (!currentDocument.isEmpty()) {
             currentDocument.setBoxId(activeBoxId);
+            currentDocument.setDocumentNumber(currentDocumentNumber);
             dao.getDocumentDAO().saveDocument(currentDocument);
+            currentDocumentNumber++;
             completedDocuments.add(currentDocument);
             totalDocuments++;
         }
@@ -142,6 +155,26 @@ public class DocumentManager {
         if (barcodeContent != null) {
             approvedDuplicateBarcodes.add(barcodeContent);
         }
+    }
+
+    public Document createManualSplitDocument(int boxId) throws Exception {
+
+        int nextDocumentNumber = getTotalDocuments() + 1;
+
+        Document doc = new Document();
+
+        doc.setBoxId(boxId);
+        doc.setDocumentNumber(nextDocumentNumber);
+
+        dao.getDocumentDAO().createDocument(doc);
+
+        completedDocuments.add(doc);
+
+        return doc;
+    }
+
+    public List<Document> getDocsAndFilesFromBox(int boxId) {
+        return dao.getDocumentDAO().getDocsAndFilesFromBox(boxId);
     }
 
 

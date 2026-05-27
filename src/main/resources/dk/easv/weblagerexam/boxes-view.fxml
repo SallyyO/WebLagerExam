@@ -68,18 +68,38 @@
     <!-- Main content area -->
     <center>
         <HBox>
-
-            <!-- Folder browser (left/center) -->
             <VBox HBox.hgrow="ALWAYS">
-                <Label fx:id="lblLevelTitle" styleClass="text-h2"
-                       style="-fx-padding: 20 24 12 24;"/>
-                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+
+                <!-- Page title -->
+                <Label fx:id="lblLevelTitle"
+                       styleClass="text-h2"
+                       style="-fx-padding: 20 24 12 24;" />
+
+                <!-- Scrollable content -->
+                <ScrollPane fitToWidth="true"
+                            VBox.vgrow="ALWAYS"
                             style="-fx-background: transparent;
-                                   -fx-background-color: transparent;">
-                    <FlowPane fx:id="folderGrid"
-                              hgap="16" vgap="16"
-                              style="-fx-padding: 0 24 24 24;"/>
+                       -fx-background-color: transparent;">
+
+                    <StackPane>
+
+                        <!-- BOX + DOCUMENT CARD VIEW -->
+                        <FlowPane fx:id="folderGrid"
+                                  hgap="16"
+                                  vgap="16"
+                                  style="-fx-padding: 0 24 24 24;" />
+
+                        <!-- FILE LIST VIEW -->
+                        <VBox fx:id="fileListContainer"
+                              visible="false"
+                              managed="false"
+                              spacing="0"
+                              style="-fx-padding: 0 24 24 24;" />
+
+                    </StackPane>
+
                 </ScrollPane>
+
             </VBox>
 
             <!-- Preview panel (right) — hidden until a file is clicked -->

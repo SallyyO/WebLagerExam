@@ -14,17 +14,25 @@ public class DocumentDAO {
     ConnectionManager conMan = new ConnectionManager();
 
     public int saveDocument(Document doc) {
-        String sql = "INSERT INTO Document (box_id, created_at) VALUES (?, SYSDATETIME())";
+
+        String sql = """
+                INSERT INTO Document
+                (box_id, document_number, created_at)
+                VALUES (?, ?, SYSDATETIME())
+                """;
 
         try (Connection con = conMan.getConnection()) {
 
-            con.setAutoCommit(false); // We want db transactions to make sure we don't have stuff lying around
+            con.setAutoCommit(false); //Database transactions so we don't leave a mess floating around mhm hmm
 
             try {
 
                 PreparedStatement stmt =
                         con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
                 stmt.setInt(1, doc.getBoxId());
+                stmt.setInt(2, doc.getDocumentNumber());
+
                 stmt.executeUpdate();
 
                 ResultSet keys = stmt.getGeneratedKeys();
@@ -34,13 +42,19 @@ public class DocumentDAO {
                 }
 
                 int generatedId = keys.getInt(1);
+
                 doc.setId(generatedId);
+
                 saveFiles(con, doc);
+
                 con.commit();
+
                 return generatedId;
 
             } catch (Exception e) {
+
                 con.rollback();
+
                 throw e;
             }
 
@@ -182,11 +196,11 @@ public class DocumentDAO {
 
     public List<Document> getDocumentsForBox(int boxId) {
         String sql = """
-            SELECT id, box_id, created_at
-            FROM Document
-            WHERE box_id = ?
-            ORDER BY id ASC
-            """;
+                SELECT id, box_id, document_number, created_at
+                FROM Document
+                WHERE box_id = ?
+                ORDER BY id ASC
+                """;
 
         List<Document> documents = new ArrayList<>();
         try (Connection con = conMan.getConnection()) {
@@ -197,6 +211,7 @@ public class DocumentDAO {
                 Document doc = new Document();
                 doc.setId(rs.getInt("id"));
                 doc.setBoxId(rs.getInt("box_id"));
+                doc.setDocumentNumber(rs.getInt("document_number"));
                 documents.add(doc);
             }
             return documents;
@@ -207,11 +222,11 @@ public class DocumentDAO {
 
     public List<File> getFilesForDocument(int documentId) {
         String sql = """
-            SELECT id, file_number, is_barcode
-            FROM [File]
-            WHERE document_id = ?
-            ORDER BY file_number ASC
-            """;
+                SELECT id, file_number, is_barcode
+                FROM [File]
+                WHERE document_id = ?
+                ORDER BY file_number ASC
+                """;
 
         List<File> files = new ArrayList<>();
         try (Connection con = conMan.getConnection()) {
@@ -232,10 +247,10 @@ public class DocumentDAO {
 
     public File getFileById(int fileId) {
         String sql = """
-            SELECT id, file_number, is_barcode, file_data
-            FROM [File]
-            WHERE id = ?
-            """;
+                SELECT id, file_number, is_barcode, file_data
+                FROM [File]
+                WHERE id = ?
+                """;
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setInt(1, fileId);
@@ -255,14 +270,14 @@ public class DocumentDAO {
 
     public List<File> getFilesForDocumentWithData(int documentId) {
         String sql = """
-        SELECT id,
-               file_number,
-               is_barcode,
-               file_data
-        FROM [File]
-        WHERE document_id = ?
-        ORDER BY file_number
-        """;
+                SELECT id,
+                       file_number,
+                       is_barcode,
+                       file_data
+                FROM [File]
+                WHERE document_id = ?
+                ORDER BY file_number
+                """;
 
         List<File> files = new ArrayList<>();
 
@@ -289,6 +304,173 @@ public class DocumentDAO {
             }
 
             return files;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void moveFileToDocument(int fileId, int targetDocumentId) {
+
+        String sql = """
+                    UPDATE [File]
+                    SET document_id = ?
+                    WHERE id = ?
+                """;
+
+        try (Connection conn = conMan.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, targetDocumentId);
+            stmt.setInt(2, fileId);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not move file", e);
+        }
+    }
+
+    public void renumberFiles(Document document) {
+
+        String sql = """
+                    UPDATE [File]
+                    SET file_number = ?
+                    WHERE id = ?
+                """;
+
+        try (Connection conn = conMan.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            List<File> files = getFilesForDocument(document.getId());
+
+            for (int i = 0; i < files.size(); i++) {
+                stmt.setInt(1, i + 1);
+                stmt.setInt(2, files.get(i).getId());
+
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not renumber files", e);
+        }
+    }
+
+    public Document getDocumentById(int id) {
+
+        String sql = """
+                    SELECT *
+                    FROM Document
+                    WHERE id = ?
+                """;
+
+        try (Connection conn = conMan.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+
+                Document doc = new Document();
+
+                doc.setId(rs.getInt("id"));
+                doc.setDocumentNumber(
+                        rs.getInt("document_number")
+                );
+                return doc;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Could not get document",
+                    e
+            );
+        }
+        return null;
+    }
+
+    public void updateFileDocument(File file) {
+
+        String sql = """
+                    UPDATE [File]
+                    SET document_id = ?
+                    WHERE id = ?
+                """;
+
+        try (Connection conn = conMan.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, file.getDocumentId());
+            stmt.setInt(2, file.getId());
+
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Could not move file to document", e);
+        }
+    }
+
+    public void createDocument(Document doc) {
+
+        String sql = """
+                    INSERT INTO Document(box_id, document_number)
+                    OUTPUT INSERTED.id
+                    VALUES(?, ?)
+                """;
+
+        try (Connection conn = conMan.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, doc.getBoxId());
+            stmt.setInt(2, doc.getDocumentNumber());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+
+                doc.setId(rs.getInt(1));
+            }
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Could not create document", e);
+        }
+    }
+
+    public List<Document> getDocsAndFilesFromBox(int boxId) {
+
+        String sql = """
+                SELECT id, box_id, document_number, created_at
+                FROM Document
+                WHERE box_id = ?
+                ORDER BY id ASC
+                """;
+
+        List<Document> documents = new ArrayList<>();
+
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, boxId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+
+                Document doc = new Document();
+
+                doc.setId(rs.getInt("id"));
+                doc.setBoxId(rs.getInt("box_id"));
+                doc.setDocumentNumber(rs.getInt("document_number"));
+
+                doc.setFiles(
+                        getFilesForDocumentWithData(doc.getId())
+                );
+                documents.add(doc);
+            }
+            return documents;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

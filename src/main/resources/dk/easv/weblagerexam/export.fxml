@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.ExportController">
+
+    <!-- HEADER -->
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="40" styleClass="modal-header">
+
+            <padding>
+                <Insets left="20" />
+            </padding>
+
+            <ImageView fitHeight="30" preserveRatio="true">
+
+                <image>
+                    <Image url="@/Images/LogoBlueH.png" />
+                </image>
+            </ImageView>
+        </HBox>
+    </top>
+
+    <!-- MAIN CONTENT -->
+    <center>
+
+        <VBox alignment="CENTER" prefWidth="400" spacing="15" style="-fx-padding: 20;">
+
+            <Label prefHeight="27.0" prefWidth="69.0" styleClass="text-h1" text="Export" />
+         <AnchorPane prefHeight="1.0" prefWidth="299.0">
+            <children>
+   
+                      <Label layoutX="-4.0" layoutY="3.0" styleClass="text-h2" text="Box: ">
+                  <padding>
+                     <Insets bottom="2.0" left="5.0" />
+                  </padding>
+               </Label>
+   
+                   <Label fx:id="lblBox" layoutX="38.0" layoutY="4.0" prefHeight="23.0" prefWidth="81.0" styleClass="text-h3" />
+   
+                   <Label layoutX="-4.0" layoutY="24.0" styleClass="text-h2" text="Profile: ">
+                  <padding>
+                     <Insets bottom="2.0" left="5.0" />
+                  </padding>
+               </Label>
+   
+                   <Label fx:id="lblProfile" layoutX="57.0" layoutY="25.0" prefHeight="23.0" prefWidth="116.0" styleClass="text-h3">
+                  <padding>
+                     <Insets left="5.0" />
+                  </padding></Label>
+   
+                   <Label layoutX="-4.0" layoutY="44.0" styleClass="text-h2" text="Documents: ">
+                  <padding>
+                     <Insets left="5.0" />
+                  </padding>
+               </Label>
+   
+                   <Label fx:id="lblDocuments" layoutX="96.0" layoutY="44.0" prefHeight="23.0" prefWidth="128.0" styleClass="text-h3" />
+            </children>
+         </AnchorPane>
+
+            <!-- EXPORT TYPE -->
+            <VBox spacing="5">
+                <Label styleClass="text-h3" text="Export Type" />
+                <RadioButton fx:id="radioMulti" styleClass="text-body" text="Multi-page TIFF">
+
+                    <toggleGroup>
+                        <ToggleGroup fx:id="toggleExport" />
+                    </toggleGroup>
+
+                </RadioButton>
+                <RadioButton fx:id="radioSingle" styleClass="text-body" text="Single-page TIFF" toggleGroup="$toggleExport" />
+            </VBox>
+
+
+            <HBox spacing="10">
+
+                <TextField fx:id="txtFolder" prefWidth="250" promptText="File path" />
+
+                <Button onAction="#browseFolder" styleClass="button-primary" text="Browse" />
+
+            </HBox>
+
+            <!-- BUTTONS -->
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+
+                <Button onAction="#cancel" styleClass="button-danger" text="Cancel" />
+
+                <Button onAction="#export" styleClass="button-secondary" text="Export" />
+
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

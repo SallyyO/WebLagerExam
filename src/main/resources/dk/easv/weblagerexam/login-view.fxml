@@ -12,12 +12,24 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane prefHeight="750.0" prefWidth="1020.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.LoginController">
 
     <!-- Header -->
     <top>
-        <fx:include source="/dk/easv/weblagerexam/header-view.fxml"/>
+        <HBox alignment="CENTER_LEFT" prefHeight="50" styleClass="modal-header" stylesheets="@CSS/app.css">
+            <padding>
+                <Insets bottom="0" left="20" right="24" top="0" />
+            </padding>
+            <ImageView fitHeight="50.0" fitWidth="203.0">
+                <image>
+                    <Image url="@/Images/LogoBlueH.png" />
+                </image>
+            </ImageView>
+        </HBox>
     </top>
+
 
     <!-- Center login -->
     <center>

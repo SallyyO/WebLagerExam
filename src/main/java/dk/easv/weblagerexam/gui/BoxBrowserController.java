@@ -13,16 +13,12 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.ScatterChart;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -34,27 +30,43 @@ import java.util.concurrent.Executors;
 
 public class BoxBrowserController {
 
-    @FXML private Label lblUsername;
-    @FXML private Label lblInitials;
-    @FXML private HBox userBox;
+    @FXML
+    private Label lblUsername;
+    @FXML
+    private Label lblInitials;
+    @FXML
+    private HBox userBox;
 
-    @FXML private FlowPane folderGrid;
-    @FXML private HBox breadcrumbBar;
-    @FXML private Label lblLevelTitle;
-    @FXML private Label lblItemCount;
+    @FXML
+    private FlowPane folderGrid;
+    @FXML
+    private VBox fileListContainer;
+    @FXML
+    private HBox breadcrumbBar;
+    @FXML
+    private Label lblLevelTitle;
+    @FXML
+    private Label lblItemCount;
 
-    @FXML private VBox previewPanel;
-    @FXML private ImageView previewImage;
-    @FXML private Label lblPreviewTitle;
-    @FXML private Label lblPreviewFileNumber;
-    @FXML private Label lblPreviewDocId;
-    @FXML private Label lblPreviewType;
+    @FXML
+    private VBox previewPanel;
+    @FXML
+    private ImageView previewImage;
+    @FXML
+    private Label lblPreviewTitle;
+    @FXML
+    private Label lblPreviewFileNumber;
+    @FXML
+    private Label lblPreviewDocId;
+    @FXML
+    private Label lblPreviewType;
 
     private final DAOManager dao = new DAOManager();
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     // Navigation state
-    private enum Level { BOXES, DOCUMENTS, FILES }
+    private enum Level {BOXES, DOCUMENTS, FILES}
+
     private Level currentLevel = Level.BOXES;
     private Box selectedBox;
     private Document selectedDocument;
@@ -93,6 +105,11 @@ public class BoxBrowserController {
         selectedBox = null;
         selectedDocument = null;
 
+        folderGrid.setVisible(true);
+        folderGrid.setManaged(true);
+        fileListContainer.setVisible(false);
+        fileListContainer.setManaged(false);
+
         lblLevelTitle.setText("Boxes");
         updateBreadcrumb();
         folderGrid.getChildren().clear();
@@ -121,20 +138,16 @@ public class BoxBrowserController {
         currentLevel = Level.DOCUMENTS;
         selectedBox = box;
         selectedDocument = null;
-        System.out.println(selectedBox.getProfile());
+
+        folderGrid.setVisible(true);
+        folderGrid.setManaged(true);
+        fileListContainer.setVisible(false);
+        fileListContainer.setManaged(false);
 
         String displayId = box.getBoxId() > 0
                 ? String.valueOf(box.getBoxId())
                 : String.valueOf(box.getId());
 
-        /*
-
-        String displayId = (box.getBoxId() != null && !box.getBoxId().isBlank())
-        ? box.getBoxId()
-        : String.valueOf(box.getId());
-
-
-         */
         lblLevelTitle.setText("Box #" + displayId);
         updateBreadcrumb();
         folderGrid.getChildren().clear();
@@ -162,35 +175,99 @@ public class BoxBrowserController {
         currentLevel = Level.FILES;
         selectedDocument = doc;
 
-        lblLevelTitle.setText("Document #" + doc.getId());
+        lblLevelTitle.setText("Document #" + doc.getDocumentNumber());
         updateBreadcrumb();
-        folderGrid.getChildren().clear();
+
+        // Switch layouts so files can be shown in a list
+        folderGrid.setVisible(false);
+        folderGrid.setManaged(false);
+        fileListContainer.setVisible(true);
+        fileListContainer.setManaged(true);
+
+        fileListContainer.getChildren().clear();
 
         executor.submit(() -> {
-            List<File> files = dao.getDocumentDAO().getFilesForDocumentWithData(doc.getId());
-            List<VBox> cards = new ArrayList<>();
-            for (File file : files) {
-                Profile profile = selectedBox.getProfile();
-                Image thumb = file.getImageData() != null
-                        ? TiffConverter.toJavaFXImageThumbnail(
-                        file.getImageData(),
-                        profile)
-                        : null;
+            List<File> files =
+                    dao.getDocumentDAO().getFilesForDocument(doc.getId());
 
-                cards.add(buildFileCard(file, thumb, doc)
-                );
+            List<HBox> rows = new ArrayList<>();
+
+            for (File file : files) {
+                rows.add(buildFileRow(file, doc));
             }
+
             Platform.runLater(() -> {
-                lblItemCount.setText(files.size() + " file"
-                        + (files.size() == 1 ? "" : "s"));
-                if (cards.isEmpty()) {
-                    folderGrid.getChildren().add(emptyState("No files in this document"));
+
+                lblItemCount.setText(
+                        files.size() + " file"
+                                + (files.size() == 1 ? "" : "s")
+                );
+
+                if (rows.isEmpty()) {
+
+                    fileListContainer.getChildren().add(
+                            emptyState("No files in this document")
+                    );
+
                     return;
                 }
-                folderGrid.getChildren().addAll(cards);
+
+                fileListContainer.getChildren().addAll(rows);
             });
         });
     }
+
+    private HBox buildFileRow(File file, Document doc) {
+
+        HBox row = new HBox(12);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        row.setStyle("""
+                    -fx-padding: 10 12 10 12;
+                    -fx-background-color: white;
+                    -fx-border-color: #E2E4E8;
+                    -fx-border-width: 0 0 1 0;
+                    -fx-cursor: hand;
+                """);
+
+        Label icon = createIcon(file.isBarcode() ? PI_FILE : PI_FILE);
+
+        Label name = new Label(
+                file.isBarcode()
+                        ? "Barcode"
+                        : "File #" + file.getFileNumber()
+        );
+
+        name.getStyleClass().add("label-regular");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label type = new Label(
+                file.isBarcode() ? "Barcode" : "File"
+        );
+
+        type.getStyleClass().add("text-helper");
+
+        row.getChildren().addAll(icon, name, spacer, type);
+
+        String baseStyle = row.getStyle();
+
+        row.setOnMouseEntered(e ->
+                row.setStyle(baseStyle + """
+                                -fx-background-color: #F1F5F9;
+                        """));
+
+        row.setOnMouseExited(e ->
+                row.setStyle(baseStyle));
+
+        // Preview ONLY on click
+        row.setOnMouseClicked(e ->
+                showFilePreview(file, doc));
+
+        return row;
+    }
+
 
     private Label createIcon(String glyph) {
         Label icon = new Label(glyph);
@@ -199,20 +276,10 @@ public class BoxBrowserController {
     }
 
 
-
     private VBox buildBoxFolder(Box box) {
         String displayId = box.getBoxId() > 0
                 ? String.valueOf(box.getBoxId())
                 : String.valueOf(box.getCreatedAt());
-
-        /*
-
-        String displayId = (box.getBoxId() != null && !box.getBoxId().isBlank())
-        ? box.getBoxId()
-        : String.valueOf(box.getId());
-
-
-         */
 
         VBox folder = folderCard(
                 createIcon(PI_BOX),
@@ -224,67 +291,14 @@ public class BoxBrowserController {
     }
 
     private VBox buildDocumentFolder(Document doc) {
-        // Count files to show as subtitle
-        String subtitle = "Created " + doc.getCreatedAt(); //Change this to number of files
+        String subtitle = "Created " + doc.getCreatedAt(); //Change this to number of files mby
         VBox folder = folderCard(
                 createIcon(PI_FOLDER),
-                "Document #" + doc.getId(),
+                "Document #" + doc.getDocumentNumber(),
                 subtitle
         );
         folder.setOnMouseClicked(e -> showFiles(doc));
         return folder;
-    }
-
-    private VBox buildFileCard(File file, Image thumb, Document doc) {
-        VBox card = new VBox(8);
-        card.setAlignment(Pos.TOP_CENTER);
-        card.setPrefWidth(140);
-        card.setStyle("""
-                -fx-background-color: white;
-                -fx-border-color: #E2E4E8;
-                -fx-border-width: 1;
-                -fx-background-radius: 6;
-                -fx-border-radius: 6;
-                -fx-padding: 10;
-                -fx-cursor: hand;
-                """);
-
-        // Thumbnail or placeholder
-        if (thumb != null) {
-            ImageView iv = new ImageView(thumb);
-            iv.setFitWidth(120);
-            iv.setFitHeight(150);
-            iv.setPreserveRatio(true);
-            card.getChildren().add(iv);
-        } else {
-            Label placeholder = createIcon(PI_FILE);
-            placeholder.setStyle(
-                    "-fx-font-family: 'PrimeIcons';" +
-                            "-fx-font-size: 40px;");
-            StackPane ph = new StackPane(placeholder);
-            ph.setPrefSize(120, 150);
-            ph.setStyle("-fx-background-color: #F1F5F9; -fx-background-radius: 4;");
-            card.getChildren().add(ph);
-        }
-
-        String label = file.isBarcode()
-                ? "Barcode"
-                : "File #" + file.getFileNumber();
-        Label name = new Label(label);
-        name.getStyleClass().add("label-regular");
-        name.setWrapText(true);
-        card.getChildren().add(name);
-
-        // Hover
-        String base = card.getStyle();
-        card.setOnMouseEntered(e -> card.setStyle(base
-                + "-fx-background-color: #F1F5F9;"));
-        card.setOnMouseExited(e -> card.setStyle(base));
-
-        // Click and open in scanning view
-        card.setOnMouseClicked(e -> showFilePreview(file, doc));
-
-        return card;
     }
 
     @FXML
@@ -335,7 +349,7 @@ public class BoxBrowserController {
         return lbl;
     }
 
-    // ── Breadcrumb ────────────────────────────────────────────────────
+    // breadcrumbs, try to follow them if you dare
 
     private void updateBreadcrumb() {
         breadcrumbBar.getChildren().clear();
@@ -352,14 +366,7 @@ public class BoxBrowserController {
             String displayId = selectedBox.getBoxId() > 0
                     ? String.valueOf(selectedBox.getBoxId())
                     : String.valueOf(selectedBox.getId());
-            /*
 
-        String displayId = (box.getBoxId() != null && !box.getBoxId().isBlank())
-        ? box.getBoxId()
-        : String.valueOf(box.getId());
-
-
-         */
             Label boxCrumb = crumbLabel("Box #" + displayId,
                     currentLevel != Level.DOCUMENTS);
             if (currentLevel == Level.FILES) {
@@ -405,7 +412,7 @@ public class BoxBrowserController {
         previewImage.setImage(null);
         lblPreviewTitle.setText("Preview");
         lblPreviewFileNumber.setText("Loading...");
-        lblPreviewDocId.setText("Document #" + doc.getId());
+        lblPreviewDocId.setText("Document #" + doc.getDocumentNumber());
         lblPreviewType.setText(file.isBarcode() ? "Separator sheet" : "Scanned page");
 
         executor.submit(() -> {
@@ -432,7 +439,7 @@ public class BoxBrowserController {
                         ? "Barcode / Separator"
                         : "File #" + fullFile.getFileNumber());
                 lblPreviewFileNumber.setText("File ID: " + fullFile.getId());
-                lblPreviewDocId.setText("Document #" + doc.getId());
+                lblPreviewDocId.setText("Document #" + doc.getDocumentNumber());
                 lblPreviewType.setText(file.isBarcode()
                         ? "Separator sheet"
                         : "Scanned page · Page " + fullFile.getFileNumber());
@@ -444,8 +451,8 @@ public class BoxBrowserController {
     private void onBackClicked(ActionEvent event) {
         switch (currentLevel) {
             case DOCUMENTS -> showBoxes();
-            case FILES     -> showDocuments(selectedBox);
-            case BOXES     -> {
+            case FILES -> showDocuments(selectedBox);
+            case BOXES -> {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource(
                             "/dk/easv/weblagerexam/user.fxml"));
@@ -461,86 +468,4 @@ public class BoxBrowserController {
         }
     }
 
-    @FXML
-    private void onExportClicked(MouseEvent event) {
-        if (selectedBox == null) {
-            showAlert("No Box Selected", "Please select a box first.");
-            return;
-        }
-
-        executor.submit(() -> {
-            try {
-                // Load all documents for this box from DB
-                List<Document> documents = dao.getDocumentDAO()
-                        .getDocumentsForBox(selectedBox.getId());
-
-                if (documents.isEmpty()) {
-                    Platform.runLater(() ->
-                            showAlert("Nothing to Export",
-                                    "This box has no documents to export."));
-                    return;
-                }
-
-                // Load full file data for each document
-                for (Document doc : documents) {
-                    List<File> files = dao.getDocumentDAO()
-                            .getFilesForDocumentWithData(doc.getId());
-                    doc.setFiles(files);
-                }
-
-                Platform.runLater(() -> {
-                    try {
-                        FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(
-                                getClass().getResource(
-                                        "/dk/easv/weblagerexam/Export.fxml")
-                        ));
-                        Parent root = loader.load();
-
-                        ExportController controller = loader.getController();
-
-                        // Collect all non-barcode pages as byte arrays
-                        List<byte[]> tiffPages = new ArrayList<>();
-                        for (Document doc : documents) {
-                            for (File file : doc.getFiles()) {
-                                if (!file.isBarcode()
-                                        && file.getImageData() != null) {
-                                    tiffPages.add(file.getImageData());
-                                }
-                            }
-                        }
-
-                        // Pass data to export popup
-                        controller.setExportData(
-                                tiffPages,
-                                selectedBox.getProfile(),
-                                selectedBox
-                        );
-
-                        Stage stage = new Stage();
-                        stage.setTitle("Export Box");
-                        stage.setScene(new Scene(root));
-                        stage.initModality(Modality.APPLICATION_MODAL);
-                        stage.showAndWait();
-
-                    } catch (Exception e) {
-                        showAlert("Export Failed",
-                                "Could not open export window: " + e.getMessage());
-                    }
-                });
-
-            } catch (Exception e) {
-                Platform.runLater(() ->
-                        showAlert("Export Failed",
-                                "Could not load documents: " + e.getMessage()));
-            }
-        });
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setContentText(message);
-        alert.show();
-    }
-
-    }
+}

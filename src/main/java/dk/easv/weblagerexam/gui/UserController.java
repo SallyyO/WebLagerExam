@@ -159,7 +159,7 @@ public class UserController {
     @FXML
     void onExportBtnClicked(ActionEvent event) {
         try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Export.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("export.fxml"));
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Export");

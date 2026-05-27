@@ -1,100 +1,157 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.Box;
-import dk.easv.weblagerexam.be.Profile;
+import dk.easv.weblagerexam.be.Document;
+import dk.easv.weblagerexam.bll.DocumentManager;
 import dk.easv.weblagerexam.bll.ExportManager;
-import javafx.event.ActionEvent;
+import dk.easv.weblagerexam.util.ExportMode;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class ExportController {
-    @FXML
-    public Label profileNameLabel;
-    @FXML
-    public Label boxIdLabel;
-    @FXML
-    public Label pageCountLabel;
-    @FXML
-    public Button btnSelectFolder;
-    @FXML
-    public Label selectedFolderLabel;
-    @FXML
-    private Button btnExport;
-    @FXML private Button btnCancel;
 
+    @FXML private Label lblBox;
+    @FXML private Label lblProfile;
+    @FXML private Label lblDocuments;
 
-    private ExportManager exportManager = new ExportManager();
+    @FXML private RadioButton radioMulti;
+    @FXML private RadioButton radioSingle;
 
-    private String selectedFolderPath = null;
-    private List<byte[]> tiffPages;
-    private Profile profile;
+    @FXML private TextField txtFolder;
+
+    private final DocumentManager documentManager =
+            new DocumentManager();
+
     private Box box;
 
-    public void initialize() {
-        btnExport.setDisable(true); // disable until folder is selected
-    }
+    public void setup(Box box, int documentCount) {
 
-    public void setExportData(List<byte[]> tiffPages, Profile profiles, Box box) {
-        this.tiffPages = tiffPages;
-        this.profile = profiles;
         this.box = box;
+        lblBox.setText(String.valueOf(box.getBoxId()));
+        lblProfile.setText(
+                box.getProfile() != null
+                        ? box.getProfile().getName()
+                        : "No Profile"
+        );
 
-        profileNameLabel.setText("Profile: " + profiles.getName());
-        boxIdLabel.setText("Box ID: " + box.getBoxId());
-        pageCountLabel.setText("Total pages: " + tiffPages.size());
+        lblDocuments.setText(String.valueOf(documentCount));
+        radioMulti.setSelected(true);
     }
-
 
     @FXML
-    public void onSelectFolderClicked(ActionEvent actionEvent) {
+    private void browseFolder() {
+
         DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("Select Folder");
-        Stage stage = (Stage) btnSelectFolder.getScene().getWindow();
-        File selectedFolder = chooser.showDialog(stage);
-        if (selectedFolder != null) {
-            selectedFolderPath = selectedFolder.getAbsolutePath();
-            selectedFolderLabel.setText("Folder: " + selectedFolderPath);
-            btnExport.setDisable(false);
+        chooser.setTitle("Choose Export Folder");
+        java.io.File folder =
+                chooser.showDialog(
+                        txtFolder.getScene().getWindow());
+        if (folder != null) {
+            txtFolder.setText(folder.getAbsolutePath());
         }
     }
 
     @FXML
-    public void onExportClicked(ActionEvent actionEvent) {
+    private void export() {
 
         try {
-            exportManager.exportMultiPageTiff(
-                    tiffPages,
-                    selectedFolderPath,
-                    profile.getName(),
-                    String.valueOf(box.getBoxId()));
+            if (!validate()) {
+                return;
+            }
+            ExportMode mode =
+                    radioMulti.isSelected()
+                            ? ExportMode.MULTI_PAGE
+                            : ExportMode.SINGLE_PAGE;
 
-            // Show success message
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Export Successful");
-            alert.setContentText("File exported successfully to:\n" + selectedFolderPath);
-            alert.showAndWait();
+            List<Document> documents =
+                    documentManager.getDocsAndFilesFromBox(
+                            box.getId());
 
-            // Close popup
-            Stage stage = (Stage) btnExport.getScene().getWindow();
-            stage.close();
+            ExportManager manager = new ExportManager();
+            Path exportedPath = manager.exportBox(
+                    box,
+                    documents,
+                    Path.of(txtFolder.getText()),
+                    mode
+            );
+
+            showInfo(
+                    "Export Completed",
+                    "Files exported successfully:\n\n"
+                            + exportedPath
+            );
+
+            closeWindow();
+
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Export Failed");
-            alert.setContentText("Could not export file: " + e.getMessage());
-            alert.show();
+            e.printStackTrace();
+            showError("Export Failed",
+                    e.getMessage());
         }
     }
 
-        @FXML
-        public void onCancelClicked (ActionEvent actionEvent){
-            Stage stage = (Stage) btnExport.getScene().getWindow();
-            stage.close();
-        }
+    @FXML
+    private void cancel() {
+        closeWindow();
     }
+
+
+    private boolean validate() {
+        String folder = txtFolder.getText();
+        if (folder == null || folder.isBlank()) {
+            showError("Missing Folder",
+                    "Please select an export folder.");
+            return false;
+        }
+
+        Path path = Path.of(folder);
+        if (!Files.exists(path)) {
+            showError("Invalid Folder",
+                    "Selected folder does not exist.");
+            return false;
+        }
+        return true;
+    }
+
+
+    private void closeWindow() {
+        txtFolder.getScene()
+                .getWindow()
+                .hide();
+    }
+
+    private void showInfo(
+            String title,
+            String message) {
+        Alert alert =
+                new Alert(Alert.AlertType.INFORMATION);
+
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+    private void showError(
+            String title,
+            String message) {
+
+        Alert alert =
+                new Alert(Alert.AlertType.ERROR);
+
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+}

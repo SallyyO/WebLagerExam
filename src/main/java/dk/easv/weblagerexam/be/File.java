@@ -7,6 +7,7 @@ public class File {
     private int pageOrder;
     private int rotation;
     private boolean isDeleted;
+    private int document_id;
 
     private int fileNumber;
     private byte[] imageData;
@@ -30,6 +31,9 @@ public class File {
 
     public byte[] getImageData() {return imageData;}
     public void setImageData(byte[] imageData) {this.imageData = imageData;}
+
+    public int getDocumentId() {return document_id;}
+    public void setDocumentId(int document_id) {this.document_id = document_id;}
 
     public boolean isBarcode() {return isBarcode;}
     public void setBarcode(boolean isBarcode) {this.isBarcode = isBarcode;}

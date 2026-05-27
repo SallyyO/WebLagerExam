@@ -8,11 +8,11 @@ import dk.easv.weblagerexam.dal.DocumentDAO;
 import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -61,6 +61,7 @@ public class ScanningController{
 
     @FXML private VBox treeContainer;
     @FXML private Button btnRefreshTree;
+    @FXML private Button btnExport;
 
     // Tracks which document is currently expanded in the tree
     private final Set<Integer> expandedDocumentIds = new HashSet<>();
@@ -120,7 +121,9 @@ public class ScanningController{
 
         activeProfile = selectedBox.getProfile();
         activeBox = selectedBox;
+        loadTree();
 
+        documentManager.setActiveBox(activeBox);
         documentManager.setActiveBoxId(activeBox.getId());
 
         paused = false;
@@ -313,10 +316,14 @@ public class ScanningController{
                     DocumentManager.ScanResult result =
                             documentManager.processFileScan(file);
 
-                    Image image = TiffConverter.toJavaFXImage(
-                                    file.getImageData(),
-                                    activeProfile
-                            );
+                    if (result == DocumentManager.ScanResult.BARCODE) { //update the tree when a new document is created
+                        Platform.runLater(this::loadTree);
+                    }
+
+                    Image image = TiffConverter.toJavaFXImageThumbnail(
+                            file.getImageData(),
+                            activeProfile
+                    );
 
                     // DUPLICATE BARCODE
                     if (result ==
@@ -376,7 +383,6 @@ public class ScanningController{
                                 file,
                                 image
                         );
-                        loadTree(); // refresh tree to show newly scanned documents
                     });
                     Thread.sleep(300);
                 }
@@ -468,11 +474,11 @@ public class ScanningController{
         Label pageLabel = new Label("Page " + file.getFileNumber());
 
         pageLabel.setStyle("""
-        -fx-font-family: 'Montserrat';
-        -fx-font-size: 10px;
-        -fx-font-weight: 400;
-        -fx-text-fill: #64748B;
-    """);
+                    -fx-font-family: 'Montserrat';
+                    -fx-font-size: 10px;
+                    -fx-font-weight: 400;
+                    -fx-text-fill: #64748B;
+                """);
 
         String baseStyle = file.isBarcode()
                 ? """
@@ -602,6 +608,17 @@ public class ScanningController{
         });
 
         thumbnailContainer.getChildren().add(thumbBox);
+
+        ContextMenu menu = new ContextMenu();
+        MenuItem splitItem = new MenuItem("Split document here?");
+
+        splitItem.setOnAction(e ->
+                splitDocumentAtFile(document, file));
+
+        menu.getItems().add(splitItem);
+
+        thumbBox.setOnContextMenuRequested(e ->
+                menu.show(thumbBox, e.getScreenX(), e.getScreenY()));
     }
 
     private Box showPreScanDialog() {
@@ -679,7 +696,10 @@ public class ScanningController{
         File file = currentFiles.get(index);
         currentRotation = 0; // reset rotation when switching files
 
-        Image image = TiffConverter.toJavaFXImage(file.getImageData(), activeProfile);
+        Image image = TiffConverter.toJavaFXImageThumbnail(
+                file.getImageData(),
+                activeProfile
+        );
         if (image != null) {
             mainPreview.setImage(image);
             mainPreview.setRotate(currentRotation);
@@ -847,7 +867,7 @@ public class ScanningController{
 
                         Image img = f == file
                                 ? image
-                                : TiffConverter.toJavaFXImage(
+                                : TiffConverter.toJavaFXImageThumbnail(
                                 f.getImageData(),
                                 activeProfile
                         );
@@ -926,27 +946,25 @@ public class ScanningController{
     public void loadTree() {
         treeContainer.getChildren().clear();
 
-        User user = SessionManager.getCurrentUser();
-        if (user == null) return;
+        // No active box yet
+        if (activeBox == null) {
 
-        List<Box> boxes;
-        try {
-            boxes = dao.getBoxDAO().getBoxesByUser(user.getId());
-        } catch (Exception e) {
-            System.err.println("Could not load boxes for tree: " + e.getMessage());
-            return;
-        }
+            Label empty = new Label("No active box");
+            empty.setStyle("""
+            -fx-text-fill: #64748B;
+            -fx-font-size: 11px;
+            -fx-padding: 6;
+        """);
 
-        if (boxes.isEmpty()) {
-            Label empty = new Label("No boxes yet");
-            empty.setStyle("-fx-text-fill: #64748B; -fx-font-size: 11px; -fx-padding: 6;");
             treeContainer.getChildren().add(empty);
+
             return;
         }
 
-        for (Box box : boxes) {
-            treeContainer.getChildren().add(buildBoxNode(box));
-        }
+        // only show the current box
+        treeContainer.getChildren().add(
+                buildBoxNode(activeBox)
+        );
     }
 
     private VBox buildBoxNode(Box box) {
@@ -1021,10 +1039,95 @@ public class ScanningController{
         arrow.getStyleClass().add("text-helper");
         arrow.setMinWidth(12);
 
-        Label docLabel = new Label("Doc #" + doc.getId());
+        Label docLabel = new Label("Doc #" + doc.getDocumentNumber());
         docLabel.getStyleClass().add("label-regular");
 
         docRow.getChildren().addAll(arrow, docLabel);
+        // Lets user drag and drop files to another document
+        docRow.setOnDragOver(event -> {
+
+            Dragboard dragb = event.getDragboard();
+            if (dragb.hasString()) {
+
+                event.acceptTransferModes(TransferMode.MOVE);
+
+                docRow.setStyle("""
+                            -fx-padding: 4 6 4 6;
+                            -fx-cursor: hand;
+                            -fx-background-color: #F1F5F9;
+                            -fx-border-color: #2D3D4F;
+                            -fx-border-radius: 6;
+                            -fx-background-radius: 6;
+                        """);
+            }
+            event.consume();
+        });
+        docRow.setOnDragDropped(event -> {
+
+            Dragboard db = event.getDragboard();
+
+            boolean success = false;
+
+            if (db.hasString()) {
+
+                try {
+
+                    String[] parts = db.getString().split(":");
+
+                    int fileId = Integer.parseInt(parts[0]);
+                    int sourceDocId = Integer.parseInt(parts[1]);
+
+                    // Don't allow dropping into same doc
+                    if (sourceDocId != doc.getId()) {
+
+                        DAOManager daoManager = new DAOManager();
+
+                        daoManager.getDocumentDAO().moveFileToDocument(fileId, doc.getId());
+
+                        // Renumber both docs after moving a file
+                        Document sourceDoc =
+                                daoManager.getDocumentDAO().getDocumentById(sourceDocId);
+
+                        Document targetDoc =
+                                daoManager.getDocumentDAO().getDocumentById(doc.getId());
+
+                        daoManager.getDocumentDAO().renumberFiles(sourceDoc);
+                        daoManager.getDocumentDAO().renumberFiles(targetDoc);
+
+                        loadTree();
+
+                        lblStatus.setText(
+                                "Moved file to Doc #"
+                                        + doc.getDocumentNumber()
+                        );
+
+                        success = true;
+                    }
+
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+
+                    lblStatus.setText(
+                            "Could not move file"
+                    );
+                }
+            }
+
+            event.setDropCompleted(success);
+
+            event.consume();
+        });
+        docRow.setOnDragExited(event -> {
+
+            docRow.setStyle("""
+                        -fx-padding: 4 6 4 6;
+                        -fx-cursor: hand;
+                    """);
+
+            event.consume();
+        });
 
         VBox fileContainer = new VBox(1);
         fileContainer.setVisible(false);
@@ -1069,6 +1172,7 @@ public class ScanningController{
     }
 
     private HBox buildFileNode(Document doc, File file) {
+
         HBox fileRow = new HBox(6);
         fileRow.setStyle("-fx-padding: 3 6 3 6; -fx-cursor: hand;");
 
@@ -1089,6 +1193,22 @@ public class ScanningController{
                 fileRow.setStyle("-fx-padding: 3 6 3 6; -fx-cursor: hand;"));
 
         fileRow.setOnMouseClicked(e -> navigateToFile(doc, file));
+        // Lets the user drag files (so they can move it to another document)
+        fileRow.setOnDragDetected(event -> {
+
+            Dragboard db = fileRow.startDragAndDrop(TransferMode.MOVE);
+
+            ClipboardContent content = new ClipboardContent();
+
+            // fileId:sourceDocumentId
+            content.putString(file.getId() + ":" + doc.getId());
+
+            db.setContent(content);
+
+            fileRow.setOpacity(0.6);
+
+            event.consume();
+        });
 
         return fileRow;
     }
@@ -1115,9 +1235,119 @@ public class ScanningController{
                     mainPreview.setRotate(0);
                     currentRotation = 0;
                     lblStatus.setText("Viewing File #" + fullFile.getFileNumber()
-                            + " from Doc #" + doc.getId());
+                            + " from Doc #" + doc.getDocumentNumber());
                 }
             });
         }).start();
+    }
+
+    private void splitDocumentAtFile(Document originalDoc, File splitFile) {
+
+        try {
+
+            List<File> originalFiles = originalDoc.getFiles();
+
+            int splitIndex = -1;
+
+            for (int i = 0; i < originalFiles.size(); i++) {
+
+                if (originalFiles.get(i).getId() == splitFile.getId()) {
+
+                    splitIndex = i;
+                    break;
+                }
+            }
+
+            // Need at least 1 file before and after
+            if (splitIndex <= 0 || splitIndex >= originalFiles.size()) {
+
+                lblStatus.setText("Cannot split at this position");
+                return;
+            }
+
+            Document newDoc =
+                    documentManager.createManualSplitDocument(activeBox.getId());
+
+            // Copy files over AFTER split point
+            List<File> movedFiles = new ArrayList<>();
+
+            for (int i = splitIndex; i < originalFiles.size(); i++) {
+
+                movedFiles.add(originalFiles.get(i));
+            }
+
+            // Remove moved files from original
+            originalFiles.subList(splitIndex, originalFiles.size()).clear();
+
+            // Move files into new document
+            for (File file : movedFiles) {
+
+                file.setDocumentId(newDoc.getId());
+
+                dao.getDocumentDAO().updateFileDocument(file);
+
+                newDoc.getFiles().add(file);
+            }
+
+            // Renumber both docs
+            dao.getDocumentDAO().renumberFiles(originalDoc);
+            dao.getDocumentDAO().renumberFiles(newDoc);
+
+            dao.getDocumentDAO().updateFileOrder(originalDoc);
+            dao.getDocumentDAO().updateFileOrder(newDoc);
+
+            loadTree();
+            loadDocument(newDoc);
+
+            lblStatus.setText(
+                    "Created Doc #" + newDoc.getDocumentNumber()
+                            + " from split"
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            lblStatus.setText("Could not split document");
+        }
+    }
+
+    @FXML
+    private void onExportClicked() {
+        try {
+            Box activeBox = documentManager.getActiveBox();
+            if (activeBox == null) {
+                showAlert("No active box to export");
+                return;}
+
+            List<Document> documents =
+                    dao.getDocumentDAO().getDocumentsForBox(activeBox.getId());
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/export.fxml"));
+            Parent root = loader.load();
+
+            ExportController controller = loader.getController();
+            controller.setup(activeBox, documents.size());
+
+            Stage stage = new Stage();
+            stage.setTitle("Export");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Export failed:\n" + e.getMessage());
+        }
+    }
+
+    private void showAlert(String message) {
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
     }
 }

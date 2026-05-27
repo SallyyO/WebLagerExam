@@ -2,6 +2,7 @@ package dk.easv.weblagerexam.util;
 
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.bll.FileSettings;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -33,14 +34,7 @@ public class TiffConverter {
     }
 
     private static WritableImage toFXImage(BufferedImage buffered) {
-        int w = buffered.getWidth();
-        int h = buffered.getHeight();
-        WritableImage fxImage = new WritableImage(w, h);
-        PixelWriter pw = fxImage.getPixelWriter();
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++)
-                pw.setArgb(x, y, buffered.getRGB(x, y));
-        return fxImage;
+        return SwingFXUtils.toFXImage(buffered, null);
     }
 
     public static Image toJavaFXImageThumbnail(byte[] imageData, Profile profile) {
