@@ -821,8 +821,8 @@ public class ScanningController{
 
          */
 
-        ButtonType btnSkip = new ButtonType("Skip", ButtonBar.ButtonData.CANCEL_CLOSE);
-        ButtonType btnAccept = new ButtonType("Continue", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnSkip = new ButtonType("Skip [ S ]", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType btnAccept = new ButtonType("Continue [ ENTER ]", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(btnSkip, btnAccept);
 
         Button skipButton =

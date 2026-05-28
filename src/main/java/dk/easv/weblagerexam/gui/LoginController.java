@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import java.util.Objects;
@@ -27,13 +28,6 @@ public class LoginController {
     public Button btnLogIn;
 
     PasswordManager passwordManager = new PasswordManager();
-
-    //Shortcuts
-    private final EventHandler<KeyEvent> keyHandler = event -> {
-        switch (event.getCode()) {
-            case ENTER -> { btnSignIn(); event.consume(); }
-        }
-    };
 
     @FXML
     public void initialize() {
