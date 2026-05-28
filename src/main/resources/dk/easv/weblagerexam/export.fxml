@@ -88,16 +88,16 @@
 
                 <TextField fx:id="txtFolder" prefWidth="250" promptText="File path" />
 
-                <Button onAction="#browseFolder" styleClass="button-primary" text="Browse" />
+                <Button onAction="#browseFolder" styleClass="button-primary" text="Browse [ B ]" />
 
             </HBox>
 
             <!-- BUTTONS -->
             <HBox alignment="CENTER_RIGHT" spacing="10">
 
-                <Button onAction="#cancel" styleClass="button-danger" text="Cancel" />
+                <Button onAction="#cancel" styleClass="button-danger" text="Cancel [ C ]" />
 
-                <Button onAction="#export" styleClass="button-secondary" text="Export" />
+                <Button onAction="#export" styleClass="button-secondary" text="Export [ ENTER ]" />
 
             </HBox>
         </VBox>

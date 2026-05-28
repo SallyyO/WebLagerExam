@@ -6,13 +6,13 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.image.ImageView?>
 <BorderPane prefHeight="350" prefWidth="400" style="-fx-background-color: #ffffff;" stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.AddNewUserController">
 
     <!--  HEADER -->
@@ -27,9 +27,9 @@
                 </image>
             </ImageView>
 
-            <Region HBox.hgrow="ALWAYS"/>
+            <Region HBox.hgrow="ALWAYS" />
 
-            <Label text="Add New User" styleClass="text-h3"/>
+            <Label styleClass="text-h3" text="Add New User" />
         </HBox>
     </top>
 
@@ -51,9 +51,9 @@
     <bottom>
         <HBox alignment="CENTER" prefHeight="70" spacing="20" styleClass="modal-footer">
 
-            <Button fx:id="btnSave" onAction="#onSaveClicked" prefWidth="120" styleClass="button-secondary" text="Save" />
+            <Button fx:id="btnCancel" onAction="#onCancelClicked" prefWidth="120" styleClass="button-primary" text="Cancel [ C ]" />
 
-            <Button fx:id="btnCancel" onAction="#onCancelClicked" prefWidth="120" styleClass="button-primary" text="Cancel" />
+            <Button fx:id="btnSave" onAction="#onSaveClicked" prefWidth="120" styleClass="button-secondary" text="Save [ ENTER ]" />
         </HBox>
     </bottom>
 </BorderPane>

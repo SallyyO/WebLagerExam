@@ -4,12 +4,15 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.PasswordManager;
 import dk.easv.weblagerexam.bll.SessionManager;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import java.util.Objects;
 
@@ -25,6 +28,12 @@ public class LoginController {
 
     PasswordManager passwordManager = new PasswordManager();
 
+    //Shortcuts
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case ENTER -> { btnSignIn(); event.consume(); }
+        }
+    };
 
     @FXML
     public void initialize() {

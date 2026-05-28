@@ -121,27 +121,6 @@
                             <String fx:value="text-button" />
                         </styleClass>
                     </Button>
-               <Button fx:id="exportBtn" onAction="#onExportBtnClicked" text="Export">
-                  <font>
-                     <Font name="System Bold" size="15" />
-                  </font>
-                  <styleClass>
-                     <String fx:value="button-primary" />
-                     <String fx:value="text-button" />
-                  </styleClass>
-                  <HBox.margin>
-                     <Insets />
-                  </HBox.margin>
-               </Button>
-               <Button fx:id="deleteScansBtn" onAction="#onDeleteScansBtnClicked" text="Delete Scans [ D ]">
-                  <font>
-                     <Font name="System Bold" size="15" />
-                  </font>
-                  <styleClass>
-                     <String fx:value="button-primary" />
-                     <String fx:value="text-button" />
-                  </styleClass>
-               </Button>
                <VBox.margin>
                   <Insets />
                </VBox.margin>

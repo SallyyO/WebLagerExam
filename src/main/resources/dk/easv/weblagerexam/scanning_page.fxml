@@ -15,7 +15,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800" prefWidth="1200" stylesheets="@CSS/app.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/24.0.1" fx:controller="dk.easv.weblagerexam.gui.ScanningController">
+<BorderPane prefHeight="800" prefWidth="1200" stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.ScanningController">
 
     <top>
         <VBox>
@@ -60,11 +60,11 @@
 
                 <Button onAction="#onBackClicked" styleClass="btn-primary" text="← Back" />
 
-                <Button fx:id="btnStartScan" onAction="#startScan" styleClass="button, button-primary" text="Start Scan" />
+                <Button fx:id="btnStartScan" onAction="#startScan" styleClass="button, button-primary" text="Start Scan [ ENTER ]" />
 
-                <Button fx:id="btnPauseScan" disable="true" onAction="#pauseScan" styleClass="button, button-secondary" text="Pause" />
+                <Button fx:id="btnPauseScan" disable="true" onAction="#pauseScan" styleClass="button, button-secondary" text="Pause [ P ]" />
 
-                <Button fx:id="btnStopScan" disable="true" onAction="#stopScan" styleClass="button, button-danger" text="Stop" />
+                <Button fx:id="btnStopScan" disable="true" onAction="#stopScan" styleClass="button, button-danger" text="Stop [ S ]" />
 
                 <Region HBox.hgrow="ALWAYS" />
 
@@ -91,7 +91,7 @@
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent;                                -fx-background: transparent;" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                 <VBox fx:id="treeContainer" style="-fx-padding: 6;" />
             </ScrollPane>
-            <Button fx:id="btnExport" onAction="#onExportClicked" styleClass="button-primary" text="Export box">
+            <Button fx:id="btnExport" onAction="#onExportClicked" styleClass="button-primary" text="Export box [ B ]">
             <VBox.margin>
                <Insets bottom="5.0" left="60.0" />
             </VBox.margin>

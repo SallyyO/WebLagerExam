@@ -43,9 +43,6 @@ public class UserController {
     private Button boxesBtn;
 
     @FXML
-    private Button exportBtn;
-
-    @FXML
     private Button newScanBtn;
 
     @FXML
@@ -69,11 +66,11 @@ public class UserController {
     private final DAOManager dao = new DAOManager();
     private Box latestBox = null;
 
+    //Shortcuts
     private final EventHandler<KeyEvent> keyHandler = event -> {
         switch (event.getCode()) {
             case B -> { onBoxesBtnClicked(new ActionEvent()); event.consume(); }
             case N -> { onNewScanBtnClicked(new ActionEvent()); event.consume(); }
-            case D -> { onDeleteScansBtnClicked(new ActionEvent()); event.consume(); }
         }
     };
 
@@ -157,22 +154,6 @@ public class UserController {
     }
 
     @FXML
-    void onExportBtnClicked(ActionEvent event) {
-        try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("export.fxml"));
-            Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("Export");
-            stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    @FXML
     void onNewScanBtnClicked(ActionEvent event) {
         Platform.runLater(() -> {
             try {
@@ -197,37 +178,8 @@ public class UserController {
     }
 
     @FXML
-    void onProfilesBtnClicked(ActionEvent event) {
-
-    }
-
-    @FXML
     void onScanningClicked(ActionEvent event) {
 
-    }
-
-    @FXML
-    void onDeleteScansBtnClicked(ActionEvent event) {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/dk/easv/weblagerexam/delete_scan.fxml")
-                );
-
-                Parent root = loader.load();
-
-                // Get current window (to replace it)
-                Stage stage = (Stage) boxesBtn.getScene().getWindow();
-
-                stage.setScene(new Scene(root));
-                stage.setTitle("Deleting");
-
-                stage.centerOnScreen();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     public void onContinueScanClicked(MouseEvent mouseEvent) {

@@ -6,9 +6,11 @@ import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.bll.UserManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
@@ -74,6 +76,21 @@ public class AdminController {
 
     private final ObservableList<User> allUsers = FXCollections.observableArrayList();
     private final FilteredList<User> filteredUsers = new FilteredList<>(allUsers, p -> true);
+
+    //Shortcuts
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case A -> { onAddUserBtnClicked(new ActionEvent()); event.consume(); }
+            case P -> { onProfilesClicked(new ActionEvent()); event.consume(); }
+            case U -> {
+                try {
+                    onUsersClicked(new ActionEvent());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                event.consume(); }
+        }
+    };
 
     @FXML
     public void initialize() {
@@ -149,23 +166,25 @@ public class AdminController {
 
     @FXML
     void onAddUserBtnClicked(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dk/easv/weblagerexam/addNewUser.fxml")
-            );
-            Parent root = loader.load();
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/dk/easv/weblagerexam/addNewUser.fxml")
+                );
+                Parent root = loader.load();
 
 
-            Stage stage = new Stage();
-            stage.setTitle("Add User");
-            stage.setScene(new Scene(root));
-            AddNewUserController controller = (AddNewUserController) loader.getController();
-            controller.setAdminController(this);
-            stage.show();
+                Stage stage = new Stage();
+                stage.setTitle("Add User");
+                stage.setScene(new Scene(root));
+                AddNewUserController controller = (AddNewUserController) loader.getController();
+                controller.setAdminController(this);
+                stage.show();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void handleDeleteUser(User selectedUser) {
@@ -203,11 +222,6 @@ public class AdminController {
             e.printStackTrace();
             showError("Could not open Edit User Window", e.getMessage());
         }
-    }
-
-    @FXML
-    void onFileInfoClicked(ActionEvent event) {
-
     }
 
     @FXML

@@ -5,11 +5,14 @@ import dk.easv.weblagerexam.be.Document;
 import dk.easv.weblagerexam.bll.DocumentManager;
 import dk.easv.weblagerexam.bll.ExportManager;
 import dk.easv.weblagerexam.util.ExportMode;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.DirectoryChooser;
 
 import java.nio.file.Files;
@@ -31,6 +34,15 @@ public class ExportController {
             new DocumentManager();
 
     private Box box;
+
+    //Shortcuts
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case B -> { browseFolder(); event.consume(); }
+            case C -> { cancel(); event.consume(); }
+            case ENTER -> {export(); event.consume(); }
+        }
+    };
 
     public void setup(Box box, int documentCount) {
 

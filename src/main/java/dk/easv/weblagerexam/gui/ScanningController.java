@@ -14,6 +14,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -25,6 +26,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -74,6 +76,16 @@ public class ScanningController{
     private Thread processorThread;
     private Thread scannerThread;
 
+    //Shortcuts for outside the scanning process
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case ENTER -> { startScan(); event.consume(); }
+            case P -> { pauseScan(); event.consume(); }
+            case S -> { stopScan(); event.consume(); }
+            case B -> { onExportClicked(); event.consume(); }
+        }
+    };
+
     @FXML
     public void initialize() {
 
@@ -93,8 +105,8 @@ public class ScanningController{
             if (newScene != null) {
                 newScene.setOnKeyPressed(event -> {
                     switch (event.getCode()) {
-                        case S -> nextFile();
-                        case W  -> previousFile();
+                        case E -> nextFile();
+                        case Q  -> previousFile();
                         case R     -> rotateCurrentFile(90);
                         case L     -> rotateCurrentFile(-90);
                     }

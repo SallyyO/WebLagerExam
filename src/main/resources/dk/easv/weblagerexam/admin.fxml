@@ -62,7 +62,7 @@
             <!-- LEFT SIDEBAR -->
             <VBox prefWidth="210" style="-fx-background-color: #f5f6f8; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 0 0;">
 
-                <Button fx:id="usersButton" onAction="#onUsersClicked" prefHeight="55" prefWidth="210" text="Users">
+                <Button fx:id="usersButton" onAction="#onUsersClicked" prefHeight="55" prefWidth="210" text="Users [ U ]">
                     <font><Font name="System" size="16" /></font>
                     <styleClass>
                         <String fx:value="button-secondary" />
@@ -71,7 +71,7 @@
                     <VBox.margin><Insets left="6.0" right="6.0" top="6.0" /></VBox.margin>
                 </Button>
 
-                <Button fx:id="profilesButton" onAction="#onProfilesClicked" prefHeight="55" prefWidth="210" text="Profiles">
+                <Button fx:id="profilesButton" onAction="#onProfilesClicked" prefHeight="55" prefWidth="210" text="Profiles [ P ]">
                     <font><Font name="System" size="16" /></font>
                     <styleClass>
                         <String fx:value="button-secondary" />
@@ -106,6 +106,7 @@
                                 <TableColumn fx:id="usernameColumn" prefWidth="250.0" text="Name" />
                                 <TableColumn fx:id="typeColumn" prefWidth="250.0" text="Type" />
                                 <TableColumn fx:id="actionsColumn" prefWidth="200.0" text="Actions" />
+                        <TableColumn prefWidth="75.0" text="Status" />
                             </columns>
                             <placeholder>
                                 <Label style="-fx-background-color: #f9f9f9;" text="" />

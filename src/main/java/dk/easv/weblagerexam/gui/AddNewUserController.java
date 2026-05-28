@@ -2,8 +2,11 @@ package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.PasswordManager;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 public class AddNewUserController {
@@ -25,6 +28,20 @@ public class AddNewUserController {
 
     @FXML
     private Button btnCancel;
+
+    //Shortcuts
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case S -> {
+                try {
+                    onSaveClicked();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                event.consume(); }
+            case C -> { onCancelClicked(); event.consume(); }
+        }
+    };
 
     @FXML
     public void initialize() {
