@@ -7,9 +7,11 @@ import dk.easv.weblagerexam.bll.ExportManager;
 import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.util.ExportMode;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -59,7 +61,10 @@ public class ExportController {
         lblDocuments.setText(String.valueOf(documentCount));
         radioMulti.setSelected(true);
 
-        txtFolder.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
+        Platform.runLater(() -> {
+            Scene scene = txtFolder.getScene();
+            if (scene != null) {scene.addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);}
+        });
     }
 
     @FXML
