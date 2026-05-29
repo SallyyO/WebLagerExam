@@ -2,6 +2,7 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.PasswordManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import javafx.fxml.FXML;
@@ -24,6 +25,7 @@ public class LoginController {
     public Button btnLogIn;
 
     PasswordManager passwordManager = new PasswordManager();
+    LogManager logManager = new LogManager();
 
 
     @FXML
@@ -61,6 +63,7 @@ public class LoginController {
                 e.printStackTrace();
             }
         } else {
+            logManager.logLoginFailed(initials);
             lblErr.setVisible(true);
             lblErr.setText("Wrong login or password!");
         }

@@ -22,31 +22,69 @@ public class LogDAO {
             ps.setString(3, log.getDescription());
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.err.println("Failed to write log: " + e.getMessage());
+            // ^even if the log fails, the program will keep running
         }
         ;
     }
 
 
     public List<Log> getAllLogs() {
+        String sql = """
+                SELECT l.id, l.userId, l.action, l.description, l.timestamp,
+                       u.username
+                FROM Log l
+                INNER JOIN Users u ON l.userId = u.id
+                ORDER BY l.timestamp DESC
+                """;
         List<Log> logs = new ArrayList<>();
-        String sql = "SELECT * FROM Log ORDER BY createdAt DESC";
-        try (Connection con = conMan.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()){
-            while(rs.next()){
-                logs.add(new Log(
-                        rs.getLong("id"),
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Log log = new Log(
                         rs.getInt("userId"),
                         rs.getString("action"),
-                        rs.getString("description"),
-                        rs.getTimestamp("createdAt").toInstant()
-                ));
+                        rs.getString("description")
+                );
+                log.setId(rs.getLong("id"));
+                log.setUsername(rs.getString("username"));
+                log.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+                logs.add(log);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.err.println("Failed to fetch logs: " + e.getMessage());
         }
         return logs;
+    }
 
+    public List<Log> getLogsForUser(int userId) {
+        String sql = """
+                SELECT id, userId, action, description, timestamp
+                FROM Log
+                WHERE userId = ?
+                ORDER BY timestamp DESC
+                """;
+        List<Log> logs = new ArrayList<>();
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Log log = new Log(
+                        rs.getInt("userId"),
+                        rs.getString("action"),
+                        rs.getString("description")
+                );
+                log.setId(rs.getLong("id"));
+                log.setUsername(rs.getString("username"));
+                log.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+                logs.add(log);
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to fetch logs: " + e.getMessage());
         }
+        return logs;
+    }
 }
+

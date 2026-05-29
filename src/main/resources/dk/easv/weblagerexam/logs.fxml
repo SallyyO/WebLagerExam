@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="600" prefWidth="900" stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.LogsController">
+
+    <top>
+
+        <HBox alignment="CENTER_LEFT" prefHeight="70" styleClass="modal-header" stylesheets="@CSS/app.css">
+            <padding>
+                <Insets bottom="0" left="20" right="24" top="0" />
+            </padding>
+            <ImageView fitHeight="50.0" fitWidth="203.0">
+                <image>
+                    <Image url="@/Images/LogoBlueH.png" />
+                </image>
+            </ImageView>
+
+            <!-- Spacer -->
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- Admin profile area -->
+            <HBox fx:id="userBox" alignment="CENTER" spacing="12" style="-fx-cursor: hand;">
+                <Label fx:id="lblUsername" styleClass="text-h3">
+                    <font>
+                        <Font name="System" size="15" />
+                    </font>
+                </Label>
+
+                <!-- Avatar circle -->
+                <StackPane>
+                    <Circle radius="24" styleClass="avatar-circle" />
+                    <Label fx:id="lblInitials" styleClass="avatar-text">
+                        <font>
+                            <Font name="System Bold" size="13" />
+                        </font>
+                    </Label>
+                </StackPane>
+            </HBox>
+        </HBox>
+
+    </top>
+
+    <center>
+
+        <TableView fx:id="logsTable">
+
+            <columns>
+
+                <TableColumn fx:id="userCol" prefWidth="200.0" styleClass="text-h2" text="User" />
+
+                <TableColumn fx:id="actionCol" prefWidth="150.0" styleClass="text-h2" text="Action" />
+
+                <TableColumn fx:id="dateCol" prefWidth="150.0" styleClass="text-h2" text="Date" />
+
+                <TableColumn fx:id="descriptionCol" prefWidth="399.0000305175781" styleClass="text-h2" text="Description" />
+
+
+            </columns>
+
+        </TableView>
+
+    </center>
+
+</BorderPane>

@@ -3,6 +3,7 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.dal.DAOManager;
 import javafx.fxml.FXML;
@@ -67,6 +68,8 @@ public class PreScanController {
         box.setProfileId(profileId);
         box.setProfile(selectedProfile); // stores the full object
         dao.getBoxDAO().saveBox(box);
+
+        new LogManager().logBoxCreated(currentUser.getId(), box.getBoxId(), currentUser.getUsername());
 
         resultBox = box;
         confirmed = true;

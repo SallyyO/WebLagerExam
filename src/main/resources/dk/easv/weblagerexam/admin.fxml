@@ -80,6 +80,24 @@
                     <VBox.margin><Insets left="6.0" right="6.0" top="6.0" /></VBox.margin>
                 </Button>
 
+                <Button fx:id="clientsButton" onAction="#onClientsClicked" prefHeight="55" prefWidth="210" text="Clients">
+                    <font><Font name="System" size="16" /></font>
+                    <styleClass>
+                        <String fx:value="button-secondary" />
+                        <String fx:value="text-button" />
+                    </styleClass>
+                    <VBox.margin><Insets left="6.0" right="6.0" top="6.0" /></VBox.margin>
+                </Button>
+
+                <Button fx:id="logsButton" onAction="#onLogsClicked" prefHeight="55" prefWidth="210" text="Logs">
+                    <font><Font name="System" size="16" /></font>
+                    <styleClass>
+                        <String fx:value="button-secondary" />
+                        <String fx:value="text-button" />
+                    </styleClass>
+                    <VBox.margin><Insets left="6.0" right="6.0" top="6.0" /></VBox.margin>
+                </Button>
+
                 <Region styleClass="modal-footer" VBox.vgrow="ALWAYS" />
             </VBox>
 

@@ -9,6 +9,7 @@ public class DAOManager {
     private LocalTiffDAO localTiffDAO = new LocalTiffDAO();
     private ApiDAO apiDAO = new ApiDAO();
     private FileDAO fileDAO = new FileDAO();
+    private ClientDAO clientDAO = new ClientDAO();
 
 
     public UserDAO getUserDAO() {
@@ -40,5 +41,7 @@ public class DAOManager {
     }
 
     public FileDAO getFileDAO() {return fileDAO;};
+
+    public ClientDAO getClientDAO() {return clientDAO;}
 }
 

@@ -6,17 +6,18 @@ import java.time.LocalDateTime;
 public class Log {
     private Long id;
     private int userId;
+    private String username;
     private String action;
     private String description;
-    private Instant createdAt;
+    private LocalDateTime timestamp;
 
 
-    public Log(Long id, int userId, String action, String description, Instant createdAt) {
+    public Log(Long id, int userId, String action, String description, LocalDateTime timestamp) {
         this.id = id;
         this.userId = userId;
         this.action = action;
         this.description = description;
-        this.createdAt = createdAt;
+        this.timestamp = timestamp;
 
     }
 
@@ -25,6 +26,13 @@ public class Log {
         this.action = action;
         this.description = description;
     }
+
+    public Log(String username, String action, String description) {
+        this.username = username;
+        this.action = action;
+        this.description = description;
+    }
+
     public Long getId() {
         return id;
     }
@@ -37,6 +45,8 @@ public class Log {
     public void setUserId(int userId) {
         this.userId = userId;
     }
+    public String getUsername() {return username;}
+    public void setUsername(String username) { this.username = username; }
     public String getAction() {
         return action;
     }
@@ -49,15 +59,15 @@ public class Log {
     public void setDescription(String description) {
         this.description = description;
     }
-    public Instant getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
-    public void setCreatedAt(Instant  createdAt) {
-        this.createdAt = createdAt;
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
     @Override
     public String toString() {
-        return "[" + createdAt + "]" + action + "-" + description;
+        return "[" + timestamp + "]" + action + "-" + description;
 
     }
 

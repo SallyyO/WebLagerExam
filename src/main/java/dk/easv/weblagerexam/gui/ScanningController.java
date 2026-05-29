@@ -2,6 +2,7 @@ package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.*;
 import dk.easv.weblagerexam.bll.DocumentManager;
+import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.dal.DocumentDAO;
@@ -69,6 +70,7 @@ public class ScanningController{
     private VBox dragSource = null;
     private final DocumentManager documentManager = new DocumentManager();
     private final DAOManager dao = new DAOManager();
+    private final LogManager logManager = new LogManager();
 
     private final BlockingQueue<File> scanQueue = new LinkedBlockingQueue<>(100); //max 100 scans in the queue
     private Thread processorThread;
@@ -1083,6 +1085,7 @@ public class ScanningController{
                         DAOManager daoManager = new DAOManager();
 
                         daoManager.getDocumentDAO().moveFileToDocument(fileId, doc.getId());
+                        File movedFile = daoManager.getDocumentDAO().getFileById(fileId);
 
                         // Renumber both docs after moving a file
                         Document sourceDoc =
@@ -1093,6 +1096,8 @@ public class ScanningController{
 
                         daoManager.getDocumentDAO().renumberFiles(sourceDoc);
                         daoManager.getDocumentDAO().renumberFiles(targetDoc);
+
+                        logManager.logFileMoved(movedFile.getFileNumber(), sourceDoc.getDocumentNumber(), targetDoc.getDocumentNumber());
 
                         loadTree();
 
@@ -1295,6 +1300,13 @@ public class ScanningController{
 
             dao.getDocumentDAO().updateFileOrder(originalDoc);
             dao.getDocumentDAO().updateFileOrder(newDoc);
+
+            LogManager logManager = new LogManager();
+
+            logManager.logManualDocumentSplit(SessionManager.getCurrentUser().getId(),
+                    originalDoc.getDocumentNumber(),
+                    newDoc.getDocumentNumber(),
+                    splitFile.getFileNumber());
 
             loadTree();
             loadDocument(newDoc);

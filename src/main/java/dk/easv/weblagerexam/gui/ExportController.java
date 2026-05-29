@@ -4,6 +4,8 @@ import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.Document;
 import dk.easv.weblagerexam.bll.DocumentManager;
 import dk.easv.weblagerexam.bll.ExportManager;
+import dk.easv.weblagerexam.bll.LogManager;
+import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.util.ExportMode;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -77,12 +79,12 @@ public class ExportController {
 
             ExportManager manager = new ExportManager();
             Path exportedPath = manager.exportBox(
-                    box,
-                    documents,
-                    Path.of(txtFolder.getText()),
-                    mode
+                    box, documents, Path.of(txtFolder.getText()), mode
             );
 
+            LogManager logManager = new LogManager();
+            logManager.logBoxExported(box.getBoxId(), mode.name());
+            
             showInfo(
                     "Export Completed",
                     "Files exported successfully:\n\n"

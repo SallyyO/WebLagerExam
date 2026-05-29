@@ -18,6 +18,7 @@ public class DocumentManager {
     private final ApiDAO apiDao;
     private final DocumentDAO documentDAO;
     private final DAOManager dao = new DAOManager();
+    private final LogManager logManager = new LogManager();
 
 
     public DocumentManager() {
@@ -66,9 +67,12 @@ public class DocumentManager {
                 currentDocumentNumber++;
                 completedDocuments.add(currentDocument);
                 totalDocuments++;
+                logManager.logDocumentCreated(currentDocument.getId(), activeBox.getBoxId());
             }
             currentDocument = new Document();
             currentDocument.addFile(file);
+
+
             return ScanResult.BARCODE;
         } else {
             currentDocument.addFile(file);
@@ -89,6 +93,7 @@ public class DocumentManager {
             currentDocumentNumber++;
             completedDocuments.add(currentDocument);
             totalDocuments++;
+            logManager.logDocumentCreated(currentDocument.getId(), activeBox.getBoxId());
             currentDocument = new Document();
         }
     }
@@ -154,13 +159,14 @@ public class DocumentManager {
 
         if (barcodeContent != null) {
             approvedDuplicateBarcodes.add(barcodeContent);
+
+            logManager.logDuplicateBarcodeAccepted(SessionManager.getCurrentUser().getId(), barcodeContent);
         }
     }
 
     public Document createManualSplitDocument(int boxId) throws Exception {
 
         int nextDocumentNumber = getTotalDocuments() + 1;
-
         Document doc = new Document();
 
         doc.setBoxId(boxId);

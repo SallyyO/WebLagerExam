@@ -40,8 +40,8 @@ public class ProfileManager {
 
     public void deleteProfile(Profile profileID) throws Exception {
         dao.getProfileDAO().softDeleteProfile(profileID);
-
-        logManager.logProfileDeleted(profileID.getId(), "Profile #" + profileID.getName());
-
+    }
+    public List<Profile> getProfilesForClient(int clientId) {
+        return dao.getProfileDAO().getProfilesForClient(clientId);
     }
 }

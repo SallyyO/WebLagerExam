@@ -1,7 +1,9 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.PasswordManager;
+import dk.easv.weblagerexam.bll.SessionManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -33,6 +35,7 @@ public class AddNewUserController {
 
     private AdminController adminController;
     private User user;
+    LogManager logManager = new LogManager();
 
     @FXML
     void onSaveClicked() throws Exception {
@@ -61,6 +64,9 @@ public class AddNewUserController {
 
 
                 pm.AddUser(role, username, initials, password);
+                logManager.logUserCreated(
+                        username
+                );
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -68,11 +74,9 @@ public class AddNewUserController {
             }
         }
         if (adminController != null) {
-            adminController.loadUsers();
+            adminController.refreshCurrentInfo();
         }
         closeWindow();
-
-
     }
 
     @FXML

@@ -46,8 +46,10 @@ public class UserManager {
         String salt = PasswordHasher.generateSalt();
         String hash = PasswordHasher.hashPassword(password, salt);
 
-        dao.getUserDAO().addUser(new User(username.trim(), role, initials.trim(), hash, salt));
+        User newUser = new User(username.trim(), role, initials.trim(), hash, salt);
+        dao.getUserDAO().addUser(newUser);
 
+        logManager.logUserCreated(newUser.getUsername());
     }
 
     public void deleteUser(int userID) throws Exception {

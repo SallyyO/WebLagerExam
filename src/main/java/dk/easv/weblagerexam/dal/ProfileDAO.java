@@ -1,5 +1,6 @@
 package dk.easv.weblagerexam.dal;
 
+import dk.easv.weblagerexam.be.Client;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.ProfileSettings;
 
@@ -20,6 +21,7 @@ public class ProfileDAO {
         String sql = """
                 SELECT id,
                        name,
+                       clientId,
                        settingstype,
                        settingsvalue
                 FROM Profiles
@@ -30,20 +32,21 @@ public class ProfileDAO {
 
     public void saveProfile(Profile profile) {
         String sql = """
-                INSERT INTO Profiles (name, settingstype, settingsvalue)
-                VALUES (?, ?, ?)
+                INSERT INTO Profiles (name, clientId, settingstype, settingsvalue)
+                VALUES (?, ?, ?, ?)
                 """;
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(
                     sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, profile.getName());
-            stmt.setString(2, profile.getSettings() != null
+            stmt.setInt(2, profile.getClientId());
+            stmt.setString(3, profile.getSettings() != null
                     ? profile.getSettings().name()
                     : null);
             if (profile.getSettingsValue() != null) {
-                stmt.setDouble(3, profile.getSettingsValue());
+                stmt.setDouble(4, profile.getSettingsValue());
             } else {
-                stmt.setNull(3, java.sql.Types.DOUBLE);
+                stmt.setNull(4, java.sql.Types.DOUBLE);
             }
             stmt.executeUpdate();
             ResultSet keys = stmt.getGeneratedKeys();
@@ -60,6 +63,7 @@ public class ProfileDAO {
         String sql = """
                 SELECT p.id,
                        p.name,
+                       p.clientId,
                        p.settingstype,
                        p.settingsvalue
                 FROM Profiles p
@@ -118,7 +122,7 @@ public class ProfileDAO {
         }
     }
 
-    private List<Profile> fetchProfiles(String sql, Integer userId) {
+    private List<Profile> fetchProfiles(String sql, Integer parameter) {
 
         List<Profile> profiles = new ArrayList<>();
 
@@ -126,8 +130,8 @@ public class ProfileDAO {
 
             PreparedStatement stmt = con.prepareStatement(sql);
 
-            if (userId != null) {
-                stmt.setInt(1, userId);
+            if (parameter != null) {
+                stmt.setInt(1, parameter);
             }
 
             ResultSet rs = stmt.executeQuery();
@@ -146,14 +150,18 @@ public class ProfileDAO {
                         ? rs.getDouble("settingsvalue")
                         : null;
 
-                profiles.add(
-                        new Profile(
-                                rs.getInt("id"),
-                                rs.getString("name"),
-                                type,
-                                value
-                        )
+                Profile profile = new Profile(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        type,
+                        value
                 );
+
+                profile.setClientId(
+                        rs.getInt("clientId")
+                );
+
+                profiles.add(profile);
             }
 
             return profiles;
@@ -183,6 +191,7 @@ public class ProfileDAO {
         String sql = """
                 SELECT id,
                        name,
+                       clientId,
                        settingstype,
                        settingsvalue
                 FROM Profiles
@@ -220,6 +229,83 @@ public class ProfileDAO {
             }
 
             return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Profile> getProfilesForClient(int clientId) {
+
+        String sql = """
+                SELECT id,
+                       name,
+                       clientId,
+                       settingstype,
+                       settingsvalue
+                FROM Profiles
+                WHERE clientId = ?
+                """;
+
+        return fetchProfiles(sql, clientId);
+    }
+
+    public List<Profile> getAllProfilesWithClients() {
+
+        String sql = """
+                SELECT p.id,
+                       p.name,
+                       p.settingstype,
+                       p.settingsvalue,
+                       p.clientId,
+                       c.name AS clientName
+                FROM Profiles p
+                LEFT JOIN Clients c
+                    ON p.clientId = c.id
+                """;
+
+        List<Profile> profiles = new ArrayList<>();
+
+        try (Connection con = conMan.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+
+                String typeStr = rs.getString("settingstype");
+
+                ProfileSettings type = typeStr != null
+                        ? ProfileSettings.valueOf(typeStr)
+                        : null;
+
+                Double value = rs.getObject("settingsvalue") != null
+                        ? rs.getDouble("settingsvalue")
+                        : null;
+
+                Profile profile = new Profile(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        type,
+                        value
+                );
+
+                int clientId = rs.getInt("clientId");
+
+                if (!rs.wasNull()) {
+
+                    Client client = new Client(
+                            clientId,
+                            rs.getString("clientName")
+                    );
+
+                    profile.setClient(client);
+                }
+
+                profiles.add(profile);
+            }
+
+            return profiles;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
