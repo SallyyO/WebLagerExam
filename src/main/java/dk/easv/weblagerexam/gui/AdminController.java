@@ -122,16 +122,8 @@ public class AdminController {
         userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
 
-        addUserBtn.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-                    if (event.getCode() == KeyCode.A) {
-                        onAddUserBtnClicked(new ActionEvent());
-                        event.consume();
-                    }
-
-                });
-            }
+        Platform.runLater(() -> {
+            mainTable.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
         });
     }
 

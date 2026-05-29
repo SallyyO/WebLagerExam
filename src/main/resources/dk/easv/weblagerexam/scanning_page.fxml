@@ -58,7 +58,7 @@
             <!-- Scanning tools -->
             <HBox alignment="CENTER_LEFT" style="-fx-padding: 9 16 9 16;                          -fx-border-color: #E2E4E8;                          -fx-border-width: 0 0 1 0;                          -fx-background-color: white;" styleClass="gap-sm">
 
-                <Button onAction="#onBackClicked" styleClass="btn-primary" text="← Back" />
+                <Button onAction="#onBackClicked" styleClass="btn-primary" text="← Back [ ESC ]" />
 
                 <Button fx:id="btnStartScan" onAction="#startScan" styleClass="button, button-primary" text="Start Scan [ ENTER ]" />
 

@@ -102,7 +102,7 @@
             <!-- BUTTONS -->
             <HBox alignment="CENTER_LEFT" spacing="10">
 
-                <Button onAction="#cancel" styleClass="button-danger" text="Cancel [ C ]" />
+                <Button onAction="#cancel" styleClass="button-danger" text="Cancel [ ESC ]" />
 
                 <Button onAction="#export" styleClass="button-secondary" text="Export [ ENTER ]" />
 

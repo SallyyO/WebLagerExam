@@ -83,6 +83,7 @@ public class ScanningController{
             case P -> { pauseScan(); event.consume(); }
             case S -> { stopScan(); event.consume(); }
             case B -> { onExportClicked(); event.consume(); }
+            case ESCAPE -> {onBackClicked(new ActionEvent(btnStartScan, null)); event.consume(); }
         }
     };
 
@@ -102,13 +103,17 @@ public class ScanningController{
 
         // handle keyboard focus n some shortcuts
         mainScrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (oldScene != null) {
+                oldScene.removeEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
+            }
             if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
                 newScene.setOnKeyPressed(event -> {
                     switch (event.getCode()) {
                         case E -> nextFile();
-                        case Q  -> previousFile();
-                        case R     -> rotateCurrentFile(90);
-                        case L     -> rotateCurrentFile(-90);
+                        case Q -> previousFile();
+                        case R -> rotateCurrentFile(90);
+                        case L -> rotateCurrentFile(-90);
                     }
                 });
             }
@@ -945,6 +950,22 @@ public class ScanningController{
             paused = false;
             progressBar.setProgress(-1);
 
+        });
+        alert.getDialogPane().sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                    switch (event.getCode()) {
+                        case ENTER -> {
+                            acceptButton.fire();
+                            event.consume();
+                        }
+                        case S, DELETE -> {
+                            skipButton.fire();
+                            event.consume();
+                        }
+                    }
+                });
+            }
         });
     }
 

@@ -39,7 +39,7 @@ public class ExportController {
     private final EventHandler<KeyEvent> keyHandler = event -> {
         switch (event.getCode()) {
             case B -> { browseFolder(); event.consume(); }
-            case C -> { cancel(); event.consume(); }
+            case ESCAPE -> { cancel(); event.consume(); }
             case ENTER -> {export(); event.consume(); }
         }
     };
@@ -56,6 +56,8 @@ public class ExportController {
 
         lblDocuments.setText(String.valueOf(documentCount));
         radioMulti.setSelected(true);
+
+        txtFolder.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
     }
 
     @FXML
@@ -135,6 +137,8 @@ public class ExportController {
 
 
     private void closeWindow() {
+        txtFolder.getScene()
+                .removeEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
         txtFolder.getScene()
                 .getWindow()
                 .hide();

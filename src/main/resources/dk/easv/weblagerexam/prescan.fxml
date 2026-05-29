@@ -69,7 +69,7 @@
     <!-- Footer buttons -->
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="9" styleClass="modal-footer">
-            <Button onAction="#cancel" styleClass="button, button-tertiary" text="Cancel [ C ]" />
+            <Button fx:id="btnCancel" onAction="#cancel" styleClass="button, button-tertiary" text="Cancel [ ESC ]" />
             <Button fx:id="btnStart" onAction="#confirm" styleClass="button, button-primary" text="Start Scanning [ ENTER ]" />
         </HBox>
     </bottom>

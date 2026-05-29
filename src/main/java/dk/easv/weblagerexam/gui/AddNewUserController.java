@@ -29,23 +29,12 @@ public class AddNewUserController {
     @FXML
     private Button btnCancel;
 
-    //Shortcuts
-    private final EventHandler<KeyEvent> keyHandler = event -> {
-        switch (event.getCode()) {
-            case S -> {
-                try {
-                    onSaveClicked();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                event.consume(); }
-            case C -> { onCancelClicked(); event.consume(); }
-        }
-    };
-
     @FXML
     public void initialize() {
         roleComboBox.getItems().addAll("Admin", "User");
+
+        btnSave.setDefaultButton(true);
+        btnCancel.setCancelButton(true);
     }
 
     private AdminController adminController;

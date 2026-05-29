@@ -22,19 +22,13 @@ public class PreScanController {
     @FXML private ComboBox<Profile> cmbProfile;
     @FXML private Label lblBoxError;
     @FXML private Button btnStart;
+    @FXML private Button btnCancel;
 
     private final DAOManager dao = new DAOManager();
 
     private Box resultBox = null;
     private boolean confirmed = false;
 
-    //Shortcuts
-    private final EventHandler<KeyEvent> keyHandler = event -> {
-        switch (event.getCode()) {
-            case C -> { cancel(); event.consume(); }
-            case ENTER -> { confirm(); event.consume(); }
-        }
-    };
 
     @FXML
     public void initialize() {
@@ -54,6 +48,9 @@ public class PreScanController {
             lblBoxError.setVisible(false);
             lblBoxError.setManaged(false);
         });
+
+        btnStart.setDefaultButton(true);
+        btnCancel.setCancelButton(true);
     }
 
     @FXML

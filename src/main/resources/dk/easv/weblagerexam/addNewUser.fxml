@@ -51,7 +51,7 @@
     <bottom>
         <HBox alignment="CENTER" prefHeight="70" spacing="20" styleClass="modal-footer">
 
-            <Button fx:id="btnCancel" onAction="#onCancelClicked" prefWidth="120" styleClass="button-primary" text="Cancel [ C ]" />
+            <Button fx:id="btnCancel" onAction="#onCancelClicked" prefWidth="120" styleClass="button-primary" text="Cancel [ ESC ]" />
 
             <Button fx:id="btnSave" onAction="#onSaveClicked" prefWidth="120" styleClass="button-secondary" text="Save [ ENTER ]" />
         </HBox>
