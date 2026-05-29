@@ -31,6 +31,8 @@ public class AddNewUserController {
     @FXML
     public void initialize() {
         roleComboBox.getItems().addAll("Admin", "User");
+        btnSave.setDefaultButton(true);
+        btnCancel.setCancelButton(true);
     }
 
     private AdminController adminController;

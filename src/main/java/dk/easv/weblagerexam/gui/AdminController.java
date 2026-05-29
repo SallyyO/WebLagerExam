@@ -4,10 +4,12 @@ import dk.easv.weblagerexam.be.Client;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.*;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -75,6 +77,21 @@ public class AdminController {
 
     private AdminInfo currentInfo = AdminInfo.USERS;
 
+    //Shortcuts
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case A -> { onAddUserBtnClicked(new ActionEvent()); event.consume(); }
+            case P -> { onProfilesClicked(new ActionEvent()); event.consume(); }
+            case U -> {
+                try {
+                    onUsersClicked(new ActionEvent());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                event.consume(); }
+        }
+    };
+
     @FXML
     public void initialize() {
 
@@ -104,6 +121,10 @@ public class AdminController {
 
                 });
             }
+        });
+
+        Platform.runLater(() -> {
+            mainTable.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
         });
     }
 
