@@ -15,6 +15,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -26,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -76,6 +78,17 @@ public class ScanningController{
     private Thread processorThread;
     private Thread scannerThread;
 
+    //Shortcuts for outside the scanning process
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case ENTER -> { startScan(); event.consume(); }
+            case P -> { pauseScan(); event.consume(); }
+            case S -> { stopScan(); event.consume(); }
+            case B -> { onExportClicked(); event.consume(); }
+            case ESCAPE -> {onBackClicked(new ActionEvent(btnStartScan, null)); event.consume(); }
+        }
+    };
+
     @FXML
     public void initialize() {
 
@@ -92,13 +105,17 @@ public class ScanningController{
 
         // handle keyboard focus n some shortcuts
         mainScrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (oldScene != null) {
+                oldScene.removeEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
+            }
             if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
                 newScene.setOnKeyPressed(event -> {
                     switch (event.getCode()) {
-                        case S -> nextFile();
-                        case W  -> previousFile();
-                        case R     -> rotateCurrentFile(90);
-                        case L     -> rotateCurrentFile(-90);
+                        case E -> nextFile();
+                        case Q -> previousFile();
+                        case R -> rotateCurrentFile(90);
+                        case L -> rotateCurrentFile(-90);
                     }
                 });
             }
@@ -811,8 +828,8 @@ public class ScanningController{
 
          */
 
-        ButtonType btnSkip = new ButtonType("Skip", ButtonBar.ButtonData.CANCEL_CLOSE);
-        ButtonType btnAccept = new ButtonType("Continue", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnSkip = new ButtonType("Skip [ S ]", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType btnAccept = new ButtonType("Continue [ ENTER ]", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(btnSkip, btnAccept);
 
         Button skipButton =
@@ -935,6 +952,22 @@ public class ScanningController{
             paused = false;
             progressBar.setProgress(-1);
 
+        });
+        alert.getDialogPane().sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                    switch (event.getCode()) {
+                        case ENTER -> {
+                            acceptButton.fire();
+                            event.consume();
+                        }
+                        case S, DELETE -> {
+                            skipButton.fire();
+                            event.consume();
+                        }
+                    }
+                });
+            }
         });
     }
 

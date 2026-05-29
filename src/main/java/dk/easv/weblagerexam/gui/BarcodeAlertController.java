@@ -1,9 +1,11 @@
 package dk.easv.weblagerexam.gui;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 public class BarcodeAlertController {
@@ -13,6 +15,14 @@ public class BarcodeAlertController {
     public Button btnContinue;
     @FXML
     public Button btnStop;
+
+    //Shortcuts
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case ENTER -> { onContinueClicked(new ActionEvent()); event.consume(); }
+            case S -> { onStopClicked(new ActionEvent()); event.consume(); }
+        }
+    };
 
     private boolean continueScanning = false;
 

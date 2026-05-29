@@ -7,11 +7,14 @@ import dk.easv.weblagerexam.bll.ExportManager;
 import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.util.ExportMode;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.DirectoryChooser;
 
 import java.nio.file.Files;
@@ -34,6 +37,15 @@ public class ExportController {
 
     private Box box;
 
+    //Shortcuts
+    private final EventHandler<KeyEvent> keyHandler = event -> {
+        switch (event.getCode()) {
+            case B -> { browseFolder(); event.consume(); }
+            case ESCAPE -> { cancel(); event.consume(); }
+            case ENTER -> {export(); event.consume(); }
+        }
+    };
+
     public void setup(Box box, int documentCount) {
 
         this.box = box;
@@ -46,6 +58,8 @@ public class ExportController {
 
         lblDocuments.setText(String.valueOf(documentCount));
         radioMulti.setSelected(true);
+
+        txtFolder.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
     }
 
     @FXML
@@ -125,6 +139,8 @@ public class ExportController {
 
 
     private void closeWindow() {
+        txtFolder.getScene()
+                .removeEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
         txtFolder.getScene()
                 .getWindow()
                 .hide();

@@ -6,11 +6,14 @@ import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.dal.DAOManager;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 
 import java.util.List;
 
@@ -20,11 +23,13 @@ public class PreScanController {
     @FXML private ComboBox<Profile> cmbProfile;
     @FXML private Label lblBoxError;
     @FXML private Button btnStart;
+    @FXML private Button btnCancel;
 
     private final DAOManager dao = new DAOManager();
 
     private Box resultBox = null;
     private boolean confirmed = false;
+
 
     @FXML
     public void initialize() {
@@ -44,6 +49,9 @@ public class PreScanController {
             lblBoxError.setVisible(false);
             lblBoxError.setManaged(false);
         });
+
+        btnStart.setDefaultButton(true);
+        btnCancel.setCancelButton(true);
     }
 
     @FXML

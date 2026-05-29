@@ -6,14 +6,14 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <BorderPane prefHeight="750.0" prefWidth="1020.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.LoginController">
 
     <!-- Header -->
@@ -68,15 +68,7 @@
                     </VBox>
 
                     <!-- Buttons -->
-                    <Button fx:id="btnLogIn"
-                            disable="true"
-                            defaultButton="true"
-                            maxWidth="Infinity"
-                            onAction="#btnSignIn"
-                            styleClass="button-primary"
-                            prefHeight="30"
-                            text="Sign In"
-                            HBox.hgrow="ALWAYS">
+                    <Button fx:id="btnLogIn" defaultButton="true" disable="true" maxWidth="Infinity" onAction="#btnSignIn" prefHeight="30" styleClass="button-primary" text="Sign In [ Enter ]" HBox.hgrow="ALWAYS">
                     </Button>
 
                     <!-- Forgot Password -->
