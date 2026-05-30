@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -93,7 +94,16 @@
             </ScrollPane>
             <Button fx:id="btnExport" onAction="#onExportClicked" styleClass="button-primary" text="Export box [ B ]">
             <VBox.margin>
-               <Insets bottom="5.0" left="60.0" />
+               <Insets bottom="6.0" left="6.0" />
+            </VBox.margin>
+         </Button>
+         <Button mnemonicParsing="false" onAction="#onInfoBtnClick" stylesheets="@CSS/app.css" text="Shortcut Info">
+            <styleClass>
+               <String fx:value="button-tertiary" />
+               <String fx:value="text-button" />
+            </styleClass>
+            <VBox.margin>
+               <Insets bottom="6.0" left="6.0" />
             </VBox.margin>
          </Button>
         </VBox>

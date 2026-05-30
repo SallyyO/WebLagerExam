@@ -16,6 +16,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.collections.transformation.FilteredList;
@@ -753,6 +754,25 @@ public class AdminController {
             stage.setTitle("Login");
             stage.centerOnScreen();
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void onInfoBtnClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/admin_shortcuts.fxml")
+            );
+            VBox content = loader.load();
+
+            Stage modal = new Stage();
+            modal.initOwner(profilesButton.getScene().getWindow());
+            modal.initModality(Modality.WINDOW_MODAL);
+            modal.setScene(new Scene(content));
+            modal.setResizable(false);
+            modal.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
         }

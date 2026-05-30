@@ -22,6 +22,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.scene.input.KeyEvent;
@@ -198,4 +199,22 @@ public class UserController {
         }
     }
 
+    @FXML
+    void onInfoBtnClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/user_shortcuts.fxml")
+            );
+            VBox content = loader.load();
+
+            Stage modal = new Stage();
+            modal.initOwner(boxesBtn.getScene().getWindow());
+            modal.initModality(Modality.WINDOW_MODAL);
+            modal.setScene(new Scene(content));
+            modal.setResizable(false);
+            modal.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

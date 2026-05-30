@@ -5,11 +5,16 @@ import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.*;
 import dk.easv.weblagerexam.dal.DAOManager;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class AddNewUserController {
@@ -208,6 +213,25 @@ public class AddNewUserController {
 
         assignedProfilesListView.getItems()
                 .remove(selected);
+    }
+
+    @FXML
+    void onInfoBtnClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/general_shortcuts.fxml")
+            );
+            VBox content = loader.load();
+
+            Stage modal = new Stage();
+            modal.initOwner(btnSave.getScene().getWindow());
+            modal.initModality(Modality.WINDOW_MODAL);
+            modal.setScene(new Scene(content));
+            modal.setResizable(false);
+            modal.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void saveProfilesToUser() throws Exception {

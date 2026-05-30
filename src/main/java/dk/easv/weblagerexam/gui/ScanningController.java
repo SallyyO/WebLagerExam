@@ -114,8 +114,8 @@ public class ScanningController{
                     switch (event.getCode()) {
                         case E -> nextFile();
                         case Q -> previousFile();
-                        case R -> rotateCurrentFile(90);
-                        case L -> rotateCurrentFile(-90);
+                        case R -> rotateCurrentFile(30);
+                        case L -> rotateCurrentFile(-30);
                     }
                 });
             }
@@ -278,6 +278,25 @@ public class ScanningController{
 
         btnPauseScan.setDisable(true);
         btnStopScan.setDisable(true);
+    }
+
+    @FXML
+    void onInfoBtnClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/scanning_shortcuts.fxml")
+            );
+            VBox content = loader.load();
+
+            Stage modal = new Stage();
+            modal.initOwner(btnStartScan.getScene().getWindow());
+            modal.initModality(Modality.WINDOW_MODAL);
+            modal.setScene(new Scene(content));
+            modal.setResizable(false);
+            modal.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void startScannerThread() {

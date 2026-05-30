@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
 
-<?import javafx.scene.text.Font?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
-<BorderPane prefWidth="1200" prefHeight="800"
-            stylesheets="@CSS/app.css"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="dk.easv.weblagerexam.gui.BoxBrowserController">
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="800" prefWidth="1200" stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.BoxBrowserController">
 
     <top>
         <VBox>
@@ -29,8 +36,7 @@
 
                 <!-- Admin profile area -->
                 <HBox fx:id="userBox" alignment="CENTER" spacing="12">
-                    <Label fx:id="lblUsername"
-                           styleClass="text-h3">
+                    <Label fx:id="lblUsername" styleClass="text-h3">
                         <font>
                             <Font name="System" size="15" />
                         </font>
@@ -39,8 +45,7 @@
                     <!-- Avatar circle -->
                     <StackPane>
                         <Circle radius="24" styleClass="avatar-circle" />
-                        <Label fx:id="lblInitials"
-                               styleClass="avatar-text">
+                        <Label fx:id="lblInitials" styleClass="avatar-text">
                             <font>
                                 <Font name="System Bold" size="13" />
                             </font>
@@ -50,17 +55,17 @@
             </HBox>
 
             <!-- Toolbar -->
-            <HBox alignment="CENTER_LEFT" styleClass="gap-sm"
-                  style="-fx-padding: 9 16 9 16;
-                         -fx-border-color: #E2E4E8;
-                         -fx-border-width: 0 0 1 0;
-                         -fx-background-color: white;">
-                <Button text="← Back" onAction="#onBackClicked"
-                        styleClass="button, button-tertiary"/>
-                <HBox fx:id="breadcrumbBar" alignment="CENTER_LEFT"
-                      styleClass="gap-xs"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="lblItemCount" styleClass="text-helper"/>
+            <HBox alignment="CENTER_LEFT" style="-fx-padding: 9 16 9 16;                          -fx-border-color: #E2E4E8;                          -fx-border-width: 0 0 1 0;                          -fx-background-color: white;" styleClass="gap-sm">
+                <Button onAction="#onBackClicked" styleClass="button, button-tertiary" text="← Back [ ESC ]" />
+            <Button mnemonicParsing="false" onAction="#onInfoBtnClick" stylesheets="@CSS/app.css" text="Shortcut Info">
+               <styleClass>
+                  <String fx:value="button-tertiary" />
+                  <String fx:value="text-button" />
+               </styleClass>
+            </Button>
+                <HBox fx:id="breadcrumbBar" alignment="CENTER_LEFT" styleClass="gap-xs" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="lblItemCount" styleClass="text-helper" />
             </HBox>
         </VBox>
     </top>
@@ -71,30 +76,18 @@
             <VBox HBox.hgrow="ALWAYS">
 
                 <!-- Page title -->
-                <Label fx:id="lblLevelTitle"
-                       styleClass="text-h2"
-                       style="-fx-padding: 20 24 12 24;" />
+                <Label fx:id="lblLevelTitle" style="-fx-padding: 20 24 12 24;" styleClass="text-h2" />
 
                 <!-- Scrollable content -->
-                <ScrollPane fitToWidth="true"
-                            VBox.vgrow="ALWAYS"
-                            style="-fx-background: transparent;
-                       -fx-background-color: transparent;">
+                <ScrollPane fitToWidth="true" style="-fx-background: transparent;                        -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
 
                     <StackPane>
 
                         <!-- BOX + DOCUMENT CARD VIEW -->
-                        <FlowPane fx:id="folderGrid"
-                                  hgap="16"
-                                  vgap="16"
-                                  style="-fx-padding: 0 24 24 24;" />
+                        <FlowPane fx:id="folderGrid" hgap="16" style="-fx-padding: 0 24 24 24;" vgap="16" />
 
                         <!-- FILE LIST VIEW -->
-                        <VBox fx:id="fileListContainer"
-                              visible="false"
-                              managed="false"
-                              spacing="0"
-                              style="-fx-padding: 0 24 24 24;" />
+                        <VBox fx:id="fileListContainer" managed="false" spacing="0" style="-fx-padding: 0 24 24 24;" visible="false" />
 
                     </StackPane>
 
@@ -103,55 +96,27 @@
             </VBox>
 
             <!-- Preview panel (right) — hidden until a file is clicked -->
-            <VBox fx:id="previewPanel"
-                  prefWidth="320"
-                  visible="false"
-                  managed="false"
-                  style="-fx-background-color: #F9F9F9;
-                         -fx-border-color: #E2E4E8;
-                         -fx-border-width: 0 0 0 1;">
+            <VBox fx:id="previewPanel" managed="false" prefWidth="320" style="-fx-background-color: #F9F9F9;                          -fx-border-color: #E2E4E8;                          -fx-border-width: 0 0 0 1;" visible="false">
 
                 <!-- Preview header -->
-                <HBox alignment="CENTER_LEFT"
-                      style="-fx-padding: 12 12 12 14;
-                             -fx-border-color: #E2E4E8;
-                             -fx-border-width: 0 0 1 0;
-                             -fx-background-color: white;">
-                    <Label fx:id="lblPreviewTitle"
-                           styleClass="label-medium"
-                           text="Preview"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="✕" onAction="#closePreview"
-                            styleClass="button, button-tertiary"
-                            style="-fx-pref-width: 28; -fx-pref-height: 28;"/>
+                <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 12 12 14;                              -fx-border-color: #E2E4E8;                              -fx-border-width: 0 0 1 0;                              -fx-background-color: white;">
+                    <Label fx:id="lblPreviewTitle" styleClass="label-medium" text="Preview" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button onAction="#closePreview" style="-fx-pref-width: 28; -fx-pref-height: 28;" styleClass="button, button-tertiary" text="✕" />
                 </HBox>
 
                 <!-- The image -->
-                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
-                            pannable="true"
-                            style="-fx-background: #F1F5F9;
-                                   -fx-background-color: #F1F5F9;">
-                    <StackPane style="-fx-background-color: #F1F5F9;
-                                      -fx-min-height: 400;
-                                      -fx-alignment: center;">
-                        <ImageView fx:id="previewImage"
-                                   fitWidth="280"
-                                   preserveRatio="true"/>
+                <ScrollPane fitToWidth="true" pannable="true" style="-fx-background: #F1F5F9;                                    -fx-background-color: #F1F5F9;" VBox.vgrow="ALWAYS">
+                    <StackPane style="-fx-background-color: #F1F5F9;                                       -fx-min-height: 400;                                       -fx-alignment: center;">
+                        <ImageView fx:id="previewImage" fitWidth="280" preserveRatio="true" />
                     </StackPane>
                 </ScrollPane>
 
                 <!-- Preview footer with file info -->
-                <VBox styleClass="gap-xs"
-                      style="-fx-padding: 12;
-                             -fx-background-color: white;
-                             -fx-border-color: #E2E4E8;
-                             -fx-border-width: 1 0 0 0;">
-                    <Label fx:id="lblPreviewFileNumber"
-                           styleClass="label-regular"/>
-                    <Label fx:id="lblPreviewDocId"
-                           styleClass="text-helper"/>
-                    <Label fx:id="lblPreviewType"
-                           styleClass="text-helper"/>
+                <VBox style="-fx-padding: 12;                              -fx-background-color: white;                              -fx-border-color: #E2E4E8;                              -fx-border-width: 1 0 0 0;" styleClass="gap-xs">
+                    <Label fx:id="lblPreviewFileNumber" styleClass="label-regular" />
+                    <Label fx:id="lblPreviewDocId" styleClass="text-helper" />
+                    <Label fx:id="lblPreviewType" styleClass="text-helper" />
                 </VBox>
 
             </VBox>

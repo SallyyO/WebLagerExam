@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -69,6 +70,12 @@
     <!-- Footer buttons -->
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="9" styleClass="modal-footer">
+         <Button mnemonicParsing="false" onAction="#onInfoBtnClick" stylesheets="@CSS/app.css" text="Shortcut Info">
+            <styleClass>
+               <String fx:value="button-tertiary" />
+               <String fx:value="text-button" />
+            </styleClass>
+         </Button>
             <Button fx:id="btnCancel" onAction="#cancel" styleClass="button, button-tertiary" text="Cancel [ ESC ]" />
             <Button fx:id="btnStart" onAction="#confirm" styleClass="button, button-primary" text="Start Scanning [ ENTER ]" />
         </HBox>

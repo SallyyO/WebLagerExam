@@ -11,14 +11,19 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -120,6 +125,25 @@ public class ExportController {
     @FXML
     private void cancel() {
         closeWindow();
+    }
+
+    @FXML
+    void onInfoBtnClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/export_shortcuts.fxml")
+            );
+            VBox content = loader.load();
+
+            Stage modal = new Stage();
+            modal.initOwner(txtFolder.getScene().getWindow());
+            modal.initModality(Modality.WINDOW_MODAL);
+            modal.setScene(new Scene(content));
+            modal.setResizable(false);
+            modal.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

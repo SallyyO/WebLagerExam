@@ -88,6 +88,15 @@
 
                 <!-- Filler region below menu items -->
                 <Region prefWidth="119.0" styleClass="modal-footer" VBox.vgrow="ALWAYS" />
+            <Button mnemonicParsing="false" onAction="#onInfoBtnClick" stylesheets="@CSS/app.css" text="Shortcut Info">
+               <styleClass>
+                  <String fx:value="button-tertiary" />
+                  <String fx:value="text-button" />
+               </styleClass>
+               <VBox.margin>
+                  <Insets bottom="6.0" left="6.0" />
+               </VBox.margin>
+            </Button>
             </VBox>
 
             <!-- MAIN CONTENT AREA -->

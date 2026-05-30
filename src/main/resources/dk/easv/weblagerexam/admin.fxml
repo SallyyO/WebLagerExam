@@ -99,6 +99,15 @@
                 </Button>
 
                 <Region styleClass="modal-footer" VBox.vgrow="ALWAYS" />
+            <Button mnemonicParsing="false" onAction="#onInfoBtnClick" stylesheets="@CSS/app.css" text="Shortcut Info">
+               <VBox.margin>
+                  <Insets bottom="6.0" left="6.0" />
+               </VBox.margin>
+               <styleClass>
+                  <String fx:value="button-tertiary" />
+                  <String fx:value="text-button" />
+               </styleClass>
+            </Button>
             </VBox>
 
             <!-- MAIN CONTENT AREA -->
