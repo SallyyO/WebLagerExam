@@ -9,16 +9,17 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 public class LogsController {
 
@@ -26,6 +27,8 @@ public class LogsController {
     @FXML private TableColumn<Log, String> actionCol;
     @FXML private TableColumn<Log, String> dateCol;
     @FXML private TableColumn<Log, String> descriptionCol;
+    @FXML private TableColumn<Log, String> typeCol;
+    @FXML private TableColumn<Log, String> levelCol;
     @FXML private TableView<Log> logsTable;
     @FXML private Label lblUsername;
     @FXML private Label lblInitials;
@@ -66,6 +69,48 @@ public class LogsController {
                     : "";
             return new SimpleStringProperty(formatted);
         });
+        typeCol.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getLogType().name()));
+
+        levelCol.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getLogLevel().name()));
+
+        levelCol.setCellFactory(column ->
+                new TableCell<>() {
+
+                    @Override
+                    protected void updateItem(
+                            String item,
+                            boolean empty) {
+
+                        super.updateItem(item, empty);
+
+                        if (empty || item == null) {
+                            setText(null);
+                            return;
+                        }
+
+                        setText(item);
+
+                        switch (item) {
+
+                            case "INFO" ->
+                                    setStyle("-fx-text-fill: green;");
+
+                            case "WARN" ->
+                                    setStyle("-fx-text-fill: orange;");
+
+                            case "ERROR" ->
+                                    setStyle("-fx-text-fill: red;");
+
+                            case "FATAL" ->
+                                    setStyle("-fx-text-fill: darkred;");
+
+                            default ->
+                                    setStyle("");
+                        }
+                    }
+                });
     }
 
     private void loadLogs() {
@@ -74,6 +119,32 @@ public class LogsController {
             Platform.runLater(() ->
                     logsTable.setItems(FXCollections.observableArrayList(logs)));
         }).start();
+    }
+
+    @FXML
+    private void handleBackButton() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dk/easv/weblagerexam/gui/admin.fxml"));
+
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+
+            scene.getStylesheets().add(
+                    Objects.requireNonNull(
+                            getClass().getResource(
+                                    "/dk/easv/weblagerexam/CSS/app.css"
+                            )
+                    ).toExternalForm()
+            );
+
+            Stage stage = (Stage) logsTable.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 

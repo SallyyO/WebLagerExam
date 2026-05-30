@@ -101,8 +101,6 @@ public class ExportController {
                     box, documents, Path.of(txtFolder.getText()), mode
             );
 
-            LogManager logManager = new LogManager();
-            logManager.logBoxExported(box.getBoxId(), mode.name());
             
             showInfo(
                     "Export Completed",

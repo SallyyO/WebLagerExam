@@ -2,6 +2,7 @@ package dk.easv.weblagerexam.bll;
 
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.ProfileSettings;
+import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.dal.DAOManager;
 
 import java.util.List;
@@ -36,6 +37,22 @@ public class ProfileManager {
 
     public void removeProfileFromUser(int userId, int profileId) {
         dao.getProfileDAO().removeProfileFromUser(userId, profileId);
+        User targetUser =
+                dao.getUserDAO()
+                        .getUserById(userId);
+
+        Profile profile =
+                dao.getProfileDAO()
+                        .getProfileById(profileId);
+
+        User admin =
+                SessionManager.getCurrentUser();
+
+        logManager.logProfileRemoved(
+                admin.getId(),
+                profile.getName(),
+                targetUser.getUsername()
+        );
     }
 
     public void deleteProfile(Profile profileID) throws Exception {

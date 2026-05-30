@@ -137,7 +137,7 @@ public class NewProfileController {
         txtName.getScene().getWindow().hide();
     }
 
-    // Validation
+
 
     private boolean validate() {
         boolean valid = true;
@@ -182,7 +182,7 @@ public class NewProfileController {
         return valid;
     }
 
-    // helpers
+
 
     private void showValueSection(String description, String defaultValue) {
         lblValueDescription.setText(description);

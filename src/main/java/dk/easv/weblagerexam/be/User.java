@@ -11,6 +11,7 @@ public class User {
     private String password;
     private String salt;
     private boolean isDeleted;
+    private boolean active;
 
     private List<Profile> profiles;
 
@@ -22,6 +23,18 @@ public class User {
         this.initials = initials;
         this.password = password;
         this.salt = salt;
+        this.profiles = new ArrayList<>();
+    }
+
+    public User(int id, String username, String role, String initials, String password, String salt, boolean active)
+    {
+        this.id = id;
+        this.username = username;
+        this.role = role;
+        this.initials = initials;
+        this.password = password;
+        this.salt = salt;
+        this.active = active;
         this.profiles = new ArrayList<>();
     }
 
@@ -39,10 +52,11 @@ public class User {
         this.password = password;
     }
 
-    public User(int id, String username, String role){
+    public User(int id, String username, String role, boolean active){
         this.id = id;
         this.username = username;
         this.role = role;
+        this.active = active;
     }
 
     public int getId() {return id;}
@@ -69,4 +83,6 @@ public class User {
     public boolean isDeleted() {return isDeleted;}
     public void setDeleted(boolean deleted) {this.isDeleted = deleted;}
 
+    public boolean isActive() {return active;}
+    public void setActive(boolean active) {this.active = active;}
 }

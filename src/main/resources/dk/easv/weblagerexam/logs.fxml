@@ -13,7 +13,8 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600" prefWidth="900" stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.LogsController">
+<?import javafx.scene.control.Button?>
+<BorderPane prefHeight="680" prefWidth="1120" stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.LogsController">
 
     <top>
 
@@ -49,7 +50,6 @@
                 </StackPane>
             </HBox>
         </HBox>
-
     </top>
 
     <center>
@@ -58,13 +58,15 @@
 
             <columns>
 
-                <TableColumn fx:id="userCol" prefWidth="200.0" styleClass="text-h2" text="User" />
+                <TableColumn fx:id="userCol" maxWidth="300.0" prefWidth="200.0" styleClass="text-h2" text="User" />
 
-                <TableColumn fx:id="actionCol" prefWidth="150.0" styleClass="text-h2" text="Action" />
+                <TableColumn fx:id="actionCol" maxWidth="300.0" prefWidth="150.0" styleClass="text-h2" text="Action" />
 
-                <TableColumn fx:id="dateCol" prefWidth="150.0" styleClass="text-h2" text="Date" />
+                <TableColumn fx:id="dateCol" maxWidth="300.0" prefWidth="170.0" styleClass="text-h2" text="Date" />
 
-                <TableColumn fx:id="descriptionCol" prefWidth="399.0000305175781" styleClass="text-h2" text="Description" />
+                <TableColumn fx:id="descriptionCol" maxWidth="450.0" prefWidth="280.0" styleClass="text-h2" text="Description" />
+                <TableColumn fx:id="typeCol" maxWidth="300.0" prefWidth="165.0" styleClass="text-h2" text="Type" />
+                <TableColumn fx:id="levelCol" maxWidth="300.0" prefWidth="152.33489990234375" styleClass="text-h2" text="Level" />
 
 
             </columns>

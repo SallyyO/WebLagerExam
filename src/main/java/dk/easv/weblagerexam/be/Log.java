@@ -1,6 +1,5 @@
 package dk.easv.weblagerexam.be;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class Log {
@@ -10,6 +9,9 @@ public class Log {
     private String action;
     private String description;
     private LocalDateTime timestamp;
+
+    private LogType logType;
+    private LogLevel logLevel;
 
 
     public Log(Long id, int userId, String action, String description, LocalDateTime timestamp) {
@@ -27,18 +29,17 @@ public class Log {
         this.description = description;
     }
 
-    public Log(String username, String action, String description) {
-        this.username = username;
+    public Log(int userId, String action, String description, LogType logType, LogLevel logLevel) {
+        this.userId = userId;
         this.action = action;
         this.description = description;
+        this.logType = logType;
+        this.logLevel = logLevel;
     }
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() {return id;}
+    public void setId(Long id) {this.id = id;}
+
     public int getUserId() {
         return userId;
     }
@@ -47,28 +48,25 @@ public class Log {
     }
     public String getUsername() {return username;}
     public void setUsername(String username) { this.username = username; }
-    public String getAction() {
-        return action;
-    }
-    public void setAction(String action) {
-        this.action = action;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+
+    public String getAction() {return action;}
+    public void setAction(String action) {this.action = action;}
+
+    public String getDescription() {return description;}
+    public void setDescription(String description) {this.description = description;}
+
+    public LocalDateTime getTimestamp() {return timestamp;}
+    public void setTimestamp(LocalDateTime timestamp) {this.timestamp = timestamp;}
+
+    public LogType getLogType() {return logType;}
+    public void setLogType(LogType logType) {this.logType = logType;}
+
+    public LogLevel getLogLevel() {return logLevel;}
+    public void setLogLevel(LogLevel logLevel) {this.logLevel = logLevel;}
+
     @Override
     public String toString() {
         return "[" + timestamp + "]" + action + "-" + description;
-
     }
 
 }

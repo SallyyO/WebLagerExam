@@ -1,12 +1,16 @@
 package dk.easv.weblagerexam.gui;
 
+import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
-import dk.easv.weblagerexam.bll.LogManager;
-import dk.easv.weblagerexam.bll.PasswordManager;
-import dk.easv.weblagerexam.bll.SessionManager;
+import dk.easv.weblagerexam.bll.*;
+import dk.easv.weblagerexam.dal.DAOManager;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.List;
 
 public class AddNewUserController {
 
@@ -23,89 +27,305 @@ public class AddNewUserController {
     private ComboBox<String> roleComboBox;
 
     @FXML
+    private ComboBox<String> cmbStatus;
+
+    @FXML
+    private VBox profileSection;
+
+    @FXML
+    private ListView<Profile> availableProfilesListView;
+
+    @FXML
+    private ListView<Profile> assignedProfilesListView;
+
+    @FXML
     private Button btnSave;
 
     @FXML
     private Button btnCancel;
 
+    private final UserManager userManager = new UserManager();
+    private final ProfileManager profileManager = new ProfileManager();
+    private final LogManager logManager = new LogManager();
+    private AdminController adminController;
+    private final DAOManager dao = new DAOManager();
+    private User user;
+
+
     @FXML
     public void initialize() {
         roleComboBox.getItems().addAll("Admin", "User");
+        cmbStatus.getItems().addAll(
+                "Active",
+                "Inactive"
+        );
+
+        cmbStatus.setValue("Active");
+        profileSection.setVisible(false);
+        profileSection.setManaged(false);
+
+        roleComboBox.valueProperty().addListener(
+                (obs, oldVal, newVal) -> {
+                    boolean showProfiles =
+                            "User".equals(newVal);
+                    profileSection.setVisible(showProfiles);
+                    profileSection.setManaged(showProfiles);
+                });
+
         btnSave.setDefaultButton(true);
         btnCancel.setCancelButton(true);
     }
 
-    private AdminController adminController;
-    private User user;
-    LogManager logManager = new LogManager();
 
     @FXML
     void onSaveClicked() throws Exception {
+
+        //Create/edit
         PasswordManager pm = new PasswordManager();
-        if (user != null) {
-            if (!txtPassword.getText().isEmpty()) {
-                String newPassword = txtPassword.getText();
-                pm.editUser(user.getId(), txtUsername.getText(), txtInitials.getText(), roleComboBox.getSelectionModel().getSelectedItem(), txtPassword.getText());
-            }
-            else {
-                pm.editUser(user.getId(),txtUsername.getText(), txtInitials.getText(), roleComboBox.getSelectionModel().getSelectedItem(), null);
-            }
 
-            }
-         else {
-            try {
-                String username = txtUsername.getText().trim();
-                String initials = txtInitials.getText().trim();
-                String password = txtPassword.getText().trim();
-                String role = roleComboBox.getValue();
+        String username =
+                txtUsername.getText().trim();
 
-                if (username.isEmpty() || initials.isEmpty() || password.isEmpty() || role == null) {
-                    showError("Please fill out all fields");
-                    return;
-                }
+        String initials =
+                txtInitials.getText().trim();
 
+        String role =
+                roleComboBox.getValue();
 
-                pm.AddUser(role, username, initials, password);
-                logManager.logUserCreated(
-                        username
-                );
+        boolean active =
+                "Active".equals(cmbStatus.getValue());
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                showError("Error: " + e.getMessage());
-            }
+        if (username.isBlank()
+                || initials.isBlank()
+                || role == null) {
+
+            showError("Please fill out all required fields.");
+            return;
         }
+
+        //Editing profile
+        if (user != null) {
+
+            String password =
+                    txtPassword.getText().trim();
+
+            pm.editUser(
+                    user.getId(),
+                    username,
+                    initials,
+                    role,
+                    password.isBlank()
+                            ? null
+                            : password
+            );
+
+            userManager.setUserActive(
+                    user.getId(),
+                    active
+            );
+
+            saveProfilesToUser();
+        }
+        // create user
+        else {
+
+            String password =
+                    txtPassword.getText().trim();
+
+            if (password.isBlank()) {
+                showError("Password is required.");
+                return;
+            }
+
+            int newUserId =
+                    pm.AddUser(
+                            role,
+                            username,
+                            initials,
+                            password
+                    );
+
+            userManager.setUserActive(
+                    newUserId,
+                    active
+            );
+
+            if ("User".equals(role)) {
+
+                for (Profile profile :
+                        assignedProfilesListView.getItems()) {
+
+                    userManager.assignProfileToUser(
+                            newUserId,
+                            profile.getId()
+                    );
+                }
+            }
+
+            logManager.logUserCreated(username);
+        }
+
         if (adminController != null) {
             adminController.refreshCurrentInfo();
         }
+
         closeWindow();
     }
 
     @FXML
-    void onCancelClicked() {
+    private void handleAssignProfile() {
+
+        Profile selected =
+                availableProfilesListView
+                        .getSelectionModel()
+                        .getSelectedItem();
+
+        if (selected == null) {
+            return;
+        }
+
+        assignedProfilesListView.getItems()
+                .add(selected);
+
+        availableProfilesListView.getItems()
+                .remove(selected);
+    }
+
+    @FXML
+    private void handleRemoveProfile() {
+
+        Profile selected =
+                assignedProfilesListView
+                        .getSelectionModel()
+                        .getSelectedItem();
+
+        if (selected == null) {
+            return;
+        }
+
+        availableProfilesListView.getItems()
+                .add(selected);
+
+        assignedProfilesListView.getItems()
+                .remove(selected);
+    }
+
+    private void saveProfilesToUser() throws Exception {
+
+        if (user == null) {
+            return;
+        }
+
+        dao.getUserDAO().removeAllProfilesFromUser(
+                user.getId()
+        );
+
+        for (Profile profile :
+                assignedProfilesListView.getItems()) {
+
+            userManager.assignProfileToUser(
+                    user.getId(),
+                    profile.getId()
+            );
+        }
+    }
+
+    public void setUser(User user) {
+
+        try {
+
+            this.user = user;
+
+            txtUsername.setText(
+                    user.getUsername()
+            );
+
+            txtInitials.setText(
+                    user.getInitials()
+            );
+
+            roleComboBox.setValue(
+                    user.getRole()
+            );
+
+            cmbStatus.setValue(
+                    user.isActive()
+                            ? "Active"
+                            : "Inactive"
+            );
+
+            loadProfiles();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadProfiles() throws Exception {
+
+        List<Profile> allProfiles =
+                profileManager.getAllProfiles();
+
+        List<Profile> assignedProfiles =
+                userManager.getProfilesForUser(
+                        user.getId()
+                );
+
+        allProfiles.removeIf(profile ->
+                assignedProfiles.stream()
+                        .anyMatch(assigned ->
+                                assigned.getId()
+                                        == profile.getId())
+        );
+
+        availableProfilesListView.setItems(
+                FXCollections.observableArrayList(
+                        allProfiles
+                )
+        );
+
+        assignedProfilesListView.setItems(
+                FXCollections.observableArrayList(
+                        assignedProfiles
+                )
+        );
+
+        boolean showProfiles =
+                "User".equals(user.getRole());
+
+        profileSection.setVisible(showProfiles);
+        profileSection.setManaged(showProfiles);
+    }
+
+    @FXML
+    private void onCancelClicked() {
         closeWindow();
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) btnCancel.getScene().getWindow();
+
+        Stage stage =
+                (Stage) btnCancel.getScene().getWindow();
+
         stage.close();
     }
 
-    private void showError(String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    private void showError(String message) {
+
+        Alert alert =
+                new Alert(Alert.AlertType.ERROR);
+
         alert.setTitle("Error");
-        alert.setContentText(msg);
-        alert.show();
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
     }
 
-    public void setAdminController(AdminController adminController) {
+    public void setAdminController(
+            AdminController adminController) {
+
         this.adminController = adminController;
     }
-
-    public void setUser(User user) {
-        this.user = user;
-        this.txtUsername.setText(user.getUsername());
-        this.txtInitials.setText(user.getInitials());
-        this.roleComboBox.setValue(user.getRole());
-    }
 }
+

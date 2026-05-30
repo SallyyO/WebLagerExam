@@ -114,6 +114,7 @@
                             <HBox.margin><Insets bottom="6.0" /></HBox.margin>
                         </TextField>
                     </children>
+
                 </HBox>
 
                 <!-- Table -->

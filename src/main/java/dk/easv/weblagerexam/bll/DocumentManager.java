@@ -93,7 +93,7 @@ public class DocumentManager {
             currentDocumentNumber++;
             completedDocuments.add(currentDocument);
             totalDocuments++;
-            logManager.logDocumentCreated(currentDocument.getId(), activeBox.getBoxId());
+            logManager.logDocumentFinalized(currentDocument.getId(), activeBox.getBoxId());
             currentDocument = new Document();
         }
     }

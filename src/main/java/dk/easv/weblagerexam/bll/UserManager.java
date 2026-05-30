@@ -11,6 +11,7 @@ public class UserManager {
     private DAOManager dao = new DAOManager();
     private LogManager logManager = new LogManager();
 
+
     public List<User> getAllUsers() throws Exception {
         return dao.getUserDAO().getAllUsers();
 
@@ -22,9 +23,11 @@ public class UserManager {
             throw new Exception("Username can't be empty");
         }
         if (role == null || role.trim().isEmpty()
-                || !role.equals("Admin")
-                || !role.equals("User")) {
-            throw new Exception("Role can't be empty and need to be \"Admin\" or \"User\"");
+                || (!role.equals("Admin")
+                && !role.equals("User"))) {
+            throw new Exception(
+                    "Role must be either admin or user"
+            );
         }
         if (initials == null || initials.trim().isEmpty()) {
             throw new Exception("Initials can't be empty");
@@ -67,16 +70,52 @@ public class UserManager {
             }
         }
         dao.getUserDAO().addProfileToUser(userId, profileId);
+
+        Profile profile = dao.getProfileDAO().getProfileById(profileId);
+
+        logManager.logProfileAssigned(
+                SessionManager.getCurrentUser().getId(),
+                userId,
+                profile.getName()
+        );
     }
 
     public void removeProfileFromUser(int userId, int profileId) throws Exception {
-        dao.getUserDAO().deleteProfileFromUser(userId, profileId);
+        dao.getUserDAO().removeAllProfilesFromUser(userId);
     }
 
     public List<Profile> getProfilesForUser(int userId) throws Exception {
         return dao.getUserDAO().getProfilesForUser(userId);
     }
 
-
     public List<User> searchUsers(String searchText) {return dao.getUserDAO().searchUsers(searchText);}
+
+
+    public void setUserActive(int userId, boolean active) {
+
+        User targetUser = dao.getUserDAO().getUserById(userId);
+
+        if (targetUser == null) {return;}
+
+        // Don't log if nothing changed
+        if (targetUser.isActive() == active) {return;}
+
+        dao.getUserDAO().setUserActive(userId, active);
+
+        User admin = SessionManager.getCurrentUser();
+
+        if (active) {
+            logManager.logUserActivated(
+                    admin.getId(),
+                    admin.getUsername(),
+                    targetUser.getUsername()
+            );
+        } else {
+            logManager.logUserDeactivated(
+                    admin.getId(),
+                    admin.getUsername(),
+                    targetUser.getUsername()
+            );
+        }
+    }
 }

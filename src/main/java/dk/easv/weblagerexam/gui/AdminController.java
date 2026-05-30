@@ -162,12 +162,9 @@ public class AdminController {
                 User user =
                         (User) cell.getValue();
                 return new SimpleStringProperty(
-                        /*user.isActive()
+                        user.isActive()
                                 ? "Active"
                                 : "Inactive"
-
-                         */
-                        "Active for now"
                 );
             });
 
@@ -581,7 +578,7 @@ public class AdminController {
                         );
 
                         deleteBtn.getStyleClass().addAll(
-                                "button-secondary",
+                                "button-danger",
                                 "text-button"
                         );
 
@@ -713,31 +710,22 @@ public class AdminController {
     @FXML
     private void onLogsClicked(ActionEvent event) {
 
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dk/easv/weblagerexam/logs.fxml"));
-            Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("System Logs");
-            Scene scene = new Scene(root);
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/dk/easv/weblagerexam/logs.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) profilesButton.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.setTitle("System Logs");
+                stage.centerOnScreen();
 
-            scene.getStylesheets().add(
-                    Objects.requireNonNull(
-                            getClass().getResource(
-                                    "/dk/easv/weblagerexam/CSS/app.css"
-                            )
-                    ).toExternalForm()
-            );
 
-            stage.setScene(scene);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("Could not open logs",
-                    e.getMessage());
-        }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
+
 
     private void handleLogout() {
 

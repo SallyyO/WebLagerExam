@@ -6,6 +6,7 @@ import dk.easv.weblagerexam.dal.DAOManager;
 public class PasswordManager {
     DAOManager dao = new DAOManager();
     User user;
+    LogManager logManager = new LogManager();
 
    public boolean checkLogin(String initials, String password) {
         try {
@@ -16,11 +17,12 @@ public class PasswordManager {
         }
     }
 
-    public void AddUser(String role, String username, String initials, String password) throws Exception {
+    public int AddUser(String role, String username, String initials, String password) throws Exception {
         String salt = PasswordHasher.generateSalt();
         String hash = PasswordHasher.hashPassword(password, salt);
         User newUser = new User(username, role, initials, hash, salt);
-        dao.getUserDAO().addUser(newUser);
+
+        return dao.getUserDAO().addUser(newUser);
     }
 
     public User getUser() {
@@ -29,17 +31,35 @@ public class PasswordManager {
 
     public void editUser(int id,String username, String initials, String role, String password) throws Exception {
         User existingUser = dao.getUserDAO().getUserById(id);
+        boolean passwordChanged = false;
 
-       if(password == null || password.isEmpty() ) {
-           password = existingUser.getPassword();
-           System.out.println("LN33 password: " + password);
-       }
-       else{
-           password = PasswordHasher.hashPassword(password, existingUser.getSalt());
-       }
-       User editedUser = new User(id, username, role, initials, password, existingUser.getSalt());
+        if (password == null || password.isEmpty()) {
+            password = existingUser.getPassword();
 
-       dao.getUserDAO().editUser(editedUser);
+        } else {
+            password = PasswordHasher.hashPassword(
+                    password, existingUser.getSalt()
+            );
+            passwordChanged = true;
+        }
+
+        User editedUser = new User(
+                id,
+                username,
+                role,
+                initials,
+                password,
+                existingUser.getSalt()
+        );
+        dao.getUserDAO().editUser(editedUser);
+
+        User admin = SessionManager.getCurrentUser();
+        logManager.logUserUpdated(admin.getId(), admin.getUsername(), username);
+
+        if (passwordChanged)
+        {
+            logManager.logPasswordChanged(username);
+        }
     }
 
 

@@ -18,38 +18,57 @@ import java.util.List;
 
 public class ExportManager {
 
-    public Path exportBox(
-            Box box,
-            List<Document> documents,
-            Path exportRoot,
-            ExportMode mode) throws Exception {
+    public Path exportBox(Box box, List<Document> documents, Path exportRoot, ExportMode mode) throws Exception {
 
-        if (documents == null || documents.isEmpty()) {
-            throw new IllegalArgumentException("No documents to export");
-        }
+        try {
 
-        String profileName = (box.getProfile() != null)
-                ? goodNameSir(box.getProfile().getName())
-                : "NoProfile";
-
-        String folderName = profileName + "_" + box.getBoxId();
-
-        Path boxFolder = exportRoot.resolve(folderName);
-        Files.createDirectories(boxFolder);
-
-        for (int d = 0; d < documents.size(); d++) {
-
-            Document doc = documents.get(d);
-
-            if (mode == ExportMode.MULTI_PAGE) {
-                exportMultiPageDocument(box, doc, boxFolder, d + 1);
+            if (documents == null || documents.isEmpty()) {
+                throw new IllegalArgumentException("No documents to export");
             }
-            else {
-                exportSinglePageDocument(box, doc, boxFolder, d + 1);
-            }
-        }
 
-        return boxFolder;
+            String profileName =
+                    (box.getProfile() != null) ? goodNameSir(box.getProfile().getName()) : "NoProfile";
+
+            String folderName =
+                    profileName + "_" + box.getBoxId();
+
+            Path boxFolder =
+                    exportRoot.resolve(folderName);
+
+            Files.createDirectories(boxFolder);
+
+            for (int d = 0; d < documents.size(); d++) {
+
+                Document doc = documents.get(d);
+
+                if (mode == ExportMode.MULTI_PAGE) {
+
+                    exportMultiPageDocument(
+                            box,
+                            doc,
+                            boxFolder,
+                            d + 1
+                    );
+
+                } else {
+
+                    exportSinglePageDocument(
+                            box,
+                            doc,
+                            boxFolder,
+                            d + 1
+                    );
+                }
+            }
+
+            new LogManager().logBoxExported(box.getBoxId(), mode.name());
+
+            return boxFolder;
+
+        } catch (Exception e) {
+            new LogManager().logExportFailed(box.getBoxId(), e.getMessage());
+            throw e;
+        }
     }
 
     //One document exported as many tiff-files
