@@ -12,48 +12,58 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
-
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
 <BorderPane prefHeight="680" prefWidth="1120" stylesheets="@CSS/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.LogsController">
 
     <top>
+        <VBox>
 
-        <HBox alignment="CENTER_LEFT" prefHeight="70" styleClass="modal-header" stylesheets="@CSS/app.css">
-            <padding>
-                <Insets bottom="0" left="20" right="24" top="0" />
-            </padding>
-            <ImageView fitHeight="50.0" fitWidth="203.0">
-                <image>
-                    <Image url="@/Images/LogoBlueH.png" />
-                </image>
-            </ImageView>
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" prefHeight="70" styleClass="modal-header" stylesheets="@CSS/app.css">
+                <padding>
+                    <Insets bottom="0" left="20" right="24" top="0" />
+                </padding>
+                <ImageView fitHeight="50.0" fitWidth="203.0">
+                    <image>
+                        <Image url="@/Images/LogoBlueH.png" />
+                    </image>
+                </ImageView>
 
-            <!-- Spacer -->
-            <Region HBox.hgrow="ALWAYS" />
+                <!-- Spacer -->
+                <Region HBox.hgrow="ALWAYS" />
 
-            <!-- Admin profile area -->
-            <HBox fx:id="userBox" alignment="CENTER" spacing="12" style="-fx-cursor: hand;">
-                <Label fx:id="lblUsername" styleClass="text-h3">
-                    <font>
-                        <Font name="System" size="15" />
-                    </font>
-                </Label>
-
-                <!-- Avatar circle -->
-                <StackPane>
-                    <Circle radius="24" styleClass="avatar-circle" />
-                    <Label fx:id="lblInitials" styleClass="avatar-text">
+                <!-- Admin profile area -->
+                <HBox fx:id="userBox" alignment="CENTER" spacing="12">
+                    <Label fx:id="lblUsername" styleClass="text-h3">
                         <font>
-                            <Font name="System Bold" size="13" />
+                            <Font name="System" size="15" />
                         </font>
                     </Label>
-                </StackPane>
+
+                    <!-- Avatar circle -->
+                    <StackPane>
+                        <Circle radius="24" styleClass="avatar-circle" />
+                        <Label fx:id="lblInitials" styleClass="avatar-text">
+                            <font>
+                                <Font name="System Bold" size="13" />
+                            </font>
+                        </Label>
+                    </StackPane>
+                </HBox>
             </HBox>
-        </HBox>
+
+
+            <!-- Scanning tools -->
+            <HBox alignment="CENTER_LEFT" style="-fx-padding: 9 16 9 16;                          -fx-border-color: #E2E4E8;                          -fx-border-width: 0 0 1 0;                          -fx-background-color: white;" styleClass="gap-sm">
+
+                <Button onAction="#onBackClicked" styleClass="btn-primary" text="← Back [ ESC ]" />
+
+            </HBox>
+        </VBox>
     </top>
 
     <center>
-
         <TableView fx:id="logsTable">
 
             <columns>

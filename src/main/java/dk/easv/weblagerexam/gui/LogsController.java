@@ -8,14 +8,17 @@ import dk.easv.weblagerexam.util.LogoutUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -44,8 +47,7 @@ public class LogsController {
             lblInitials.setText(user.getInitials());
         }
 
-        userBox.setOnMouseClicked(e ->
-                LogoutUtil.logout((Stage) userBox.getScene().getWindow()));
+        userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
 
         setupColumns();
@@ -122,29 +124,33 @@ public class LogsController {
     }
 
     @FXML
-    private void handleBackButton() {
+    private void onBackClicked(ActionEvent event) {
+
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dk/easv/weblagerexam/gui/admin.fxml"));
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/admin.fxml"));
 
             Parent root = loader.load();
-            Scene scene = new Scene(root);
 
-            scene.getStylesheets().add(
-                    Objects.requireNonNull(
-                            getClass().getResource(
-                                    "/dk/easv/weblagerexam/CSS/app.css"
-                            )
-                    ).toExternalForm()
-            );
+            Stage stage = (Stage) ((Node) event.getSource())
+                    .getScene()
+                    .getWindow();
 
-            Stage stage = (Stage) logsTable.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Homepage");
+            stage.centerOnScreen();
 
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleLogout() {
+        Stage stage =
+                (Stage) userBox.getScene().getWindow();
+
+        LogoutUtil.logout(stage);
     }
 }
 

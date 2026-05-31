@@ -20,7 +20,6 @@ public class DocumentManager {
     private final DAOManager dao = new DAOManager();
     private final LogManager logManager = new LogManager();
 
-
     public DocumentManager() {
         apiDao = new ApiDAO();
         documentDAO = new DocumentDAO();
@@ -85,31 +84,6 @@ public class DocumentManager {
         return processFileScan(dao.getApiDAO().fetchNext());
     }
 
-    public void finalizeLastDocument() throws Exception {
-        if (!currentDocument.isEmpty()) {
-            currentDocument.setBoxId(activeBoxId);
-            currentDocument.setDocumentNumber(currentDocumentNumber);
-            dao.getDocumentDAO().saveDocument(currentDocument);
-            currentDocumentNumber++;
-            completedDocuments.add(currentDocument);
-            totalDocuments++;
-            logManager.logDocumentFinalized(currentDocument.getId(), activeBox.getBoxId());
-            currentDocument = new Document();
-        }
-    }
-
-    public void saveMetadata(int documentId, String metadata) throws Exception {
-        dao.getDocumentDAO().updateMetadata(documentId, metadata);
-    }
-
-    public File getLatestFileForUser(int userId) {
-        return dao.getDocumentDAO().getLatestFileForUser(userId);
-    }
-
-    public Box getBoxForFile(int fileId) {
-        return dao.getDocumentDAO().getBoxForFile(fileId);
-    }
-
     // returns the duplicate content if already seen, null if new
     public String checkDuplicateBarcode(File file) {
         if (!file.isBarcode()) return null;
@@ -156,7 +130,6 @@ public class DocumentManager {
     }
 
     public void approveDuplicateBarcode(String barcodeContent) {
-
         if (barcodeContent != null) {
             approvedDuplicateBarcodes.add(barcodeContent);
 
@@ -164,8 +137,33 @@ public class DocumentManager {
         }
     }
 
-    public Document createManualSplitDocument(int boxId) throws Exception {
+    public List<Document> getDocsAndFilesFromBox(int boxId) {
+        return dao.getDocumentDAO().getDocsAndFilesFromBox(boxId);
+    }
+//Documents
+    public int saveDocument(Document document) {
+        return dao.getDocumentDAO().saveDocument(document);
+    }
 
+    public void createDocument(Document document) {
+        dao.getDocumentDAO().createDocument(document);
+        logManager.logDocumentCreated(document.getId(), document.getBoxId()
+        );
+    }
+
+    public Document getDocumentById(int documentId) {
+        return dao.getDocumentDAO().getDocumentById(documentId);
+    }
+
+    public List<Document> getDocumentsForBox(int boxId) {
+        return dao.getDocumentDAO().getDocumentsForBox(boxId);
+    }
+
+    public int getTotalDocumentCount() {
+        return dao.getDocumentDAO().getTotalDocumentCount();
+    }
+
+    public Document createManualSplitDocument(int boxId) throws Exception {
         int nextDocumentNumber = getTotalDocuments() + 1;
         Document doc = new Document();
 
@@ -173,16 +171,63 @@ public class DocumentManager {
         doc.setDocumentNumber(nextDocumentNumber);
 
         dao.getDocumentDAO().createDocument(doc);
-
         completedDocuments.add(doc);
 
         return doc;
     }
 
-    public List<Document> getDocsAndFilesFromBox(int boxId) {
-        return dao.getDocumentDAO().getDocsAndFilesFromBox(boxId);
+    public void finalizeLastDocument() throws Exception {
+        if (!currentDocument.isEmpty()) {
+            currentDocument.setBoxId(activeBoxId);
+            currentDocument.setDocumentNumber(currentDocumentNumber);
+            dao.getDocumentDAO().saveDocument(currentDocument);
+            currentDocumentNumber++;
+            completedDocuments.add(currentDocument);
+            totalDocuments++;
+            logManager.logDocumentFinalized(currentDocument.getId(), activeBox.getBoxId());
+            currentDocument = new Document();
+        }
     }
 
+    //Files
+    public List<File> getFilesForDocument(int documentId) {
+        return dao.getDocumentDAO().getFilesForDocument(documentId);
+    }
+
+    public List<File> getFilesForDocumentWithData(int documentId) {
+        return dao.getDocumentDAO().getFilesForDocumentWithData(documentId);
+    }
+
+    public File getFileById(int fileId) {
+        return dao.getDocumentDAO().getFileById(fileId);
+    }
+
+    public File getLatestFileForUser(int userId) {
+        return dao.getDocumentDAO().getLatestFileForUser(userId);
+    }
+
+    public Box getBoxForFile(int fileId) {
+        return dao.getDocumentDAO().getBoxForFile(fileId);
+    }
+
+    //Moving/reordering files
+    public void updateFileOrder(Document document) {
+        dao.getDocumentDAO().updateFileOrder(document);
+    }
+
+    public void renumberFiles(Document document) {
+        dao.getDocumentDAO().renumberFiles(document);
+    }
+
+    public void moveFileToDocument(int fileId, int targetDocumentId) {
+        dao.getDocumentDAO().moveFileToDocument(
+                        fileId, targetDocumentId
+                );
+    }
+
+    public void updateFileDocument(File file) {
+        dao.getDocumentDAO().updateFileDocument(file);
+    }
 
     public Document getCurrentDocument() {return currentDocument;}
 

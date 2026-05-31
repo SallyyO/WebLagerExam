@@ -35,8 +35,6 @@ public class LoginController {
     public void initialize() {
         txtUsernameField.textProperty().addListener((_, _, _) -> updateButton());
         txtPasswordField.textProperty().addListener((_, _, _) -> updateButton());
-        //txtUsernameField.insertText(0, "example@weblager.dk");
-        //txtPasswordField.insertText(0, "admin");
     }
 
     private void updateButton() {
@@ -50,6 +48,8 @@ public class LoginController {
         if (passwordManager.checkLogin(initials, password)) {
             User user = passwordManager.getUser();
             SessionManager.setCurrentUser(user);
+            logManager.logLoginSuccess(user.getUsername());
+
             try {
                 Stage stage = (Stage) txtUsernameField.getScene().getWindow();
                 if (user.getRole().equals("Admin")) {

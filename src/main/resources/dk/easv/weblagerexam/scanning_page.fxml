@@ -115,6 +115,7 @@
             <StackPane fx:id="mainImageContainer" style="-fx-background-color: #F1F5F9;                               -fx-min-width: 600;                               -fx-min-height: 700;                               -fx-alignment: center;">
                 <ImageView fx:id="mainPreview" fitHeight="700" fitWidth="600" preserveRatio="true" />
             </StackPane>
+
         </ScrollPane>
     </center>
 

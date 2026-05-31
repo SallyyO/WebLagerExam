@@ -3,11 +3,8 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
-import dk.easv.weblagerexam.bll.LogManager;
-import dk.easv.weblagerexam.bll.SessionManager;
-import dk.easv.weblagerexam.dal.DAOManager;
+import dk.easv.weblagerexam.bll.*;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,7 +12,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -28,10 +24,13 @@ public class PreScanController {
     @FXML private TextField txtBoxId;
     @FXML private ComboBox<Profile> cmbProfile;
     @FXML private Label lblBoxError;
+    @FXML private Label lblProfileError;
     @FXML private Button btnStart;
     @FXML private Button btnCancel;
 
-    private final DAOManager dao = new DAOManager();
+    private final ProfileManager profileManager = new ProfileManager();
+    private final BoxManager boxManager = new BoxManager();
+
 
     private Box resultBox = null;
     private boolean confirmed = false;
@@ -42,11 +41,10 @@ public class PreScanController {
         User currentUser = SessionManager.getCurrentUser();
 
         try {
-            List<Profile> profiles = dao.getProfileDAO().getProfilesForUser(currentUser.getId());
+            List<Profile> profiles = profileManager.getProfilesForUser(currentUser.getId());
             cmbProfile.getItems().addAll(profiles);
         } catch (Exception e) {
             System.err.println("Could not load profiles: " + e.getMessage());
-            e.printStackTrace(); // print full stack
         }
 
         // Only allow numbers in Box ID field
@@ -54,6 +52,10 @@ public class PreScanController {
             if (!newVal.matches("\\d*")) txtBoxId.setText(oldVal);
             lblBoxError.setVisible(false);
             lblBoxError.setManaged(false);
+        });
+        cmbProfile.valueProperty().addListener((obs, oldVal, newVal) -> {
+            lblProfileError.setVisible(false);
+            lblProfileError.setManaged(false);
         });
 
         btnStart.setDefaultButton(true);
@@ -75,13 +77,24 @@ public class PreScanController {
 
         User currentUser = SessionManager.getCurrentUser();
         Profile selectedProfile = cmbProfile.getValue();
-        int profileId = selectedProfile != null ? selectedProfile.getId() : 0;
+
+        if (selectedProfile == null) {
+            lblProfileError.setText("Please select a profile");
+            lblProfileError.setVisible(true);
+            lblProfileError.setManaged(true);
+            return;
+        }
+
+        lblProfileError.setVisible(false);
+        lblProfileError.setManaged(false);
+
+        int profileId =  selectedProfile.getId();
 
         Box box = new Box(currentUser.getId());
         box.setBoxId(boxId);
         box.setProfileId(profileId);
         box.setProfile(selectedProfile); // stores the full object
-        dao.getBoxDAO().saveBox(box);
+        boxManager.saveBox(box);
 
         new LogManager().logBoxCreated(currentUser.getId(), box.getBoxId(), currentUser.getUsername());
 

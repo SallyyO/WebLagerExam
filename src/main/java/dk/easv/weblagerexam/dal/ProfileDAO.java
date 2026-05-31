@@ -39,7 +39,11 @@ public class ProfileDAO {
             PreparedStatement stmt = con.prepareStatement(
                     sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, profile.getName());
-            stmt.setInt(2, profile.getClientId());
+            if (profile.getClientId() > 0) {
+                stmt.setInt(2, profile.getClientId());
+            } else {
+                stmt.setNull(2, Types.INTEGER);
+            }
             stmt.setString(3, profile.getSettings() != null
                     ? profile.getSettings().name()
                     : null);
@@ -114,6 +118,49 @@ public class ProfileDAO {
 
             stmt.setInt(1, userId);
             stmt.setInt(2, profileId);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void assignProfileToClient(int profileId, int clientId)
+    {
+        String sql = """
+        UPDATE Profiles
+        SET clientId = ?
+        WHERE id = ?
+        """;
+
+        try (Connection con = conMan.getConnection();
+             PreparedStatement stmt =
+                     con.prepareStatement(sql)) {
+
+            stmt.setInt(1, clientId);
+            stmt.setInt(2, profileId);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void removeProfileFromClient(int profileId)
+    {
+        String sql = """
+        UPDATE Profiles
+        SET clientId = NULL
+        WHERE id = ?
+        """;
+
+        try (Connection con = conMan.getConnection();
+             PreparedStatement stmt =
+                     con.prepareStatement(sql)) {
+
+            stmt.setInt(1, profileId);
 
             stmt.executeUpdate();
 

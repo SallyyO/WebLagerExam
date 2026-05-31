@@ -4,6 +4,7 @@ import dk.easv.weblagerexam.be.Client;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.*;
+import dk.easv.weblagerexam.util.LogoutUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -25,6 +26,7 @@ import javafx.scene.input.KeyEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AdminController {
@@ -32,7 +34,7 @@ public class AdminController {
     @FXML private Label lblUsername;
     @FXML private Label lblInitials;
 
-    @FXML private Button addUserBtn;
+    @FXML private Button addNewBtn;
 
     @FXML private Button usersButton;
     @FXML private Button profilesButton;
@@ -61,8 +63,6 @@ public class AdminController {
     private ProfileManager profileManager = new ProfileManager();
     private ClientManager clientManager = new ClientManager();
     LogManager logManager = new LogManager();
-
-
 
     private final ObservableList<Object> masterList = FXCollections.observableArrayList();
     private final FilteredList<Object> filteredList = new FilteredList<>(masterList, p -> true);
@@ -112,7 +112,7 @@ public class AdminController {
         userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
 
-        addUserBtn.sceneProperty().addListener((obs, oldScene, newScene) -> {
+        addNewBtn.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
                     if (event.getCode() == KeyCode.A) {
@@ -130,25 +130,19 @@ public class AdminController {
     }
 
     private void loadUsers() {
-
         try {
 
             currentInfo = AdminInfo.USERS;
-
             mainTable.getColumns().clear();
 
             Label nameHeader = new Label("Name");
             nameHeader.getStyleClass().add("text-h2");
-
             TableColumn<Object, String> nameCol = new TableColumn<>();
             nameCol.setGraphic(nameHeader);
 
             nameCol.setCellValueFactory(cell -> {
-                User user =
-                        (User) cell.getValue();
-                return new SimpleStringProperty(
-                        user.getUsername()
-                );
+                User user = (User) cell.getValue();
+                return new SimpleStringProperty(user.getUsername());
             });
 
             Label statusHeader = new Label("Status");
@@ -160,10 +154,8 @@ public class AdminController {
             statusCol.setGraphic(statusHeader);
 
             statusCol.setCellValueFactory(cell -> {
-                User user =
-                        (User) cell.getValue();
-                return new SimpleStringProperty(
-                        user.isActive()
+                User user = (User) cell.getValue();
+                return new SimpleStringProperty(user.isActive()
                                 ? "Active"
                                 : "Inactive"
                 );
@@ -189,10 +181,9 @@ public class AdminController {
 
             mainTable.refresh();
 
-            addUserBtn.setVisible(true);
-            addUserBtn.setManaged(true);
-
-            addUserBtn.setText("Add User");
+            addNewBtn.setVisible(true);
+            addNewBtn.setManaged(true);
+            addNewBtn.setText("Add User");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -206,15 +197,13 @@ public class AdminController {
 
         col.setCellFactory(param ->
                 new TableCell<>() {
-                    private final Button editBtn =
-                            new Button("Edit");
+                    private final Button editBtn = new Button("Edit");
 
-                    private final Button deleteBtn =
-                            new Button("Delete");
+                    private final Button statusBtn = new Button();
                     private final HBox box =
                             new HBox(8,
                                     editBtn,
-                                    deleteBtn);
+                                    statusBtn);
                     {
 
                         editBtn.getStyleClass().addAll(
@@ -222,36 +211,51 @@ public class AdminController {
                                 "text-button"
                         );
 
-                        deleteBtn.getStyleClass().addAll(
+                        statusBtn.getStyleClass().addAll(
                                 "button-danger",
                                 "text-button"
                         );
 
                         editBtn.setOnAction(e -> {
-                            User user =
-                                    (User) getTableView()
-                                            .getItems()
-                                            .get(getIndex());
+                            User user = (User) getTableView().getItems().get(getIndex());
                             handleEditUser(user);
                         });
 
-                        deleteBtn.setOnAction(e -> {
-                            User user =
-                                    (User) getTableView()
-                                            .getItems()
-                                            .get(getIndex());
-                            handleDeleteUser(user);
+                        statusBtn.setOnAction(e -> {
+                            User user = (User) getTableView().getItems().get(getIndex());
+                            userManager.setUserActive(user.getId(), !user.isActive()
+                            );
+
+                            loadUsers();
                         });
                     }
 
                     @Override
-                    protected void updateItem(
-                            Void item,
-                            boolean empty) {
+                    protected void updateItem(Void item, boolean empty) {
                         super.updateItem(item, empty);
-                        setGraphic(
-                                empty ? null : box
+                        if (empty) {
+                            setGraphic(null);
+                            return;
+                        }
+                        User user = (User) getTableView().getItems().get(getIndex());
+
+                        statusBtn.getStyleClass().removeAll(
+                                "button-danger",
+                                "button-reactivate"
                         );
+
+                        if (user.isActive()) {
+
+                            statusBtn.setText("Deactivate");
+                            statusBtn.getStyleClass().add("button-danger");
+
+                        } else {
+
+                            statusBtn.setText("Activate");
+                            statusBtn.getStyleClass().add("button-reactivate");
+                        }
+
+                        setGraphic(box);
                     }
                 });
         return col;
@@ -260,41 +264,17 @@ public class AdminController {
 
     @FXML
     void onAddUserBtnClicked(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dk/easv/weblagerexam/addNewUser.fxml")
-            );
-            Parent root = loader.load();
 
+        switch (currentInfo) {
 
-            Stage stage = new Stage();
-            stage.setTitle("Add User");
-            stage.setScene(new Scene(root));
-            AddNewUserController controller = (AddNewUserController) loader.getController();
-            controller.setAdminController(this);
-            stage.show();
+            case USERS -> openAddUser();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            case PROFILES -> openAddProfile();
+
+            case CLIENTS -> openAddClient();
         }
     }
 
-    private void handleDeleteUser(User selectedUser) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete User");
-        confirm.setContentText("Are you sure you want to delete " + selectedUser.getUsername() + "?");
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                try {
-                    userManager.deleteUser(selectedUser.getId());
-                    loadUsers();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    showError("Could not delete User", e.getMessage());
-                }
-            }
-        });
-    }
 
     private void handleEditUser(User selectedUser) {
         try {
@@ -348,42 +328,24 @@ public class AdminController {
 
 
             clientCol.setCellValueFactory(cell -> {
+                Profile profile = (Profile) cell.getValue();
+                Client client = clientManager.getClientById(profile.getClientId());
 
-                Profile profile =
-                        (Profile) cell.getValue();
-
-                Client client =
-                        clientManager.getClientById(
-                                profile.getClientId()
-                        );
-
-                String name =
-                        client != null
-                                ? client.getName()
+                String name = client != null ? client.getName()
                                 : "No Client";
                 return new SimpleStringProperty(name);
             });
 
-            Label actionsHeader = new Label("Actions");
-            actionsHeader.getStyleClass().add("text-h2");
-
-            TableColumn<Object, Void> actionsCol =
-                    createProfileActionsColumn();
-
-            actionsCol.setGraphic(actionsHeader);
-
             mainTable.getColumns().addAll(
                     nameCol,
-                    clientCol,
-                    actionsCol
+                    clientCol
             );
 
-            masterList.setAll(
-                    profileManager.getAllProfiles()
-            );
+            masterList.setAll(profileManager.getAllProfiles());
 
-            addUserBtn.setVisible(false);
-            addUserBtn.setManaged(false);
+            addNewBtn.setVisible(true);
+            addNewBtn.setManaged(true);
+            addNewBtn.setText("Add Profile");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -392,23 +354,19 @@ public class AdminController {
         }
     }
 
-    private TableColumn<Object, Void> createProfileActionsColumn() {
-
+   /* Not sure which actions a profile would need
+   private TableColumn<Object, Void> createProfileActionsColumn() {
         TableColumn<Object, Void> col =
                 new TableColumn<>();
-
 
         col.setCellFactory(param ->
                 new TableCell<>() {
 
-                    private final Button editBtn =
-                            new Button("Edit");
+                    private final Button editBtn = new Button("Edit");
 
-                    private final Button assignBtn =
-                            new Button("+");
+                    private final Button assignBtn = new Button("+");
 
-                    private final HBox box =
-                            new HBox(8,
+                    private final HBox box = new HBox(8,
                                     editBtn,
                                     assignBtn);
 
@@ -419,14 +377,10 @@ public class AdminController {
                                 "text-button"
                         );
 
-                        assignBtn.getStyleClass().addAll(
-                                "button-secondary",
-                                "text-button"
-                        );
+                        assignBtn.getStyleClass().addAll("button-secondary", "text-button");
 
                         editBtn.setOnAction(e -> {
-                            Profile profile =
-                                    (Profile) getTableView()
+                            Profile profile = (Profile) getTableView()
                                             .getItems()
                                             .get(getIndex());
                             //handleEditProfile(profile);
@@ -434,8 +388,7 @@ public class AdminController {
 
                         assignBtn.setOnAction(e -> {
 
-                            Profile profile =
-                                    (Profile) getTableView()
+                            Profile profile = (Profile) getTableView()
                                             .getItems()
                                             .get(getIndex());
                             // handleAssignProfile(profile);
@@ -453,6 +406,7 @@ public class AdminController {
 
         return col;
     }
+    */
 
     @FXML
     private void onClientsClicked(ActionEvent event) {
@@ -460,11 +414,8 @@ public class AdminController {
     }
 
     private void loadClients() {
-
         try {
-
             currentInfo = AdminInfo.CLIENTS;
-
             mainTable.getColumns().clear();
 
             Label nameHeader = new Label("Name");
@@ -474,12 +425,23 @@ public class AdminController {
             nameCol.setGraphic(nameHeader);
 
             nameCol.setCellValueFactory(cell -> {
+                Client client = (Client) cell.getValue();
+                return new SimpleStringProperty(client.getName()
+                );
+            });
 
-                Client client =
-                        (Client) cell.getValue();
+            Label statusHeader = new Label("Status");
+            statusHeader.getStyleClass().add("text-h2");
+            TableColumn<Object, String> statusCol = new TableColumn<>();
+            statusCol.setGraphic(statusHeader);
+
+            statusCol.setCellValueFactory(cell -> {
+                Client client = (Client) cell.getValue();
 
                 return new SimpleStringProperty(
-                        client.getName()
+                        client.isActive()
+                                ? "Active"
+                                : "Inactive"
                 );
             });
 
@@ -491,17 +453,11 @@ public class AdminController {
 
             profilesCol.setCellValueFactory(cell -> {
 
-                Client client =
-                        (Client) cell.getValue();
+                Client client = (Client) cell.getValue();
 
-                List<Profile> profiles =
-                        profileManager.getProfilesForClient(
-                                client.getId()
-                        );
+                List<Profile> profiles = profileManager.getProfilesForClient(client.getId());
 
-                if (profiles.isEmpty()) {
-                    return new SimpleStringProperty("No Profiles");
-                }
+                if (profiles.isEmpty()) {return new SimpleStringProperty("No Profiles");}
 
                 String names = profiles.stream()
                         .map(Profile::getName)
@@ -518,30 +474,24 @@ public class AdminController {
             Label actionsHeader = new Label("Actions");
             actionsHeader.getStyleClass().add("text-h2");
 
-            TableColumn<Object, Void> actionsCol =
-                    createClientActionsColumn();
-
+            TableColumn<Object, Void> actionsCol = createClientActionsColumn();
             actionsCol.setGraphic(actionsHeader);
 
         mainTable.getColumns().addAll(
                 nameCol,
+                statusCol,
                 profilesCol,
                 actionsCol
         );
 
-        masterList.setAll(
-                clientManager.getAllClients()
-        );
+        masterList.setAll(clientManager.getAllClients());
 
-        addUserBtn.setVisible(true);
-        addUserBtn.setManaged(true);
-
-        addUserBtn.setText("Add Client");
+            addNewBtn.setVisible(true);
+            addNewBtn.setManaged(true);
+            addNewBtn.setText("Add Client");
 
     } catch (Exception e) {
-
         e.printStackTrace();
-
         showError(
                 "Could not load clients",
                 e.getMessage()
@@ -549,27 +499,18 @@ public class AdminController {
     }
     }
 
-    private TableColumn<Object, Void>
-    createClientActionsColumn() {
-
-        TableColumn<Object, Void> col =
-                new TableColumn<>();
-
-
+    private TableColumn<Object, Void> createClientActionsColumn() {
+        TableColumn<Object, Void> col = new TableColumn<>();
 
         col.setCellFactory(param ->
                 new TableCell<>() {
-
                     private final Button editBtn =
                             new Button("Edit");
 
-                    private final Button deleteBtn =
-                            new Button("Delete");
+                    private final Button statusBtn = new Button();
 
                     private final HBox box =
-                            new HBox(8,
-                                    editBtn,
-                                    deleteBtn);
+                            new HBox(8, editBtn, statusBtn);
 
                     {
 
@@ -578,7 +519,7 @@ public class AdminController {
                                 "text-button"
                         );
 
-                        deleteBtn.getStyleClass().addAll(
+                        statusBtn.getStyleClass().addAll(
                                 "button-danger",
                                 "text-button"
                         );
@@ -590,30 +531,57 @@ public class AdminController {
                                             .getItems()
                                             .get(getIndex());
 
-                            //handleEditClient(client);
+                            handleEditClient(client);
                         });
 
-                        deleteBtn.setOnAction(e -> {
+                        statusBtn.setOnAction(e -> {
 
                             Client client =
                                     (Client) getTableView()
                                             .getItems()
                                             .get(getIndex());
 
-                            //handleDeleteClient(client);
+                            clientManager.setClientActive(
+                                    client.getId(),
+                                    !client.isActive()
+                            );
+
+                            loadClients();
                         });
                     }
 
                     @Override
-                    protected void updateItem(
-                            Void item,
-                            boolean empty) {
+                    protected void updateItem(Void item, boolean empty) {
 
                         super.updateItem(item, empty);
 
-                        setGraphic(
-                                empty ? null : box
+                        if (empty) {
+                            setGraphic(null);
+                            return;
+                        }
+
+                        Client client =
+                                (Client) getTableView()
+                                        .getItems()
+                                        .get(getIndex());
+
+                        statusBtn.getStyleClass().removeAll(
+                                "button-danger",
+                                "button-reactivate"
                         );
+
+                        if (client.isActive()) {
+
+                            statusBtn.setText("Deactivate");
+                            statusBtn.getStyleClass().add("button-danger");
+
+                        } else {
+
+                            statusBtn.setText("Activate");
+                            statusBtn.getStyleClass().add("button-reactivate");
+                        }
+
+                        setGraphic(box);
                     }
                 });
 
@@ -631,14 +599,14 @@ public class AdminController {
         filteredList.setPredicate(item -> {
             if (item instanceof User user) {
                 return user.getUsername() != null && user.getUsername()
-                                .toLowerCase()
-                                .contains(lowercase);
+                        .toLowerCase()
+                        .contains(lowercase);
             }
 
             if (item instanceof Profile profile) {
                 return profile.getName() != null && profile.getName()
-                                .toLowerCase()
-                                .contains(lowercase);
+                        .toLowerCase()
+                        .contains(lowercase);
             }
 
             if (item instanceof Client client) {
@@ -727,32 +695,91 @@ public class AdminController {
         });
     }
 
+    // To switch what the add button opens:
+    private void openAddUser() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/addNewUser.fxml")
+            );
+            Parent root = loader.load();
 
-    private void handleLogout() {
+
+            Stage stage = new Stage();
+            stage.setTitle("Add User");
+            stage.setScene(new Scene(root));
+            AddNewUserController controller = loader.getController();
+            controller.setAdminController(this);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openAddProfile() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dk/easv/weblagerexam/newProfile.fxml")
+            );
+            Parent root = loader.load();
+
+
+            Stage stage = new Stage();
+            stage.setTitle("Add Profile");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            loadProfiles();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openAddClient() {
 
         try {
-
-            SessionManager.clearSession();
-
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dk/easv/weblagerexam/login-view.fxml")
+                            getClass().getResource(
+                                    "/dk/easv/weblagerexam/AddOrEditClient.fxml"
+                            )
+                    );
+
+            Parent root = loader.load();
+
+            AddOrEditClientController controller = loader.getController();
+            controller.gotANewClient();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            loadClients();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleEditClient(Client client) {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/dk/easv/weblagerexam/AddOrEditClient.fxml"
+                    )
             );
 
             Parent root = loader.load();
 
-            Scene scene = new Scene(root);
+            AddOrEditClientController controller = loader.getController();
+            controller.setClient(client);
 
-            scene.getStylesheets().add(
-                    Objects.requireNonNull(
-                            getClass().getResource("/dk/easv/weblagerexam/CSS/app.css")
-                    ).toExternalForm()
-            );
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
 
-            Stage stage = (Stage) userBox.getScene().getWindow();
-
-            stage.setScene(scene);
-            stage.setTitle("Login");
-            stage.centerOnScreen();
+            loadClients();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -776,5 +803,12 @@ public class AdminController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleLogout() {
+        Stage stage =
+                (Stage) userBox.getScene().getWindow();
+
+        LogoutUtil.logout(stage);
     }
 }

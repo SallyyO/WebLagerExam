@@ -1,5 +1,6 @@
 package dk.easv.weblagerexam.util;
 
+import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.bll.FileSettings;
 import javafx.embed.swing.SwingFXUtils;
@@ -63,4 +64,45 @@ public class TiffConverter {
             return null;
         }
     }
+
+    public static Image getThumbnail(File file, Profile profile) {
+
+        int profileId =
+                profile != null
+                        ? profile.getId()
+                        : -1;
+
+        if (file.getThumbnailCache() != null
+                && file.getCachedProfileId() == profileId) {
+            return file.getThumbnailCache();
+        }
+
+        Image image = toJavaFXImageThumbnail(file.getImageData(), profile);
+
+        file.setThumbnailCache(image);
+        file.setCachedProfileId(profileId);
+
+        return image;
+    }
+
+    public static Image getFullImage(File file, Profile profile) {
+
+        int profileId = profile != null
+                ? profile.getId()
+                : -1;
+
+        if (file.getFullImageCache() != null
+                && file.getFullImageProfileId() == profileId) {
+            return file.getFullImageCache();
+        }
+
+        Image image = toJavaFXImage(file.getImageData(), profile);
+
+        file.setFullImageCache(image);
+        file.setFullImageProfileId(profileId);
+
+        return image;
+    }
+
+
 }

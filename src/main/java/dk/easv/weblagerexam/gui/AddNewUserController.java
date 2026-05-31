@@ -3,7 +3,6 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.bll.*;
-import dk.easv.weblagerexam.dal.DAOManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -53,7 +52,6 @@ public class AddNewUserController {
     private final ProfileManager profileManager = new ProfileManager();
     private final LogManager logManager = new LogManager();
     private AdminController adminController;
-    private final DAOManager dao = new DAOManager();
     private User user;
 
 
@@ -235,18 +233,11 @@ public class AddNewUserController {
     }
 
     private void saveProfilesToUser() throws Exception {
+        if (user == null) {return;}
 
-        if (user == null) {
-            return;
-        }
-
-        dao.getUserDAO().removeAllProfilesFromUser(
-                user.getId()
-        );
-
-        for (Profile profile :
-                assignedProfilesListView.getItems()) {
-
+        userManager.removeAllProfilesFromUser(user.getId());
+        for (Profile profile : assignedProfilesListView.getItems())
+        {
             userManager.assignProfileToUser(
                     user.getId(),
                     profile.getId()
@@ -255,22 +246,12 @@ public class AddNewUserController {
     }
 
     public void setUser(User user) {
-
         try {
-
             this.user = user;
+            txtUsername.setText(user.getUsername());
 
-            txtUsername.setText(
-                    user.getUsername()
-            );
-
-            txtInitials.setText(
-                    user.getInitials()
-            );
-
-            roleComboBox.setValue(
-                    user.getRole()
-            );
+            txtInitials.setText(user.getInitials());
+            roleComboBox.setValue(user.getRole());
 
             cmbStatus.setValue(
                     user.isActive()

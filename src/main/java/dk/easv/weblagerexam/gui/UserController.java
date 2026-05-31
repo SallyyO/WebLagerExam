@@ -3,8 +3,8 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.DocumentManager;
 import dk.easv.weblagerexam.bll.SessionManager;
-import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
@@ -30,37 +30,20 @@ import javafx.scene.input.MouseEvent;
 
 public class UserController {
 
-    @FXML
-    private Label lblUsername;
+    @FXML private Label lblUsername;
+    @FXML private Label lblInitials;
+    @FXML private HBox userBox;
 
-    @FXML
-    private Label lblInitials;
-
-    @FXML
-    private Button boxesBtn;
-
-    @FXML
-    private Button newScanBtn;
-
-    @FXML
-    private Button profilesBtn;
-
-    @FXML
-    private Button scanningButton;
-
-    @FXML
-    private Button splitDocumentsBtn;
-
-    @FXML
-    private Button deleteScansBtn;
+    @FXML private Button boxesBtn;
+    @FXML private Button newScanBtn;
+    @FXML private Button profilesBtn;
+    @FXML private Button scanningButton;
 
     @FXML private ImageView latestScanPreview;
     @FXML private Label lblContinueScan;
     @FXML private VBox continueScanSection;
 
-    @FXML private HBox userBox;
-
-    private final DAOManager dao = new DAOManager();
+    private final DocumentManager documentManager = new DocumentManager();
     private Box latestBox = null;
 
     //Shortcuts
@@ -83,9 +66,7 @@ public class UserController {
             loadLatestScan(user.getId());
         }
 
-        userBox.setOnMouseClicked(e ->
-                LogoutUtil.logout((Stage) userBox.getScene().getWindow())
-        );
+        userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
 
         boxesBtn.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -100,7 +81,7 @@ public class UserController {
 
     private void loadLatestScan(int userId) {
         try {
-            File latestFile = dao.getDocumentDAO().getLatestFileForUser(userId);
+            File latestFile = documentManager.getLatestFileForUser(userId);
 
             if (latestFile == null || latestFile.getImageData() == null) {
                 // No scans yet — show placeholder text, keep section visible
@@ -115,7 +96,7 @@ public class UserController {
 
             new Thread(() -> {
                 Image preview = TiffConverter.toJavaFXImage(latestFile.getImageData());
-                Box box = dao.getDocumentDAO().getBoxForFile(latestFile.getId());
+                Box box = documentManager.getBoxForFile(latestFile.getId());
                 latestBox = box;
 
                 Platform.runLater(() -> {
@@ -217,4 +198,12 @@ public class UserController {
             e.printStackTrace();
         }
     }
+
+    private void handleLogout() {
+        Stage stage =
+                (Stage) userBox.getScene().getWindow();
+
+        LogoutUtil.logout(stage);
+    }
+
 }

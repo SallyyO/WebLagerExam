@@ -1,5 +1,7 @@
 package dk.easv.weblagerexam.util;
 
+import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.LogManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,7 +15,14 @@ public class LogoutUtil {
 
     public static void logout(Stage stage) {
         try {
-            // Clear session
+            User currentUser = SessionManager.getCurrentUser();
+
+            if (currentUser != null) {
+                LogManager logManager = new LogManager();
+                logManager.logLogout(currentUser.getUsername());
+            }
+
+
             SessionManager.clearSession();
 
             // Load login page
@@ -22,10 +31,9 @@ public class LogoutUtil {
             );
 
             Parent root = loader.load();
-
             Scene scene = new Scene(root);
 
-            // Add CSS again so styling stays (without it, we get the login-page without any styling)
+            // Add CSS again so styling is re-added (without it, we get the login-page without any styling)
             scene.getStylesheets().add(
                     Objects.requireNonNull(
                             LogoutUtil.class.getResource("/dk/easv/weblagerexam/CSS/app.css")

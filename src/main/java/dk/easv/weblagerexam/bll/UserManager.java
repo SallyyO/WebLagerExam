@@ -80,7 +80,7 @@ public class UserManager {
         );
     }
 
-    public void removeProfileFromUser(int userId, int profileId) throws Exception {
+    public void removeAllProfilesFromUser(int userId) throws Exception {
         dao.getUserDAO().removeAllProfilesFromUser(userId);
     }
 

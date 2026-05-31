@@ -2,7 +2,6 @@ package dk.easv.weblagerexam.bll;
 
 import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.dal.DAOManager;
-import dk.easv.weblagerexam.dal.FileDAO;
 
 import java.util.List;
 

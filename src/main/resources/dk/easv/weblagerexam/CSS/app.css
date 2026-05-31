@@ -141,6 +141,12 @@ By doing it like this, we are telling it to start from the top and
     -fx-text-fill: white;
 }
 
+/* Reactivation */
+.button-reactivate {
+    -fx-background-color: #24C79F;
+    -fx-text-fill: white;
+}
+
 
 /* Disabled */
 .button:disabled {

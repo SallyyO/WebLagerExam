@@ -1,100 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
-<BorderPane prefWidth="480" prefHeight="420"
-            styleClass="modal"
-            stylesheets="@CSS/app.css"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="dk.easv.weblagerexam.gui.NewProfileController">
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="420" prefWidth="480" styleClass="modal" stylesheets="@CSS/app.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/24.0.1" fx:controller="dk.easv.weblagerexam.gui.NewProfileController">
 
     <!-- Header -->
     <top>
         <VBox>
 
             <!-- HEADER BAR -->
-            <HBox alignment="CENTER_LEFT"
-                  prefHeight="60"
-                  styleClass="modal-header">
+            <HBox alignment="CENTER_LEFT" prefHeight="60" styleClass="modal-header">
 
                 <padding>
-                    <Insets left="20"/>
+                    <Insets left="20" />
                 </padding>
 
                 <!-- Logo -->
-                <ImageView fitHeight="30"
-                           preserveRatio="true">
+                <ImageView fitHeight="30" preserveRatio="true">
 
                     <image>
-                        <Image url="@/Images/LogoBlueH.png"/>
+                        <Image url="@/Images/LogoBlueH.png" />
                     </image>
 
                 </ImageView>
 
                 <!-- Spacer -->
-                <Region HBox.hgrow="ALWAYS"/>
+                <Region HBox.hgrow="ALWAYS" />
 
                 <!-- Title -->
-                <Label text="Create New Profile"
-                       styleClass="text-h3"/>
+                <Label styleClass="text-h3" text="Create New Profile" />
             </HBox>
-
-            <Label text="Will be applied to all files in a box during scanning and export"
-                   styleClass="text-helper"
-                   wrapText="true"
-                   style="-fx-padding: 0 20 10 20;"/>
 
         </VBox>
     </top>
 
     <!-- Form body -->
     <center>
-        <VBox styleClass="modal-content" spacing="18">
-            <padding><Insets top="12" right="0" bottom="0" left="0"/></padding>
+        <VBox spacing="18" styleClass="modal-content">
+            <padding><Insets bottom="0" left="0" right="0" top="12" /></padding>
 
             <!-- Profile name -->
             <VBox spacing="6">
-                <Label text="Profile Name" styleClass="label-medium"/>
-                <TextField fx:id="txtName" promptText="e.g. Grayscale"/>
-                <Label fx:id="lblNameError" styleClass="error"
-                       visible="false" managed="false"/>
+                <Label styleClass="label-medium" text="Profile Name" />
+                <TextField fx:id="txtName" promptText="e.g. Grayscale" />
+                <Label fx:id="lblNameError" managed="false" styleClass="error" visible="false" />
             </VBox>
 
             <!-- Settings type -->
             <VBox spacing="6">
-                <Label text="Profile setting" styleClass="label-medium"/>
-                <ComboBox fx:id="cmbSettings"
-                          promptText="Select the settings to apply"
-                          maxWidth="Infinity"
-                          onAction="#onSettingsChanged"/>
-                <Label fx:id="lblSettingsError" styleClass="error"
-                       visible="false" managed="false"/>
+                <Label styleClass="label-medium" text="Profile setting" />
+                <ComboBox fx:id="cmbSettings" maxWidth="Infinity" onAction="#onSettingsChanged" promptText="Select the settings to apply" />
+                <Label fx:id="lblSettingsError" managed="false" styleClass="error" visible="false" />
             </VBox>
 
             <!-- Value input — shown only for ROTATE and BRIGHTEN -->
-            <VBox fx:id="valueSection" spacing="6" visible="false" managed="false">
-                <Label fx:id="lblValueDescription" text="Value" styleClass="label-medium"/>
-                <TextField fx:id="txtValue" promptText="Enter a number"/>
-                <Label fx:id="lblValueError" styleClass="error"
-                       visible="false" managed="false"/>
+            <VBox fx:id="valueSection" managed="false" spacing="6" visible="false">
+                <Label fx:id="lblValueDescription" styleClass="label-medium" text="Value" />
+                <TextField fx:id="txtValue" promptText="Enter a number" />
+                <Label fx:id="lblValueError" managed="false" styleClass="error" visible="false" />
             </VBox>
 
             <!-- Live description -->
-            <Label fx:id="lblPreview" text="" styleClass="text-helper" wrapText="true"/>
+            <Label fx:id="lblPreview" styleClass="text-helper" text="" wrapText="true" />
 
         </VBox>
     </center>
 
     <!-- Footer buttons -->
     <bottom>
-        <HBox styleClass="modal-footer" spacing="9" alignment="CENTER_RIGHT">
-            <Button text="Cancel" onAction="#cancel"
-                    styleClass="button, button-tertiary"/>
-            <Button fx:id="btnCreate" text="Create Profile" onAction="#createProfile"
-                    styleClass="button, button-primary"/>
+        <HBox alignment="CENTER_RIGHT" spacing="9" styleClass="modal-footer">
+            <Button onAction="#cancel" styleClass="button-danger" text="Cancel" />
+            <Button fx:id="btnCreate" onAction="#createProfile" styleClass="button, button-primary" text="Create Profile" />
         </HBox>
     </bottom>
 

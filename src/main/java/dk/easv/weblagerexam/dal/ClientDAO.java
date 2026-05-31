@@ -12,10 +12,10 @@ public class ClientDAO {
 
     // Get all clients
     public List<Client> getAllClients() {
-
         String sql = """
                 SELECT id,
-                       name
+                       name,
+                       active
                 FROM Clients
                 ORDER BY name
                 """;
@@ -31,11 +31,11 @@ public class ClientDAO {
                 clients.add(
                         new Client(
                                 rs.getInt("id"),
-                                rs.getString("name")
+                                rs.getString("name"),
+                                rs.getBoolean("active")
                         )
                 );
             }
-
             return clients;
 
         } catch (SQLException e) {
@@ -43,12 +43,13 @@ public class ClientDAO {
         }
     }
 
-    // Get client by id
+
     public Client getClientById(int clientId) {
 
         String sql = """
                 SELECT id,
-                       name
+                       name,
+                       active
                 FROM Clients
                 WHERE id = ?
                 """;
@@ -64,7 +65,8 @@ public class ClientDAO {
 
                 return new Client(
                         rs.getInt("id"),
-                        rs.getString("name")
+                        rs.getString("name"),
+                        rs.getBoolean("active")
                 );
             }
 
@@ -75,7 +77,7 @@ public class ClientDAO {
         }
     }
 
-    // Create client
+
     public void saveClient(Client client) {
 
         String sql = """
@@ -136,7 +138,6 @@ public class ClientDAO {
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setInt(1, clientId);
-
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -149,6 +150,7 @@ public class ClientDAO {
                 INSERT INTO Clients (name)
                 VALUES (?)
                 """;
+
         try (Connection con = conMan.getConnection();
              PreparedStatement stmt = con.prepareStatement(
                      sql,
@@ -165,6 +167,30 @@ public class ClientDAO {
                         keys.getInt(1)
                 );
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setClientActive(int clientId, boolean active) {
+        String sql = """
+            UPDATE Clients
+            SET active = ?
+            WHERE id = ?
+            """;
+
+        try (Connection con = conMan.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setBoolean(1, active);
+            ps.setInt(2, clientId);
+
+            System.out.println("DAO UPDATE: " + clientId + " -> " + active);
+
+            int rows = ps.executeUpdate();
+
+            System.out.println("Rows affected: " + rows);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

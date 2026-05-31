@@ -3,6 +3,7 @@ package dk.easv.weblagerexam.bll;
 import dk.easv.weblagerexam.be.Log;
 import dk.easv.weblagerexam.be.LogLevel;
 import dk.easv.weblagerexam.be.LogType;
+import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.dal.DAOManager;
 
 import java.util.List;
@@ -10,7 +11,14 @@ import java.util.List;
 public class LogManager {
     private DAOManager dao = new DAOManager();
 
-    private int currentUserId() {return SessionManager.getCurrentUser().getId();}
+    private int currentUserId() {
+        User currentUser =
+                SessionManager.getCurrentUser();
+
+        return currentUser != null
+                ? currentUser.getId()
+                : SYSTEM_USER;
+    }
 
     private void add(int userId, String action, String description, LogType type, LogLevel level) {
         String username = "SYSTEM";
@@ -102,15 +110,18 @@ public class LogManager {
 
 // Profiles
 
-    /*
-    public void logProfileCreated(int userId, String profileName) {
-        add(userId, "PROFILE_CREATED", "Profile created: " + profileName);
-    }
-    public void logProfileDeleted(int userId, String profileName) {
-        add(userId, "PROFILE_DELETED", "Profile deleted: " + profileName);
+
+    public void logProfileCreated(String profileName) {
+
+        add(
+                currentUserId(),
+                "PROFILE CREATED",
+                "Profile created: " + profileName,
+                LogType.AUDIT,
+                LogLevel.INFO
+        );
     }
 
-   */
     public void logProfileAssigned(int adminId, int targetUserId, String profileName) {
         add(adminId, "PROFILE ASSIGNED",
                 "Profile '" + profileName + "' assigned to user #" + targetUserId,
@@ -123,6 +134,27 @@ public class LogManager {
         add(
                 adminId, "PROFILE REMOVED", "Profile '" + profileName +
                         "' removed from user " + username,
+                LogType.AUDIT,
+                LogLevel.INFO
+        );
+    }
+
+    public void logProfileAssignedToClient(String profileName, String clientName)
+    {
+        add(
+                currentUserId(),
+                "PROFILE ASSIGNED TO CLIENT",
+                "Profile '" + profileName + "' assigned to client '" + clientName + "'",
+                LogType.AUDIT,
+                LogLevel.INFO
+        );
+    }
+    public void logProfileRemovedFromClient(String profileName, String clientName)
+    {
+        add(
+                currentUserId(),
+                "PROFILE REMOVED FROM CLIENT",
+                "Profile '" + profileName + "' removed from client '" + clientName + "'",
                 LogType.AUDIT,
                 LogLevel.INFO
         );
@@ -169,12 +201,56 @@ public class LogManager {
                 LogLevel.INFO);
     }
 
-    public void logPasswordChanged(
-            String targetUsername) {
+    public void logPasswordChanged(String targetUsername) {
 
         add(
                 currentUserId(), "PASSWORD CHANGED", "Password changed for user " + targetUsername,
                 LogType.SECURITY,
+                LogLevel.INFO
+        );
+    }
+// Clients
+
+    public void logClientCreated(String clientName) {
+
+        add(
+                currentUserId(),
+                "CLIENT CREATED",
+                "Client created: " + clientName,
+                LogType.AUDIT,
+                LogLevel.INFO
+        );
+    }
+
+    public void logClientUpdated(String oldName, String newName)
+    {
+        add(
+                currentUserId(),
+                "CLIENT UPDATED",
+                "Client renamed from '" + oldName + "' to '" + newName + "'",
+                LogType.AUDIT,
+                LogLevel.INFO
+        );
+    }
+
+    public void logClientActivated(int adminId, String adminUsername, String clientName) {
+
+        add(
+                adminId,
+                "CLIENT ACTIVATED",
+                "Admin " + adminUsername + " activated client " + clientName,
+                LogType.AUDIT,
+                LogLevel.INFO
+        );
+    }
+
+    public void logClientDeactivated(int adminId, String adminUsername, String clientName) {
+
+        add(
+                adminId,
+                "CLIENT DEACTIVATED",
+                "Admin " + adminUsername + " deactivated client " + clientName,
+                LogType.AUDIT,
                 LogLevel.INFO
         );
     }

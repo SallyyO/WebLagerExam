@@ -1,8 +1,7 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.*;
-import dk.easv.weblagerexam.dal.DAOManager;
-import dk.easv.weblagerexam.bll.SessionManager;
+import dk.easv.weblagerexam.bll.*;
 import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class BoxBrowserController {
 
@@ -62,7 +62,9 @@ public class BoxBrowserController {
     @FXML
     private Label lblPreviewType;
 
-    private final DAOManager dao = new DAOManager();
+    private final DocumentManager documentManager = new DocumentManager();
+    private final BoxManager boxManager = new BoxManager();
+
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     // Navigation state
@@ -79,6 +81,9 @@ public class BoxBrowserController {
     private final List<Box> currentBoxes = new ArrayList<>();
     private final List<Document> currentDocuments = new ArrayList<>();
     private final List<File> currentFiles = new ArrayList<>();
+
+    private final AtomicLong navigationVersion = new AtomicLong();
+    private final AtomicLong previewVersion = new AtomicLong();
 
     private static final String PI_BOX = "\ue9d9";
     private static final String PI_FOLDER = "\ue963";
@@ -101,15 +106,19 @@ public class BoxBrowserController {
 
         showBoxes();
 
-        userBox.setOnMouseClicked(e ->
-                LogoutUtil.logout((Stage) userBox.getScene().getWindow())
-        );
+        userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
 
         // Attach keyboard handler once the scene is available
         folderGrid.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 attachKeyboardNavigation(newScene);
+
+                newScene.windowProperty().addListener((o, oldWindow, newWindow) -> {
+                    if (newWindow instanceof Stage stage) {
+                        stage.setOnHidden(e -> executor.shutdownNow());
+                    }
+                });
             }
         });
     }
@@ -285,6 +294,8 @@ public class BoxBrowserController {
     // Boxes
 
     private void showBoxes() {
+        long version = navigationVersion.incrementAndGet();
+
         currentLevel = Level.BOXES;
         selectedBox = null;
         selectedDocument = null;
@@ -304,8 +315,11 @@ public class BoxBrowserController {
         if (user == null) return;
 
         executor.submit(() -> {
-            List<Box> boxes = dao.getBoxDAO().getBoxesByUser(user.getId());
+            List<Box> boxes = boxManager.getBoxesByUser(user.getId());
             Platform.runLater(() -> {
+                if (version != navigationVersion.get()) {
+                    return;
+                }
                 currentBoxes.clear();
                 currentBoxes.addAll(boxes);
                 lblItemCount.setText(boxes.size() + " box" + (boxes.size() == 1 ? "" : "es"));
@@ -323,6 +337,8 @@ public class BoxBrowserController {
     // Documents
 
     private void showDocuments(Box box) {
+        long version = navigationVersion.incrementAndGet();
+
         currentLevel = Level.DOCUMENTS;
         selectedBox = box;
         selectedDocument = null;
@@ -343,9 +359,11 @@ public class BoxBrowserController {
         folderGrid.getChildren().clear();
 
         executor.submit(() -> {
-            List<Document> docs = dao.getDocumentDAO()
-                    .getDocumentsForBox(box.getId());
+            List<Document> docs = documentManager.getDocumentsForBox(box.getId());
             Platform.runLater(() -> {
+                if (version != navigationVersion.get()) {
+                    return;}
+
                 currentDocuments.clear();
                 currentDocuments.addAll(docs);
                 lblItemCount.setText(docs.size() + " document"
@@ -364,6 +382,8 @@ public class BoxBrowserController {
     // Files
 
     private void showFiles(Document doc) {
+        long version = navigationVersion.incrementAndGet();
+
         currentLevel = Level.FILES;
         selectedDocument = doc;
         currentFiles.clear();
@@ -382,7 +402,7 @@ public class BoxBrowserController {
 
         executor.submit(() -> {
             List<File> files =
-                    dao.getDocumentDAO().getFilesForDocument(doc.getId());
+                    documentManager.getFilesForDocument(doc.getId());
 
             List<HBox> rows = new ArrayList<>();
 
@@ -391,6 +411,9 @@ public class BoxBrowserController {
             }
 
             Platform.runLater(() -> {
+                if (version != navigationVersion.get()) {
+                    return;
+                }
                 currentFiles.clear();
                 currentFiles.addAll(files);
                 lblItemCount.setText(
@@ -624,7 +647,9 @@ public class BoxBrowserController {
 
 
     private void showFilePreview(File file, Document doc) {
-        // Show the panel immediately with a loading state
+
+        long version = previewVersion.incrementAndGet();
+
         previewPanel.setVisible(true);
         previewPanel.setManaged(true);
         previewImage.setImage(null);
@@ -633,11 +658,13 @@ public class BoxBrowserController {
         lblPreviewDocId.setText("Document #" + doc.getDocumentNumber());
         lblPreviewType.setText(file.isBarcode() ? "Separator sheet" : "Scanned page");
 
+        Profile profile = selectedBox.getProfile();
+
         executor.submit(() -> {
             // Fetch full image data if not already loaded
             File fullFile = (file.getImageData() != null)
                     ? file
-                    : dao.getDocumentDAO().getFileById(file.getId());
+                    : documentManager.getFileById(file.getId());
 
             if (fullFile == null || fullFile.getImageData() == null) {
                 Platform.runLater(() ->
@@ -645,13 +672,13 @@ public class BoxBrowserController {
                 return;
             }
 
-            Profile profile = selectedBox.getProfile();
 
             Image image = TiffConverter.toJavaFXImage(
                     fullFile.getImageData(),
                     profile);
 
             Platform.runLater(() -> {
+                if (version != previewVersion.get()) {return;} // A newer preview has been requested, discard this one
                 previewImage.setImage(image);
                 lblPreviewTitle.setText(file.isBarcode()
                         ? "Barcode / Separator"
@@ -684,6 +711,14 @@ public class BoxBrowserController {
                 }
             }
         }
+    }
+
+    private void handleLogout() {
+        executor.shutdownNow();
+        Stage stage =
+                (Stage) userBox.getScene().getWindow();
+
+        LogoutUtil.logout(stage);
     }
 
 }

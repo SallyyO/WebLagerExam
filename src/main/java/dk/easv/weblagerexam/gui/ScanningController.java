@@ -1,17 +1,15 @@
 package dk.easv.weblagerexam.gui;
 
 import dk.easv.weblagerexam.be.*;
-import dk.easv.weblagerexam.bll.DocumentManager;
-import dk.easv.weblagerexam.bll.LogManager;
-import dk.easv.weblagerexam.bll.SessionManager;
-import dk.easv.weblagerexam.dal.DAOManager;
-import dk.easv.weblagerexam.dal.DocumentDAO;
+import dk.easv.weblagerexam.bll.*;
 import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javafx.event.ActionEvent;
@@ -49,11 +47,12 @@ public class ScanningController{
 
     @FXML private Label lblUsername;
     @FXML private Label lblInitials;
+    @FXML private HBox userBox;
 
     @FXML private ScrollPane mainScrollPane;
     @FXML private StackPane mainImageContainer;
+    @FXML private Slider rotationSlider;
 
-    @FXML private HBox userBox;
 
     private Box activeBox;
     private Profile activeProfile = null;
@@ -71,12 +70,14 @@ public class ScanningController{
 
     private VBox dragSource = null;
     private final DocumentManager documentManager = new DocumentManager();
-    private final DAOManager dao = new DAOManager();
     private final LogManager logManager = new LogManager();
+    private final LocalTiffManager localTiffManager = new LocalTiffManager();
 
     private final BlockingQueue<File> scanQueue = new LinkedBlockingQueue<>(100); //max 100 scans in the queue
     private Thread processorThread;
     private Thread scannerThread;
+    private final ExecutorService executor = Executors.newFixedThreadPool(4);
+    
 
     //Shortcuts for outside the scanning process
     private final EventHandler<KeyEvent> keyHandler = event -> {
@@ -98,9 +99,7 @@ public class ScanningController{
             lblInitials.setText(user.getInitials());
         }
 
-        userBox.setOnMouseClicked(e ->
-                LogoutUtil.logout((Stage) userBox.getScene().getWindow())
-        );
+        userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
 
         // handle keyboard focus n some shortcuts
@@ -312,7 +311,7 @@ public class ScanningController{
 
                     // Only fetch when queue is nearly empty
                     if (scanQueue.size() < 2) {
-                        File file = dao.getLocalTiffDAO().fetchNext();
+                        File file = localTiffManager.fetchNext();
                         if (file != null) {
                             scanQueue.put(file);
                         }
@@ -358,10 +357,7 @@ public class ScanningController{
                         Platform.runLater(this::loadTree);
                     }
 
-                    Image image = TiffConverter.toJavaFXImageThumbnail(
-                            file.getImageData(),
-                            activeProfile
-                    );
+                    Image image = TiffConverter.getThumbnail(file, activeProfile);
 
                     // DUPLICATE BARCODE
                     if (result ==
@@ -485,18 +481,39 @@ public class ScanningController{
         for (int i = 0; i < currentFiles.size(); i++) {
             File file = currentFiles.get(i);
             // Thumbnail size only — saves memory
-            Image thumbImage = TiffConverter.toJavaFXImageThumbnail(
-                    file.getImageData(), activeProfile);
+            Image thumbImage = TiffConverter.getThumbnail(file, activeProfile);
             if (thumbImage == null) thumbImage = new WritableImage(120, 160);
             addThumbnail(document, file, thumbImage, i);
         }
 
         if (!currentFiles.isEmpty()) {
-            // Full res only for main preview
-            Image first = TiffConverter.toJavaFXImage(
-                    currentFiles.getFirst().getImageData(), activeProfile);
-            mainPreview.setImage(first);
+
+            File firstFile = currentFiles.getFirst();
+
+            Image thumb =
+                    TiffConverter.getThumbnail(
+                            firstFile,
+                            activeProfile
+                    );
+
+            mainPreview.setImage(thumb);
             mainPreview.setRotate(0);
+
+            // Load full-res in background
+            executor.submit(() -> {
+
+                Image full =
+                        TiffConverter.getFullImage(
+                                firstFile,
+                                activeProfile
+                        );
+
+                Platform.runLater(() -> {
+                    if (full != null) {
+                        mainPreview.setImage(full);
+                    }
+                });
+            });
         }
 
         mainScrollPane.requestFocus(); //For the keyboard shortcuts
@@ -586,15 +603,26 @@ public class ScanningController{
             mainPreview.setRotate(0);
             highlightThumbnail(index);
 
-            // Load full-res on demand on a background thread
-            new Thread(() -> {
-                Image fullRes = TiffConverter.toJavaFXImage(
-                        file.getImageData(), activeProfile);
+            // Load full-res on a background thread
+            File selectedFile = file;
+
+            executor.submit(() -> {
+
+                Image fullRes =
+                        TiffConverter.getFullImage(
+                                selectedFile,
+                                activeProfile
+                        );
+
                 Platform.runLater(() -> {
-                    if (fullRes != null) mainPreview.setImage(fullRes);
-                    else mainPreview.setImage(image); // fallback to thumbnail
+
+                    if (currentFiles.get(currentFileIndex) == selectedFile) {
+                        mainPreview.setImage(fullRes);
+                    }
+
                 });
-            }).start();
+
+            });
         });
 
         // drag & drop to change the order of the files
@@ -631,7 +659,7 @@ public class ScanningController{
                 int oldIndex = Integer.parseInt(db.getString());
                 int newIndex = thumbnailContainer.getChildren().indexOf(thumbBox);
                 document.reorderFiles(oldIndex, newIndex);
-                new DocumentDAO().updateFileOrder(document);
+                new DocumentManager().updateFileOrder(document);
                 loadDocument(document);
                 success = true;
             }
@@ -697,7 +725,10 @@ public class ScanningController{
             // Use thumbnail size for sidebar — not full res
             Image thumbImage = file == latestFile
                     ? latestImage  // already converted on background thread
-                    : TiffConverter.toJavaFXImageThumbnail(file.getImageData(), activeProfile);
+                    : TiffConverter.getThumbnail(
+                    file,
+                    activeProfile
+            );
             if (thumbImage == null) thumbImage = new WritableImage(120, 160);
 
             addThumbnail(document, file, thumbImage, i);
@@ -734,10 +765,9 @@ public class ScanningController{
         File file = currentFiles.get(index);
         currentRotation = 0; // reset rotation when switching files
 
-        Image image = TiffConverter.toJavaFXImageThumbnail(
-                file.getImageData(),
-                activeProfile
-        );
+        Image image = TiffConverter.getThumbnail(file,
+                        activeProfile);
+
         if (image != null) {
             mainPreview.setImage(image);
             mainPreview.setRotate(currentRotation);
@@ -905,8 +935,8 @@ public class ScanningController{
 
                         Image img = f == file
                                 ? image
-                                : TiffConverter.toJavaFXImageThumbnail(
-                                f.getImageData(),
+                                : TiffConverter.getThumbnail(
+                                file,
                                 activeProfile
                         );
 
@@ -1057,8 +1087,7 @@ public class ScanningController{
             if (!expanded) {
                 docContainer.getChildren().clear();
                 try {
-                    List<Document> docs = dao.getDocumentDAO()
-                            .getDocumentsForBox(box.getId());
+                    List<Document> docs = documentManager.getDocumentsForBox(box.getId());
                     for (Document doc : docs) {
                         docContainer.getChildren().add(buildDocumentNode(doc));
                     }
@@ -1134,20 +1163,19 @@ public class ScanningController{
                     // Don't allow dropping into same doc
                     if (sourceDocId != doc.getId()) {
 
-                        DAOManager daoManager = new DAOManager();
 
-                        daoManager.getDocumentDAO().moveFileToDocument(fileId, doc.getId());
-                        File movedFile = daoManager.getDocumentDAO().getFileById(fileId);
+                        documentManager.moveFileToDocument(fileId, doc.getId());
+                        File movedFile = documentManager.getFileById(fileId);
 
                         // Renumber both docs after moving a file
                         Document sourceDoc =
-                                daoManager.getDocumentDAO().getDocumentById(sourceDocId);
+                                documentManager.getDocumentById(sourceDocId);
 
                         Document targetDoc =
-                                daoManager.getDocumentDAO().getDocumentById(doc.getId());
+                                documentManager.getDocumentById(doc.getId());
 
-                        daoManager.getDocumentDAO().renumberFiles(sourceDoc);
-                        daoManager.getDocumentDAO().renumberFiles(targetDoc);
+                        documentManager.renumberFiles(sourceDoc);
+                        documentManager.renumberFiles(targetDoc);
 
                         logManager.logFileMoved(movedFile.getFileNumber(), sourceDoc.getDocumentNumber(), targetDoc.getDocumentNumber());
 
@@ -1202,8 +1230,7 @@ public class ScanningController{
             if (!expanded) {
                 fileContainer.getChildren().clear();
                 try {
-                    List<File> files = dao.getDocumentDAO()
-                            .getFilesForDocument(doc.getId());
+                    List<File> files = documentManager.getFilesForDocument(doc.getId());
                     for (File file : files) {
                         fileContainer.getChildren().add(buildFileNode(doc, file));
                     }
@@ -1276,15 +1303,14 @@ public class ScanningController{
      */
     private void navigateToFile(Document doc, File file) {
         new Thread(() -> {
-            File fullFile = dao.getDocumentDAO().getFileById(file.getId());
+            File fullFile = documentManager.getFileById(file.getId());
             if (fullFile == null || fullFile.getImageData() == null) {
                 Platform.runLater(() ->
                         lblStatus.setText("File #" + file.getId() + " has no image data"));
                 return;
             }
 
-            Image fullRes = TiffConverter.toJavaFXImage(
-                    fullFile.getImageData(), activeProfile);
+            Image fullRes = TiffConverter.getFullImage(fullFile, activeProfile);
 
             Platform.runLater(() -> {
                 if (fullRes != null) {
@@ -1341,17 +1367,17 @@ public class ScanningController{
 
                 file.setDocumentId(newDoc.getId());
 
-                dao.getDocumentDAO().updateFileDocument(file);
+                documentManager.updateFileDocument(file);
 
                 newDoc.getFiles().add(file);
             }
 
             // Renumber both docs
-            dao.getDocumentDAO().renumberFiles(originalDoc);
-            dao.getDocumentDAO().renumberFiles(newDoc);
+            documentManager.renumberFiles(originalDoc);
+            documentManager.renumberFiles(newDoc);
 
-            dao.getDocumentDAO().updateFileOrder(originalDoc);
-            dao.getDocumentDAO().updateFileOrder(newDoc);
+            documentManager.updateFileOrder(originalDoc);
+            documentManager.updateFileOrder(newDoc);
 
             LogManager logManager = new LogManager();
 
@@ -1385,7 +1411,7 @@ public class ScanningController{
                 return;}
 
             List<Document> documents =
-                    dao.getDocumentDAO().getDocumentsForBox(activeBox.getId());
+                    documentManager.getDocumentsForBox(activeBox.getId());
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/dk/easv/weblagerexam/export.fxml"));
             Parent root = loader.load();
@@ -1413,5 +1439,12 @@ public class ScanningController{
         alert.setContentText(message);
 
         alert.showAndWait();
+    }
+
+    private void handleLogout() {
+        Stage stage =
+                (Stage) userBox.getScene().getWindow();
+
+        LogoutUtil.logout(stage);
     }
 }

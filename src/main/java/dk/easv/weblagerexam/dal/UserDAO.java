@@ -250,22 +250,6 @@ public class UserDAO {
         }
     }
 
-    public void activateUser(int userId) {
-
-        String sql = """
-        UPDATE Users SET active = 1 WHERE id = ?
-    """;
-
-        try (Connection conn = conMan.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, userId);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Could not activate user", e);
-        }
-    }
 
     public void setUserActive(
             int userId,
@@ -314,5 +298,4 @@ public class UserDAO {
             throw new RuntimeException(e);
         }
     }
-
 }

@@ -59,7 +59,8 @@
             <VBox spacing="6">
                 <Label styleClass="label-medium" text="Profile" />
                 <Label styleClass="text-helper" text="Applies settings to all scanned files." />
-                <ComboBox fx:id="cmbProfile" maxWidth="Infinity" promptText="No profile selected" />
+                <ComboBox fx:id="cmbProfile" maxWidth="Infinity" promptText="No profile selected"/>
+                <Label fx:id="lblProfileError" visible="false" managed="false" styleClass="error"/>
             </VBox>
 
             <padding><Insets bottom="0" left="0" right="0" top="12" /></padding>
