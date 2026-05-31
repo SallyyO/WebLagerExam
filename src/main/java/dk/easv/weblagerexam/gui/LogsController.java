@@ -8,6 +8,9 @@ import dk.easv.weblagerexam.util.LogoutUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -33,6 +36,12 @@ public class LogsController {
     @FXML private TableColumn<Log, String> typeCol;
     @FXML private TableColumn<Log, String> levelCol;
     @FXML private TableView<Log> logsTable;
+    @FXML private TextField txtSearch;
+
+    @FXML private ComboBox<String> cmbLevel;
+    @FXML private ComboBox<String> cmbType;
+
+    private FilteredList<Log> filteredLogs;
     @FXML private Label lblUsername;
     @FXML private Label lblInitials;
     @FXML private HBox userBox;
@@ -51,6 +60,7 @@ public class LogsController {
         Tooltip.install(userBox, new Tooltip("Click to log out"));
 
         setupColumns();
+        setupFilters();
         loadLogs();
     }
 
@@ -117,9 +127,27 @@ public class LogsController {
 
     private void loadLogs() {
         new Thread(() -> {
+
             List<Log> logs = logManager.getAllLogs();
-            Platform.runLater(() ->
-                    logsTable.setItems(FXCollections.observableArrayList(logs)));
+
+            Platform.runLater(() -> {
+
+                ObservableList<Log> masterData =
+                        FXCollections.observableArrayList(logs);
+
+                filteredLogs =
+                        new FilteredList<>(masterData, log -> true);
+
+                SortedList<Log> sorted =
+                        new SortedList<>(filteredLogs);
+
+                sorted.comparatorProperty().bind(
+                        logsTable.comparatorProperty()
+                );
+
+                logsTable.setItems(sorted);
+            });
+
         }).start();
     }
 
@@ -144,6 +172,74 @@ public class LogsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setupFilters() {
+
+        cmbLevel.getItems().addAll(
+                "All",
+                "INFO",
+                "WARN",
+                "ERROR",
+                "FATAL"
+        );
+
+        cmbType.getItems().addAll(
+                "All",
+                "AUDIT",
+                "SYSTEM",
+                "SECURITY"
+        );
+
+        cmbLevel.setValue("All");
+        cmbType.setValue("All");
+
+        txtSearch.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+
+        cmbLevel.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+
+        cmbType.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+    }
+
+    private void applyFilters() {
+
+        if (filteredLogs == null) {
+            return;
+        }
+
+        String search =
+                txtSearch.getText() == null
+                        ? ""
+                        : txtSearch.getText().toLowerCase();
+
+        String level = cmbLevel.getValue();
+
+        String type = cmbType.getValue();
+
+        filteredLogs.setPredicate(log -> {
+
+            boolean matchesSearch = search.isBlank()
+
+                    || log.getUsername().toLowerCase().contains(search)
+
+                    || log.getAction().toLowerCase().contains(search)
+
+                    || log.getDescription().toLowerCase().contains(search);
+
+            boolean matchesLevel =
+                    level == null
+                            || level.equals("All")
+                            || log.getLogLevel().name().equals(level);
+
+            boolean matchesType =
+                    type == null
+                            || type.equals("All")
+                            || log.getLogType().name().equals(type);
+
+            return matchesSearch
+                    && matchesLevel
+                    && matchesType;
+        });
     }
 
     private void handleLogout() {

@@ -5,7 +5,6 @@ import javafx.scene.image.Image;
 public class File {
     private int id;
     private String fileName;
-    private int pageOrder;
     private int rotation;
     private boolean isDeleted;
     private int document_id;

@@ -51,7 +51,6 @@ public class ScanningController{
 
     @FXML private ScrollPane mainScrollPane;
     @FXML private StackPane mainImageContainer;
-    @FXML private Slider rotationSlider;
 
 
     private Box activeBox;
@@ -77,7 +76,7 @@ public class ScanningController{
     private Thread processorThread;
     private Thread scannerThread;
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
-    
+
 
     //Shortcuts for outside the scanning process
     private final EventHandler<KeyEvent> keyHandler = event -> {
@@ -86,7 +85,7 @@ public class ScanningController{
             case P -> { pauseScan(); event.consume(); }
             case S -> { stopScan(); event.consume(); }
             case B -> { onExportClicked(); event.consume(); }
-            case ESCAPE -> {onBackClicked(new ActionEvent(btnStartScan, null)); event.consume(); }
+            case ESCAPE -> {onBackClicked(new ActionEvent(btnStartScan, null)); event.consume();}
         }
     };
 
@@ -677,9 +676,14 @@ public class ScanningController{
 
         ContextMenu menu = new ContextMenu();
         MenuItem splitItem = new MenuItem("Split document here?");
+        MenuItem deleteItem = new MenuItem("Delete this file?");
 
         splitItem.setOnAction(e ->
                 splitDocumentAtFile(document, file));
+        deleteItem.setOnAction(e ->
+                confirmDeleteFile(document, file));
+
+        menu.getItems().add(deleteItem);
 
         menu.getItems().add(splitItem);
 
@@ -742,9 +746,18 @@ public class ScanningController{
 
     public void resumeWithBox(Box box) {
         activeBox = box;
-        activeProfile = box.getProfile(); // may be null if profile not loaded
+        activeProfile = box.getProfile();
+
+        documentManager.setActiveBox(box);
         documentManager.setActiveBoxId(box.getId());
-        lblStatus.setText("Resuming scan for Box #" + box.getBoxId() + "...");
+
+        loadTree();
+
+        lblStatus.setText(
+                "Resuming scan for Box #" + box.getBoxId()
+        );
+
+        startScanWithoutDialog();
     }
 
     private void nextFile() {
@@ -1284,7 +1297,7 @@ public class ScanningController{
 
             ClipboardContent content = new ClipboardContent();
 
-            // fileId:sourceDocumentId
+
             content.putString(file.getId() + ":" + doc.getId());
 
             db.setContent(content);
@@ -1293,6 +1306,17 @@ public class ScanningController{
 
             event.consume();
         });
+
+        ContextMenu menu = new ContextMenu();
+        MenuItem deleteItem = new MenuItem("Delete file");
+
+        deleteItem.setOnAction(e ->
+                confirmDeleteFile(doc, file));
+
+        menu.getItems().add(deleteItem);
+
+        fileRow.setOnContextMenuRequested(e ->
+                menu.show(fileRow, e.getScreenX(), e.getScreenY()));
 
         return fileRow;
     }
@@ -1428,6 +1452,93 @@ public class ScanningController{
             e.printStackTrace();
             showAlert("Export failed:\n" + e.getMessage());
         }
+    }
+
+    private void confirmDeleteFile(Document doc, File file) {
+
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+
+        alert.setTitle("Delete File");
+        alert.setHeaderText("Delete this file?");
+        alert.setContentText(
+                "File #" + file.getFileNumber()
+                        + " will be permanently removed"
+        );
+
+        ButtonType delete =
+                new ButtonType("Delete",
+                        ButtonBar.ButtonData.OK_DONE);
+
+        ButtonType cancel =
+                new ButtonType("Cancel",
+                        ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(delete, cancel);
+        Button deleteButton =
+                (Button) alert.getDialogPane().lookupButton(delete);
+
+        deleteButton.getStyleClass().add("button-danger");
+
+        alert.getDialogPane().getStylesheets().add(
+                Objects.requireNonNull(
+                        getClass().getResource(
+                                "/dk/easv/weblagerexam/CSS/app.css"
+                        )
+                ).toExternalForm()
+        );
+
+        alert.showAndWait().ifPresent(result -> {
+            if (result == delete) {
+                deleteFile(doc, file);
+            }
+        });
+    }
+
+    private void deleteFile(Document doc, File file) {
+
+        try {
+
+            documentManager.deleteFile(file, doc, activeBox, SessionManager.getCurrentUser()
+            );
+
+            doc.getFiles().removeIf(f -> f.getId() == file.getId());
+
+            documentManager.renumberFiles(doc);
+            documentManager.updateFileOrder(doc);
+
+            loadTree();
+            loadDocument(doc);
+
+            lblStatus.setText(
+                    "Deleted File #" + file.getFileNumber()
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            lblStatus.setText("Could not delete file");
+        }
+    }
+
+    private void startScanWithoutDialog() {
+
+        paused = false;
+        stopped = false;
+
+        btnStartScan.setDisable(true);
+        btnPauseScan.setDisable(false);
+        btnStopScan.setDisable(false);
+
+        btnPauseScan.setText("Pause");
+
+        progressBar.setVisible(true);
+        progressBar.setManaged(true);
+        progressBar.setProgress(-1);
+
+        lblStatus.setText("Scanning...");
+
+        startScannerThread();
+        startProcessorThread();
     }
 
     private void showAlert(String message) {

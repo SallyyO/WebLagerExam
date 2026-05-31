@@ -46,10 +46,15 @@ public class LogManager {
         );
     }
 
-    public void logFileDeleted( int userId, String fileName ) {
+    public void logFileDeleted(int userId, int fileNumber, int documentNumber, int boxNumber) {
+
         add(
-                userId, "FILE DELETED", "File deleted: " + fileName + " by "
-                        + SessionManager.getCurrentUser().getUsername(),
+                userId,
+                "FILE DELETED",
+                "File #" + fileNumber +
+                        " deleted from Document #" + documentNumber
+                        + " in Box #" + boxNumber
+                        + " by " + SessionManager.getCurrentUser().getUsername(),
                 LogType.AUDIT,
                 LogLevel.INFO
         );

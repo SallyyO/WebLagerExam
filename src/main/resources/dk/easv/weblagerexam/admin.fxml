@@ -17,6 +17,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.ComboBox?>
 <BorderPane prefHeight="680" prefWidth="1120" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.AdminController">
 
     <!-- TOP NAVIGATION BAR -->
@@ -122,6 +123,8 @@
                         <TextField fx:id="searchTextField">
                             <HBox.margin><Insets bottom="6.0" /></HBox.margin>
                         </TextField>
+                        <ComboBox fx:id="statusFilterCombo"
+                                  prefWidth="150"/>
                     </children>
 
                 </HBox>

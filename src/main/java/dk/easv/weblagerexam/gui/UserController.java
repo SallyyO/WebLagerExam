@@ -3,6 +3,7 @@ package dk.easv.weblagerexam.gui;
 import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.User;
+import dk.easv.weblagerexam.bll.BoxManager;
 import dk.easv.weblagerexam.bll.DocumentManager;
 import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.util.LogoutUtil;
@@ -157,20 +158,49 @@ public class UserController {
 
     @FXML
     void onScanningClicked(ActionEvent event) {
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/dk/easv/weblagerexam/scanning_page.fxml")
+                );
+
+                Parent root = loader.load();
+
+                Stage stage = (Stage) boxesBtn.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.setTitle("Scanning");
+
+                stage.centerOnScreen();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
     }
 
     public void onContinueScanClicked(MouseEvent mouseEvent) {
+
         if (latestBox == null) return;
+
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/dk/easv/weblagerexam/scanning_page.fxml")
             );
-            Parent root = loader.load();
-            ScanningController scanController = loader.getController();
-            scanController.resumeWithBox(latestBox);
 
-            Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
+            Parent root = loader.load();
+
+            ScanningController scanController = loader.getController();
+
+            Box fullBox = new BoxManager().getBoxById(latestBox.getId());
+
+            scanController.resumeWithBox(fullBox);
+
+            Stage stage =
+                    (Stage) ((Node) mouseEvent.getSource())
+                            .getScene()
+                            .getWindow();
+
             stage.setScene(new Scene(root));
             stage.setTitle("Scanning");
             stage.centerOnScreen();

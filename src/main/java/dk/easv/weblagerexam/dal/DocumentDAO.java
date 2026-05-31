@@ -63,6 +63,25 @@ public class DocumentDAO {
         }
     }
 
+    public void deleteFile(int fileId) {
+
+        String sql = """
+        DELETE FROM [File]
+        WHERE id = ?
+        """;
+
+        try (Connection con = conMan.getConnection()) {
+            PreparedStatement stmt =
+                    con.prepareStatement(sql);
+
+            stmt.setInt(1, fileId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private void saveFiles(Connection con, Document doc) {
 

@@ -16,6 +16,10 @@ public class Box {
     private List<Document> documents = new ArrayList<>();
 
 
+    public Box(){
+
+    }
+
     public Box(int id, int profileId) {
         this.id = id;
         this.profileId = profileId;
@@ -25,6 +29,13 @@ public class Box {
         this.id = id;
         this.userId = userId;
         this.profileId = profileId;
+    }
+
+    public Box (int id, int boxId, int profileId, int userId) {
+        this.id = id;
+        this.boxId = boxId;
+        this.profileId = profileId;
+        this.userId = userId;
     }
 
     public Box (int userId){

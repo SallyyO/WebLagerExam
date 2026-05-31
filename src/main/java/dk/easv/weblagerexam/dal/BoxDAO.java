@@ -133,5 +133,38 @@ public class BoxDAO {
         }
     }
 
+    public Box getBoxById(int boxId) {
+
+        String sql = """
+        SELECT *
+        FROM Box
+        WHERE id = ?
+        """;
+
+        try (Connection con = conMan.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, boxId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+
+                Box box = new Box();
+
+                box.setId(rs.getInt("id"));
+                box.setBoxId(rs.getInt("box_id"));
+                box.setProfileId(rs.getInt("profileId"));
+                box.setUserId(rs.getInt("userId"));
+
+                return box;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+    }
 
 }

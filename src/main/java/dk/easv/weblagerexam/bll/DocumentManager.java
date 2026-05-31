@@ -3,6 +3,7 @@ package dk.easv.weblagerexam.bll;
 import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.Document;
 import dk.easv.weblagerexam.be.File;
+import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.dal.ApiDAO;
 import dk.easv.weblagerexam.dal.DAOManager;
 import dk.easv.weblagerexam.dal.DocumentDAO;
@@ -16,14 +17,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DocumentManager {
 
     private final ApiDAO apiDao;
-    private final DocumentDAO documentDAO;
-    private final DAOManager dao = new DAOManager();
+    private DocumentDAO documentDAO;
+    private  DAOManager dao;
     private final LogManager logManager = new LogManager();
 
     public DocumentManager() {
         apiDao = new ApiDAO();
         documentDAO = new DocumentDAO();
     }
+
+    public DocumentManager(DAOManager daoManager) {
+        this.dao = daoManager;
+        this.apiDao = daoManager.getApiDAO();
+        this.documentDAO = daoManager.getDocumentDAO();
+    }
+
+
 
     private Document currentDocument = new Document();
     private int totalScans = 0;
@@ -190,6 +199,14 @@ public class DocumentManager {
     }
 
     //Files
+
+    public void deleteFile(File file, Document document, Box box, User user) {
+
+        dao.getDocumentDAO().deleteFile(file.getId());
+
+        logManager.logFileDeleted(user.getId(), file.getFileNumber(), document.getDocumentNumber(), box.getBoxId());
+    }
+
     public List<File> getFilesForDocument(int documentId) {
         return dao.getDocumentDAO().getFilesForDocument(documentId);
     }
@@ -197,6 +214,7 @@ public class DocumentManager {
     public List<File> getFilesForDocumentWithData(int documentId) {
         return dao.getDocumentDAO().getFilesForDocumentWithData(documentId);
     }
+
 
     public File getFileById(int fileId) {
         return dao.getDocumentDAO().getFileById(fileId);

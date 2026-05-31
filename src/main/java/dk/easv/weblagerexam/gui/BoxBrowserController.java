@@ -12,8 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -492,6 +491,26 @@ public class BoxBrowserController {
             showFilePreview(file, doc);
         });
 
+        ContextMenu menu = new ContextMenu();
+        MenuItem deleteItem = new MenuItem("Delete File");
+
+        deleteItem.setOnAction(e ->
+                confirmDeleteFile(
+                        selectedBox,
+                        doc,
+                        file
+                )
+        );
+
+        menu.getItems().add(deleteItem);
+
+        row.setOnContextMenuRequested(e ->
+                menu.show(
+                        row,
+                        e.getScreenX(),
+                        e.getScreenY()
+                )
+        );
         return row;
     }
 
@@ -710,6 +729,64 @@ public class BoxBrowserController {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private void confirmDeleteFile(Box box, Document doc, File file) {
+
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+
+        alert.setTitle("Delete File");
+        alert.setHeaderText("Delete this file?");
+        alert.setContentText(
+                "File #" + file.getFileNumber()
+                        + " will be permanently removed"
+        );
+
+        ButtonType delete =
+                new ButtonType("Delete",
+                        ButtonBar.ButtonData.OK_DONE);
+
+        ButtonType cancel =
+                new ButtonType("Cancel",
+                        ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(delete, cancel);
+        Button deleteButton =
+                (Button) alert.getDialogPane().lookupButton(delete);
+
+        deleteButton.getStyleClass().add("button-danger");
+
+        alert.getDialogPane().getStylesheets().add(
+                Objects.requireNonNull(
+                        getClass().getResource(
+                                "/dk/easv/weblagerexam/CSS/app.css"
+                        )
+                ).toExternalForm()
+        );
+
+        alert.showAndWait().ifPresent(result -> {
+            if (result == delete) {
+                deleteFile(box, doc, file);
+            }
+        });
+    }
+
+    private void deleteFile(Box box, Document doc, File file)
+    {
+        try {
+            documentManager.deleteFile(file, doc, box, SessionManager.getCurrentUser()
+            );
+
+            documentManager.renumberFiles(doc);
+
+            closePreview();
+
+            showFiles(doc);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
         }
     }
 

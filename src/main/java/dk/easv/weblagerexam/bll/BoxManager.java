@@ -1,6 +1,7 @@
 package dk.easv.weblagerexam.bll;
 
 import dk.easv.weblagerexam.be.Box;
+import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.dal.BoxDAO;
 import dk.easv.weblagerexam.dal.DAOManager;
 
@@ -72,5 +73,19 @@ public class BoxManager {
                 SessionManager.getCurrentUser().getId(),
                 boxId
         );
+    }
+
+    public Box getBoxById(int boxId) {
+        Box box = dao.getBoxDAO().getBoxById(boxId);
+
+        if (box != null) {
+            Profile profile =
+                    dao.getProfileDAO().getProfileById
+                            (box.getProfileId());
+
+            box.setProfile(profile);
+        }
+
+        return box;
     }
 }

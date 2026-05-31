@@ -12,6 +12,7 @@ public class Document {
     private LocalDateTime createdAt = LocalDateTime.now();
     private int documentNumber;
     private boolean isDeleted;
+    private int fileCount;
 
     public Document() {
         this.createdAt = LocalDateTime.now();
@@ -39,6 +40,7 @@ public class Document {
     public List<File> getFiles()  { return files; }
     public void setFiles(List<File> files) { this.files = files; }
     public int getFileCount(){ return files.size(); }
+    public int setFileCount(int fileCount){ this.fileCount = fileCount; return files.size(); }
 
     public boolean isEmpty(){return files.isEmpty(); }
 
@@ -57,9 +59,7 @@ public class Document {
     public int getDocumentNumber() {return documentNumber;}
     public void setDocumentNumber(int documentNumber) {this.documentNumber = documentNumber;}
 
-    public boolean isDeleted() {
-        return isDeleted;}
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;}
+    public boolean isDeleted() {return isDeleted;}
+    public void setDeleted(boolean deleted) {isDeleted = deleted;}
 
 }

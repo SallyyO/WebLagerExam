@@ -55,11 +55,6 @@ public class UserManager {
         logManager.logUserCreated(newUser.getUsername());
     }
 
-    public void deleteUser(int userID) throws Exception {
-        dao.getUserDAO().softDeleteUser(userID);
-        logManager.logFileDeleted(userID, "User #" + userID);
-    }
-
 
     public void assignProfileToUser(int userId, int profileId) throws Exception {
         // checking if it is already assigned

@@ -44,6 +44,7 @@ public class AdminController {
     @FXML private TableView<Object> mainTable;
 
     @FXML private TextField searchTextField;
+    @FXML private ComboBox<String> statusFilterCombo;
 
     @FXML private HBox userBox;
 
@@ -107,7 +108,6 @@ public class AdminController {
 
         loadUsers();
 
-        searchTextField.textProperty().addListener((obs, oldVal, newVal) -> filterTable(newVal));
 
         userBox.setOnMouseClicked(e -> handleLogout());
         Tooltip.install(userBox, new Tooltip("Click to log out"));
@@ -127,6 +127,22 @@ public class AdminController {
         Platform.runLater(() -> {
             mainTable.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
         });
+
+        statusFilterCombo.getItems().addAll(
+                "Active",
+                "Inactive",
+                "All"
+        );
+
+        statusFilterCombo.setValue("Active");
+
+        statusFilterCombo.valueProperty().addListener(
+                (obs, oldVal, newVal) -> applyFilters()
+        );
+
+        searchTextField.textProperty().addListener(
+                (obs, oldVal, newVal) -> applyFilters()
+        );
     }
 
     private void loadUsers() {
@@ -178,6 +194,10 @@ public class AdminController {
             masterList.setAll(
                     userManager.getAllUsers()
             );
+            statusFilterCombo.setDisable(false);
+            statusFilterCombo.setValue("Active");
+
+            applyFilters();
 
             mainTable.refresh();
 
@@ -342,6 +362,10 @@ public class AdminController {
             );
 
             masterList.setAll(profileManager.getAllProfiles());
+            statusFilterCombo.setDisable(true);
+            statusFilterCombo.setValue("All");
+
+            applyFilters();
 
             addNewBtn.setVisible(true);
             addNewBtn.setManaged(true);
@@ -485,6 +509,10 @@ public class AdminController {
         );
 
         masterList.setAll(clientManager.getAllClients());
+            statusFilterCombo.setDisable(false);
+            statusFilterCombo.setValue("Active");
+
+            applyFilters();
 
             addNewBtn.setVisible(true);
             addNewBtn.setManaged(true);
@@ -803,6 +831,71 @@ public class AdminController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void applyFilters() {
+
+        String search = searchTextField.getText() == null
+                ? ""
+                : searchTextField.getText().toLowerCase();
+
+        String status = statusFilterCombo.getValue();
+
+        filteredList.setPredicate(item -> {
+
+            // SEARCH
+
+            boolean matchesSearch = true;
+
+            if (!search.isBlank()) {
+
+                if (item instanceof User user) {
+
+                    matchesSearch =
+                            user.getUsername() != null
+                                    && user.getUsername()
+                                    .toLowerCase()
+                                    .contains(search);
+
+                } else if (item instanceof Profile profile) {
+
+                    matchesSearch =
+                            profile.getName() != null
+                                    && profile.getName()
+                                    .toLowerCase()
+                                    .contains(search);
+
+                } else if (item instanceof Client client) {
+
+                    matchesSearch =
+                            client.getName() != null
+                                    && client.getName()
+                                    .toLowerCase()
+                                    .contains(search);
+                }
+            }
+
+            // STATUS(active/inactive) FILTER
+
+            boolean matchesStatus = true;
+
+            if (item instanceof User user) {
+
+                matchesStatus =
+                        status.equals("All")
+                                || (status.equals("Active") && user.isActive())
+                                || (status.equals("Inactive") && !user.isActive());
+
+            } else if (item instanceof Client client) {
+
+                matchesStatus =
+                        status.equals("All")
+                                || (status.equals("Active") && client.isActive())
+                                || (status.equals("Inactive") && !client.isActive());
+
+            }
+            return matchesSearch && matchesStatus;
+        });
     }
 
     private void handleLogout() {
