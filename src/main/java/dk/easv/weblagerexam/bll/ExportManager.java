@@ -87,7 +87,9 @@ public class ExportManager {
 
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("TIFF");
 
-        if (!writers.hasNext()) {throw new Exception("No TIFF writer found");}
+        if (!writers.hasNext()) {
+            throw new Exception("No TIFF writer found");
+        }
 
         ImageWriter writer = writers.next();
         try (FileImageOutputStream output = new FileImageOutputStream(outputPath.toFile())) {

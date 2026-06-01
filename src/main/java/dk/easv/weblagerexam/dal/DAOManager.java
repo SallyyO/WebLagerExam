@@ -16,9 +16,7 @@ public class DAOManager {
         return userDAO;
     }
 
-    public ProfileDAO getProfileDAO() {
-        return profileDAO;
-    }
+    public ProfileDAO getProfileDAO() {return profileDAO;}
 
     public BoxDAO getBoxDAO() {
         return boxDAO;
@@ -28,9 +26,7 @@ public class DAOManager {
         return logDAO;
     }
 
-    public DocumentDAO getDocumentDAO() {
-        return documentDAO;
-    }
+    public DocumentDAO getDocumentDAO() {return documentDAO;}
 
     public LocalTiffDAO getLocalTiffDAO() {
         return localTiffDAO;
@@ -40,7 +36,7 @@ public class DAOManager {
         return apiDAO;
     }
 
-    public FileDAO getFileDAO() {return fileDAO;};
+    public FileDAO getFileDAO() {return fileDAO;}
 
     public ClientDAO getClientDAO() {return clientDAO;}
 }

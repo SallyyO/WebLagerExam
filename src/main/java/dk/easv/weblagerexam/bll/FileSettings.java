@@ -16,15 +16,15 @@ public class FileSettings {
         if (profile == null || source == null) return source;
 
         return switch (profile.getSettings()) {
-            case GRAYSCALE   -> toGrayscale(source);
-            case ROTATE      -> rotate(source, profile.getSettingsValue()); // rotates using profiles value
+            case GRAYSCALE -> toGrayscale(source);
+            case ROTATE -> rotate(source, profile.getSettingsValue()); // rotates using profiles value
             case ROTATE_AUTO -> rotateToHorizontal(source);
-            case BRIGHTEN    -> brighten(source, profile.getSettingsValue());
+            case BRIGHTEN -> brighten(source, profile.getSettingsValue());
 
-            case RAVENCLAW   -> useHouseColor(source, RAVENCLAW_BLUE);
-            case GRYFFINDOR  -> useHouseColor(source, GRYFFINDOR_RED);
-            case SLYTHERIN   -> useHouseColor(source, SLYTHERIN_GREEN);
-            case HUFFLEPUFF  -> useHouseColor(source, HUFFLEPUFF_GOLD);
+            case RAVENCLAW -> useHouseColor(source, RAVENCLAW_BLUE);
+            case GRYFFINDOR -> useHouseColor(source, GRYFFINDOR_RED);
+            case SLYTHERIN -> useHouseColor(source, SLYTHERIN_GREEN);
+            case HUFFLEPUFF -> useHouseColor(source, HUFFLEPUFF_GOLD);
         };
     }
 
@@ -88,8 +88,8 @@ public class FileSettings {
                 int rgb = src.getRGB(x, y);
 
                 int r = Math.min(255, ((rgb >> 16) & 0xFF) + increase);
-                int g = Math.min(255, ((rgb >> 8)  & 0xFF) + increase);
-                int b = Math.min(255, ( rgb        & 0xFF) + increase);
+                int g = Math.min(255, ((rgb >> 8) & 0xFF) + increase);
+                int b = Math.min(255, (rgb & 0xFF) + increase);
 
                 result.setRGB(x, y, (r << 16) | (g << 8) | b);
             }
@@ -97,10 +97,10 @@ public class FileSettings {
         return result;
     }
 
-    private static final Color RAVENCLAW_BLUE  = new Color(34,47,91);
-    private static final Color GRYFFINDOR_RED  = new Color(116, 0, 1);
-    private static final Color SLYTHERIN_GREEN = new Color(26,71,42);
-    private static final Color HUFFLEPUFF_GOLD = new Color(236,185,57);
+    private static final Color RAVENCLAW_BLUE = new Color(34, 47, 91);
+    private static final Color GRYFFINDOR_RED = new Color(116, 0, 1);
+    private static final Color SLYTHERIN_GREEN = new Color(26, 71, 42);
+    private static final Color HUFFLEPUFF_GOLD = new Color(236, 185, 57);
 
     private static BufferedImage useHouseColor(BufferedImage src, Color tint) {
 

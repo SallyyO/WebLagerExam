@@ -22,7 +22,9 @@ public class LogManager {
 
     private void add(int userId, String action, String description, LogType type, LogLevel level) {
         String username = "SYSTEM";
-        if (SessionManager.getCurrentUser() != null) {username = SessionManager.getCurrentUser().getUsername();}
+        if (SessionManager.getCurrentUser() != null) {
+            username = SessionManager.getCurrentUser().getUsername();
+        }
 
         Log log = new Log(userId, action, description, type, level
         );
@@ -37,8 +39,8 @@ public class LogManager {
         return dao.getLogDAO().getAllLogs();
     }
 
-//Files
-    public void logFileCreated( int userId, int fileNumber ) {
+    //Files
+    public void logFileCreated(int userId, int fileNumber) {
         add(
                 userId, "FILE CREATED", "File created: " + fileNumber,
                 LogType.AUDIT,
@@ -60,34 +62,41 @@ public class LogManager {
         );
     }
 
-    public void logFileMoved( int fileNumber, int fromDocId, int toDocId) {
-        add(currentUserId(), "FILE MOVED",
+    public void logFileMoved(int fileNumber, int fromDocId, int toDocId) {
+        add(
+                currentUserId(), "FILE MOVED",
                 "File #" + fileNumber + " moved from Doc #" + fromDocId + " to Doc #" + toDocId,
                 LogType.AUDIT,
                 LogLevel.INFO);
     }
-// Documents
+
+    // Documents
     public void logDocumentCreated(int documentId, int boxId) {
-        add(currentUserId(), "DOCUMENT CREATED", "Document #" + documentId + " created in Box #" + boxId,
+        add(
+                currentUserId(), "DOCUMENT CREATED", "Document #" + documentId + " created in Box #" + boxId,
                 LogType.AUDIT,
                 LogLevel.INFO);
     }
 
     public void logDocumentFinalized(int docId, int boxId) {
-        add(currentUserId(), "DOCUMENT FINALIZED", "Document #" + docId + " finalized in Box #" + boxId,
+        add(
+                currentUserId(), "DOCUMENT FINALIZED", "Document #" + docId + " finalized in Box #" + boxId,
                 LogType.AUDIT,
                 LogLevel.INFO);
     }
 
     public void logManualDocumentSplit(int userId, int originalDocNumber, int newDocNumber, int splitAtFile) {
-        add(userId, "DOCUMENT MANUALLY SPLIT",
+        add(
+                userId, "DOCUMENT MANUALLY SPLIT",
                 "Doc #" + originalDocNumber + " manually split at file #" + splitAtFile
                         + " → new Doc #" + newDocNumber,
                 LogType.AUDIT,
                 LogLevel.INFO);
     }
+
     public void logDuplicateBarcodeAccepted(int userId, String barcodeContent) {
-        add(userId, "DUPLICATE BARCODE ACCEPTED",
+        add(
+                userId, "DUPLICATE BARCODE ACCEPTED",
                 "Duplicate barcode accepted: " + barcodeContent,
                 LogType.AUDIT,
                 LogLevel.WARN
@@ -95,8 +104,8 @@ public class LogManager {
     }
 
 
-//Boxes
-    public void logBoxCreated( int userId, int boxId, String username) {
+    //Boxes
+    public void logBoxCreated(int userId, int boxId, String username) {
         add(
                 userId, "BOX CREATED", "Box #" + boxId + " was created by " + username,
                 LogType.AUDIT,
@@ -117,7 +126,6 @@ public class LogManager {
 
 
     public void logProfileCreated(String profileName) {
-
         add(
                 currentUserId(),
                 "PROFILE CREATED",
@@ -128,7 +136,8 @@ public class LogManager {
     }
 
     public void logProfileAssigned(int adminId, int targetUserId, String profileName) {
-        add(adminId, "PROFILE ASSIGNED",
+        add(
+                adminId, "PROFILE ASSIGNED",
                 "Profile '" + profileName + "' assigned to user #" + targetUserId,
                 LogType.AUDIT,
                 LogLevel.INFO);
@@ -137,15 +146,14 @@ public class LogManager {
     public void logProfileRemoved(int adminId, String profileName, String username) {
 
         add(
-                adminId, "PROFILE REMOVED", "Profile '" + profileName +
-                        "' removed from user " + username,
+                adminId, "PROFILE REMOVED",
+                "Profile '" + profileName + "' removed from user " + username,
                 LogType.AUDIT,
                 LogLevel.INFO
         );
     }
 
-    public void logProfileAssignedToClient(String profileName, String clientName)
-    {
+    public void logProfileAssignedToClient(String profileName, String clientName) {
         add(
                 currentUserId(),
                 "PROFILE ASSIGNED TO CLIENT",
@@ -154,8 +162,8 @@ public class LogManager {
                 LogLevel.INFO
         );
     }
-    public void logProfileRemovedFromClient(String profileName, String clientName)
-    {
+
+    public void logProfileRemovedFromClient(String profileName, String clientName) {
         add(
                 currentUserId(),
                 "PROFILE REMOVED FROM CLIENT",
@@ -167,10 +175,10 @@ public class LogManager {
 
 //users
 
-    public void logUserCreated(String createdUsername)
-    {
+    public void logUserCreated(String createdUsername) {
         String adminUsername = SessionManager.getCurrentUser().getUsername();
-        add(currentUserId(), "NEW USER CREATED",
+        add(
+                currentUserId(), "NEW USER CREATED",
                 "Admin " + adminUsername + " created user "
                         + createdUsername,
                 LogType.AUDIT,
@@ -178,27 +186,28 @@ public class LogManager {
         );
     }
 
-    public void logUserDeactivated(int adminId, String adminUsername, String targetUsername)
-    {
-        add(adminId,
+    public void logUserDeactivated(int adminId, String adminUsername, String targetUsername) {
+        add(
+                adminId,
                 "USER DEACTIVATED",
                 "Admin " + adminUsername + " deactivated user " + targetUsername,
                 LogType.AUDIT,
                 LogLevel.INFO);
     }
 
-    public void logUserActivated(int adminId, String adminUsername, String targetUsername
-    ) {
-        add(adminId,
+    public void logUserActivated(int adminId, String adminUsername, String targetUsername)
+    {
+        add(
+                adminId,
                 "USER ACTIVATED",
                 "Admin " + adminUsername + " activated user " + targetUsername,
                 LogType.AUDIT,
                 LogLevel.INFO);
     }
 
-    public void logUserUpdated(int adminId, String adminUsername, String targetUsername)
-    {
-        add(adminId,
+    public void logUserUpdated(int adminId, String adminUsername, String targetUsername) {
+        add(
+                adminId,
                 "USER UPDATED",
                 "Admin " + adminUsername +
                         " updated user " + targetUsername,
@@ -227,8 +236,7 @@ public class LogManager {
         );
     }
 
-    public void logClientUpdated(String oldName, String newName)
-    {
+    public void logClientUpdated(String oldName, String newName) {
         add(
                 currentUserId(),
                 "CLIENT UPDATED",
@@ -263,7 +271,8 @@ public class LogManager {
 //Exports
 
     public void logBoxExported(int boxId, String mode) {
-        add(currentUserId(), "BOX EXPORTED",
+        add(
+                currentUserId(), "BOX EXPORTED",
                 "Box #" + boxId + " exported as " + mode,
                 LogType.AUDIT,
                 LogLevel.INFO);
@@ -286,6 +295,7 @@ public class LogManager {
                 LogLevel.INFO
         );
     }
+
     public void logLogout(String username) {
         add(
                 currentUserId(), "LOGOUT", "User " + username + " logged out",
@@ -295,12 +305,13 @@ public class LogManager {
     }
 
     public void logLoginFailed(String initials) {
-        add(SYSTEM_USER,
+        add(
+                SYSTEM_USER,
                 "LOGIN FAILED", "Failed login attempt for initials: " + initials,
                 LogType.SECURITY,
                 LogLevel.WARN
         );
-            //LogUserId because we don't have a userId to log, since the login failed and db won't let me put 0
+        //Using SYSTEM_USER here to log a failed login attempt without needing a valid user ID
     }
 
 }

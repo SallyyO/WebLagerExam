@@ -29,32 +29,35 @@ import java.util.stream.Collectors;
 
 public class AdminController {
 
-    @FXML private Label lblUsername;
-    @FXML private Label lblInitials;
-
-    @FXML private Button addNewBtn;
-
-    @FXML private Button usersButton;
-    @FXML private Button profilesButton;
-    @FXML private Button clientsButton;
-    @FXML private Button logsButton;
-
-    @FXML private TableView<Object> mainTable;
-
-    @FXML private TextField searchTextField;
-    @FXML private ComboBox<String> statusFilterCombo;
-
-    @FXML private HBox userBox;
+    @FXML
+    private Label lblUsername;
+    @FXML
+    private Label lblInitials;
+    @FXML
+    private Button addNewBtn;
+    @FXML
+    private Button usersButton;
+    @FXML
+    private Button profilesButton;
+    @FXML
+    private Button clientsButton;
+    @FXML
+    private Button logsButton;
+    @FXML
+    private TableView<Object> mainTable;
+    @FXML
+    private TextField searchTextField;
+    @FXML
+    private ComboBox<String> statusFilterCombo;
+    @FXML
+    private HBox userBox;
 
     @FXML
     private Button deleteUserBtn;
-
     @FXML
     private Button editUserBtn;
-
     @FXML
     private Button fileInfoButton;
-
     @FXML
     private Button historyButton;
 
@@ -71,6 +74,7 @@ public class AdminController {
         PROFILES,
         CLIENTS
     }
+
     private static final String PI_EDIT = "\ue942";
     private static final String PI_DELETE = "\ue93d";
     private static final String PI_ADD = "\ue93f";
@@ -80,17 +84,30 @@ public class AdminController {
     //Shortcuts
     private final EventHandler<KeyEvent> keyHandler = event -> {
         switch (event.getCode()) {
-            case A -> { onAddUserBtnClicked(new ActionEvent()); event.consume(); }
-            case P -> { onProfilesClicked(new ActionEvent()); event.consume(); }
-            case C -> { onClientsClicked(new ActionEvent()); event.consume(); }
-            case L -> { onLogsClicked(new ActionEvent()); event.consume(); }
+            case A -> {
+                onAddUserBtnClicked(new ActionEvent());
+                event.consume();
+            }
+            case P -> {
+                onProfilesClicked(new ActionEvent());
+                event.consume();
+            }
+            case C -> {
+                onClientsClicked(new ActionEvent());
+                event.consume();
+            }
+            case L -> {
+                onLogsClicked(new ActionEvent());
+                event.consume();
+            }
             case U -> {
                 try {
                     onUsersClicked(new ActionEvent());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                event.consume(); }
+                event.consume();
+            }
         }
     };
 
@@ -172,8 +189,8 @@ public class AdminController {
             statusCol.setCellValueFactory(cell -> {
                 User user = (User) cell.getValue();
                 return new SimpleStringProperty(user.isActive()
-                                ? "Active"
-                                : "Inactive"
+                        ? "Active"
+                        : "Inactive"
                 );
             });
 
@@ -224,6 +241,7 @@ public class AdminController {
                             new HBox(8,
                                     editBtn,
                                     statusBtn);
+
                     {
 
                         editBtn.getStyleClass().addAll(
@@ -317,8 +335,6 @@ public class AdminController {
     }
 
 
-
-
     private void loadProfiles() {
 
         try {
@@ -352,7 +368,7 @@ public class AdminController {
                 Client client = clientManager.getClientById(profile.getClientId());
 
                 String name = client != null ? client.getName()
-                                : "No Client";
+                        : "No Client";
                 return new SimpleStringProperty(name);
             });
 
@@ -481,7 +497,9 @@ public class AdminController {
 
                 List<Profile> profiles = profileManager.getProfilesForClient(client.getId());
 
-                if (profiles.isEmpty()) {return new SimpleStringProperty("No Profiles");}
+                if (profiles.isEmpty()) {
+                    return new SimpleStringProperty("No Profiles");
+                }
 
                 String names = profiles.stream()
                         .map(Profile::getName)
@@ -493,7 +511,7 @@ public class AdminController {
                 }
 
                 return new SimpleStringProperty(names);
-        });
+            });
 
             Label actionsHeader = new Label("Actions");
             actionsHeader.getStyleClass().add("text-h2");
@@ -501,14 +519,14 @@ public class AdminController {
             TableColumn<Object, Void> actionsCol = createClientActionsColumn();
             actionsCol.setGraphic(actionsHeader);
 
-        mainTable.getColumns().addAll(
-                nameCol,
-                statusCol,
-                profilesCol,
-                actionsCol
-        );
+            mainTable.getColumns().addAll(
+                    nameCol,
+                    statusCol,
+                    profilesCol,
+                    actionsCol
+            );
 
-        masterList.setAll(clientManager.getAllClients());
+            masterList.setAll(clientManager.getAllClients());
             statusFilterCombo.setDisable(false);
             statusFilterCombo.setValue("Active");
 
@@ -518,13 +536,13 @@ public class AdminController {
             addNewBtn.setManaged(true);
             addNewBtn.setText("Add Client");
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        showError(
-                "Could not load clients",
-                e.getMessage()
-        );
-    }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError(
+                    "Could not load clients",
+                    e.getMessage()
+            );
+        }
     }
 
     private TableColumn<Object, Void> createClientActionsColumn() {
@@ -676,33 +694,6 @@ public class AdminController {
         alert.setContentText(message);
         alert.show();
     }
-    /* we need a button for this
-    @FXML
-    private void openNewProfileDialog() {
-        try {
-            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(
-                    getClass().getResource("/dk/easv/weblagerexam/newProfile.fxml")));
-            Parent root = loader.load();
-            NewProfileController controller = loader.getController();
-
-            Stage dialog = new Stage();
-            dialog.setTitle("Create Profile");
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initOwner(!!!!insert button.getScene().getWindow());
-            dialog.setScene(new Scene(root));
-            dialog.setResizable(false);
-            dialog.showAndWait();
-
-            if (controller.isConfirmed()) {
-                Profile created = controller.getCreatedProfile();
-                System.out.println("Created profile: " + created.getName());
-                // Refresh your profile list in the admin UI here
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Could not open profile dialog", e);
-        }
-    }
-    */
 
     @FXML
     private void onLogsClicked(ActionEvent event) {
@@ -768,10 +759,10 @@ public class AdminController {
 
         try {
             FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource(
-                                    "/dk/easv/weblagerexam/AddOrEditClient.fxml"
-                            )
-                    );
+                    getClass().getResource(
+                            "/dk/easv/weblagerexam/AddOrEditClient.fxml"
+                    )
+            );
 
             Parent root = loader.load();
 
@@ -880,7 +871,6 @@ public class AdminController {
             boolean matchesStatus = true;
 
             if (item instanceof User user) {
-
                 matchesStatus =
                         status.equals("All")
                                 || (status.equals("Active") && user.isActive())

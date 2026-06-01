@@ -36,11 +36,11 @@ public class LogDAO {
     public List<Log> getAllLogs() {
 
         String sql = """
-        SELECT l.*, u.username
-        FROM Log l
-        LEFT JOIN Users u ON l.userId = u.id
-        ORDER BY l.timestamp DESC
-        """;
+                SELECT l.*, u.username
+                FROM Log l
+                LEFT JOIN Users u ON l.userId = u.id
+                ORDER BY l.timestamp DESC
+                """;
 
         List<Log> logs = new ArrayList<>();
 
@@ -72,8 +72,12 @@ public class LogDAO {
                 String type = rs.getString("logType");
                 String level = rs.getString("logLevel");
 
-                if (type != null) {log.setLogType(LogType.valueOf(type));}
-                if (level != null) {log.setLogLevel(LogLevel.valueOf(level));}
+                if (type != null) {
+                    log.setLogType(LogType.valueOf(type));
+                }
+                if (level != null) {
+                    log.setLogLevel(LogLevel.valueOf(level));
+                }
 
                 logs.add(log);
             }

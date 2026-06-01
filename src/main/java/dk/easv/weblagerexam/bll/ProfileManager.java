@@ -10,9 +10,8 @@ import java.util.List;
 
 public class ProfileManager {
 
-    private final DAOManager dao =  new DAOManager();
-    private final LogManager  logManager = new LogManager();
-
+    private final DAOManager dao = new DAOManager();
+    private final LogManager logManager = new LogManager();
 
 
     public Profile createProfile(String name, ProfileSettings settings, Double value) {
@@ -37,7 +36,10 @@ public class ProfileManager {
     public List<Profile> getAllProfilesWithClients() {
         return dao.getProfileDAO().getAllProfilesWithClients();
     }
-    public List<Profile> getProfilesForClient(int clientId) {return dao.getProfileDAO().getProfilesForClient(clientId);}
+
+    public List<Profile> getProfilesForClient(int clientId) {
+        return dao.getProfileDAO().getProfilesForClient(clientId);
+    }
 
     public Profile getProfileById(int profileId) {
         return dao.getProfileDAO().getProfileById(profileId);
@@ -66,8 +68,7 @@ public class ProfileManager {
         );
     }
 
-    public void assignProfileToClient(int profileId, int clientId)
-    {
+    public void assignProfileToClient(int profileId, int clientId) {
         dao.getProfileDAO().assignProfileToClient(profileId, clientId);
 
         Profile profile = dao.getProfileDAO().getProfileById(profileId);
@@ -80,8 +81,7 @@ public class ProfileManager {
         );
     }
 
-    public void removeProfileFromClient(int profileId)
-    {
+    public void removeProfileFromClient(int profileId) {
         //Fetch before removal for logging so everything is still available
         Profile profile = dao.getProfileDAO().getProfileById(profileId);
         Client client = dao.getClientDAO().getClientById(profile.getClientId());

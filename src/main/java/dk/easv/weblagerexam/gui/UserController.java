@@ -25,24 +25,36 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 import java.io.IOException;
+
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
 public class UserController {
 
-    @FXML private Label lblUsername;
-    @FXML private Label lblInitials;
-    @FXML private HBox userBox;
+    @FXML
+    private Label lblUsername;
+    @FXML
+    private Label lblInitials;
+    @FXML
+    private HBox userBox;
 
-    @FXML private Button boxesBtn;
-    @FXML private Button newScanBtn;
-    @FXML private Button profilesBtn;
-    @FXML private Button scanningButton;
+    @FXML
+    private Button boxesBtn;
+    @FXML
+    private Button newScanBtn;
+    @FXML
+    private Button profilesBtn;
+    @FXML
+    private Button scanningButton;
 
-    @FXML private ImageView latestScanPreview;
-    @FXML private Label lblContinueScan;
-    @FXML private VBox continueScanSection;
+    @FXML
+    private ImageView latestScanPreview;
+    @FXML
+    private Label lblContinueScan;
+    @FXML
+    private VBox continueScanSection;
 
     private final DocumentManager documentManager = new DocumentManager();
     private Box latestBox = null;
@@ -50,9 +62,18 @@ public class UserController {
     //Shortcuts
     private final EventHandler<KeyEvent> keyHandler = event -> {
         switch (event.getCode()) {
-            case B -> { onBoxesBtnClicked(new ActionEvent()); event.consume(); }
-            case N -> { onNewScanBtnClicked(new ActionEvent()); event.consume(); }
-            case S -> { onScanningClicked(new ActionEvent()); event.consume(); }
+            case B -> {
+                onBoxesBtnClicked(new ActionEvent());
+                event.consume();
+            }
+            case N -> {
+                onNewScanBtnClicked(new ActionEvent());
+                event.consume();
+            }
+            case S -> {
+                onScanningClicked(new ActionEvent());
+                event.consume();
+            }
         }
     };
 

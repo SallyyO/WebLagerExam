@@ -10,7 +10,6 @@ public class ClientDAO {
 
     ConnectionManager conMan = new ConnectionManager();
 
-    // Get all clients
     public List<Client> getAllClients() {
         String sql = """
                 SELECT id,
@@ -126,24 +125,6 @@ public class ClientDAO {
         }
     }
 
-    // Delete client
-    public void deleteClient(int clientId) {
-
-        String sql = """
-                DELETE FROM Clients
-                WHERE id = ?
-                """;
-
-        try (Connection con = conMan.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
-            stmt.setInt(1, clientId);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void createClient(Client client) {
         String sql = """
@@ -174,10 +155,10 @@ public class ClientDAO {
 
     public void setClientActive(int clientId, boolean active) {
         String sql = """
-            UPDATE Clients
-            SET active = ?
-            WHERE id = ?
-            """;
+                UPDATE Clients
+                SET active = ?
+                WHERE id = ?
+                """;
 
         try (Connection con = conMan.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

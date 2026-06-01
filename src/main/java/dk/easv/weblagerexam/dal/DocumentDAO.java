@@ -65,9 +65,9 @@ public class DocumentDAO {
     public void deleteFile(int fileId) {
 
         String sql = """
-        DELETE FROM [File]
-        WHERE id = ?
-        """;
+                DELETE FROM [File]
+                WHERE id = ?
+                """;
 
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt =
@@ -84,8 +84,11 @@ public class DocumentDAO {
 
     private void saveFiles(Connection con, Document doc) {
 
-        String sql = "INSERT INTO [File] (file_number, document_id, is_barcode," +
-                " file_data, is_deleted) VALUES (?, ?, ?, ?, ?)";
+        String sql =
+                "INSERT INTO [File] " +
+                        "(file_number, document_id, is_barcode," +
+                        " file_data, is_deleted) " +
+                        "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -111,7 +114,10 @@ public class DocumentDAO {
     }
 
     public void updateMetadata(int documentId, String metadata) {
-        String sql = "UPDATE Document SET metadata = ? WHERE id = ?";
+        String sql =
+                "UPDATE Document " +
+                        "SET metadata = ? " +
+                        "WHERE id = ?";
 
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);
@@ -139,7 +145,11 @@ public class DocumentDAO {
     }
 
     public void updateFileOrder(Document doc) {
-        String sql = "UPDATE [File] SET file_number = ? WHERE document_id = ? AND id = ?";
+        String sql =
+                "UPDATE [File] " +
+                        "SET file_number = ? " +
+                        "WHERE document_id = ? " +
+                        "AND id = ?";
 
         try (Connection con = conMan.getConnection()) {
             PreparedStatement stmt = con.prepareStatement(sql);

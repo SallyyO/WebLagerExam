@@ -114,5 +114,7 @@ public class ApiDAO {
         }
     }
 
-    public int getCurrentIndex() { return currentIndex; }
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
 }

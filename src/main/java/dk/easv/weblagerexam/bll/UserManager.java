@@ -1,6 +1,5 @@
 package dk.easv.weblagerexam.bll;
 
-import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.be.Profile;
 import dk.easv.weblagerexam.be.User;
 import dk.easv.weblagerexam.dal.DAOManager;
@@ -83,17 +82,23 @@ public class UserManager {
         return dao.getUserDAO().getProfilesForUser(userId);
     }
 
-    public List<User> searchUsers(String searchText) {return dao.getUserDAO().searchUsers(searchText);}
+    public List<User> searchUsers(String searchText) {
+        return dao.getUserDAO().searchUsers(searchText);
+    }
 
 
     public void setUserActive(int userId, boolean active) {
 
         User targetUser = dao.getUserDAO().getUserById(userId);
 
-        if (targetUser == null) {return;}
+        if (targetUser == null) {
+            return;
+        }
 
         // Don't log if nothing changed
-        if (targetUser.isActive() == active) {return;}
+        if (targetUser.isActive() == active) {
+            return;
+        }
 
         dao.getUserDAO().setUserActive(userId, active);
 

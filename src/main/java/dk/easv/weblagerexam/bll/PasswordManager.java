@@ -8,11 +8,11 @@ public class PasswordManager {
     User user;
     LogManager logManager = new LogManager();
 
-   public boolean checkLogin(String initials, String password) {
+    public boolean checkLogin(String initials, String password) {
         try {
             user = dao.getUserDAO().getUser(initials);
             return PasswordHasher.verifyPassword(password, user.getPassword(), user.getSalt());
-        }  catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -29,7 +29,7 @@ public class PasswordManager {
         return user;
     }
 
-    public void editUser(int id,String username, String initials, String role, String password) throws Exception {
+    public void editUser(int id, String username, String initials, String role, String password) throws Exception {
         User existingUser = dao.getUserDAO().getUserById(id);
         boolean passwordChanged = false;
 
@@ -56,14 +56,9 @@ public class PasswordManager {
         User admin = SessionManager.getCurrentUser();
         logManager.logUserUpdated(admin.getId(), admin.getUsername(), username);
 
-        if (passwordChanged)
-        {
+        if (passwordChanged) {
             logManager.logPasswordChanged(username);
         }
     }
-
-
-
-
 }
 

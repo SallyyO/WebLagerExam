@@ -126,13 +126,12 @@ public class ProfileDAO {
         }
     }
 
-    public void assignProfileToClient(int profileId, int clientId)
-    {
+    public void assignProfileToClient(int profileId, int clientId) {
         String sql = """
-        UPDATE Profiles
-        SET clientId = ?
-        WHERE id = ?
-        """;
+                UPDATE Profiles
+                SET clientId = ?
+                WHERE id = ?
+                """;
 
         try (Connection con = conMan.getConnection();
              PreparedStatement stmt =
@@ -148,13 +147,12 @@ public class ProfileDAO {
         }
     }
 
-    public void removeProfileFromClient(int profileId)
-    {
+    public void removeProfileFromClient(int profileId) {
         String sql = """
-        UPDATE Profiles
-        SET clientId = NULL
-        WHERE id = ?
-        """;
+                UPDATE Profiles
+                SET clientId = NULL
+                WHERE id = ?
+                """;
 
         try (Connection con = conMan.getConnection();
              PreparedStatement stmt =
@@ -185,14 +183,13 @@ public class ProfileDAO {
 
             while (rs.next()) {
 
-                // Read enum/string from DB
                 String typeStr = rs.getString("settingstype");
 
                 ProfileSettings type = typeStr != null
                         ? ProfileSettings.valueOf(typeStr)
                         : null;
 
-                // Read nullable double
+
                 Double value = rs.getObject("settingsvalue") != null
                         ? rs.getDouble("settingsvalue")
                         : null;
@@ -221,7 +218,7 @@ public class ProfileDAO {
     public void softDeleteProfile(Profile profile) {
         String sql = "UPDATE Profiles SET isDeleted=1 WHERE name=?";
         try (Connection con = conMan.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)){
+             PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, profile.getId());
             ps.executeUpdate();
         } catch (SQLException e) {

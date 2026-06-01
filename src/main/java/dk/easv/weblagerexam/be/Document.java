@@ -11,7 +11,6 @@ public class Document {
     private List<File> files = new ArrayList<>();
     private LocalDateTime createdAt = LocalDateTime.now();
     private int documentNumber;
-    private boolean isDeleted;
     private int fileCount;
 
     public Document() {
@@ -39,6 +38,7 @@ public class Document {
 
     public List<File> getFiles()  { return files; }
     public void setFiles(List<File> files) { this.files = files; }
+
     public int getFileCount(){ return files.size(); }
     public int setFileCount(int fileCount){ this.fileCount = fileCount; return files.size(); }
 
@@ -50,16 +50,11 @@ public class Document {
     public int getBoxId() { return boxId; }
     public void setBoxId(int boxId) { this.boxId = boxId; }
 
-    public String getMetadata(){ return metadata; }
-    public void setMetadata(String metadata){ this.metadata = metadata; }
-
     public LocalDateTime getCreatedAt(){ return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt){ this.createdAt = createdAt; }
 
     public int getDocumentNumber() {return documentNumber;}
     public void setDocumentNumber(int documentNumber) {this.documentNumber = documentNumber;}
 
-    public boolean isDeleted() {return isDeleted;}
-    public void setDeleted(boolean deleted) {isDeleted = deleted;}
 
 }

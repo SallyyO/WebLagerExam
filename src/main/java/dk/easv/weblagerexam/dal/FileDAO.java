@@ -5,8 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileDAO
-{
+public class FileDAO {
     ConnectionManager conMan = new ConnectionManager();
 
     public List<File> getAllFiles() {
@@ -39,6 +38,7 @@ public class FileDAO
 
         return files;
     }
+
     public List<File> searchFiles(String searchText) {
 
         List<File> files = new ArrayList<>();
@@ -71,6 +71,7 @@ public class FileDAO
 
         return files;
     }
+
     public void hardDeleteFile(int fileId) {
 
         String sql = "DELETE FROM [File] WHERE id = ?";

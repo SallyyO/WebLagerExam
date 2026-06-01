@@ -114,19 +114,6 @@ public class UserDAO {
         }
     }
 
-        public void softDeleteUser(int userID) {
-        String sql = "UPDATE  Users SET isDeleted = 1 WHERE id = ?";
-        try(Connection con = conMan.getConnection();
-            PreparedStatement ps =  con.prepareStatement(sql)){
-            ps.setInt(1, userID);
-            ps.executeUpdate();
-
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
@@ -204,7 +191,7 @@ public class UserDAO {
     public List<User> searchUsers(String searchText) {
         List<User> users = new ArrayList<>();
 
-        String sql = "SELECT * FROM Users WHERE username LIKE ? AND active = 1)";
+        String sql = "SELECT * FROM Users WHERE username LIKE ? AND active = 1";
 
         try (Connection con = conMan.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {

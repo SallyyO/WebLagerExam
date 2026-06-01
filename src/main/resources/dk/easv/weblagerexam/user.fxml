@@ -14,37 +14,40 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="680" prefWidth="1120" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.weblagerexam.gui.UserController">
+<BorderPane prefHeight="680" prefWidth="1120" style="-fx-background-color: #ffffff;"
+            xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="dk.easv.weblagerexam.gui.UserController">
 
     <!-- TOP NAVIGATION BAR -->
     <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="70.0" prefWidth="1120.0" styleClass="modal-header" stylesheets="@CSS/app.css">
+        <HBox alignment="CENTER_LEFT" prefHeight="70.0" prefWidth="1120.0" styleClass="modal-header"
+              stylesheets="@CSS/app.css">
             <padding>
-                <Insets bottom="0" left="20" right="24" top="0" />
+                <Insets bottom="0" left="20" right="24" top="0"/>
             </padding>
             <ImageView fitHeight="50.0" fitWidth="203.0">
                 <image>
-                    <Image url="@/Images/LogoBlueH.png" />
+                    <Image url="@/Images/LogoBlueH.png"/>
                 </image>
             </ImageView>
 
             <!-- Spacer -->
-            <Region HBox.hgrow="ALWAYS" />
+            <Region HBox.hgrow="ALWAYS"/>
 
             <!-- user profile area -->
             <HBox fx:id="userBox" alignment="CENTER" spacing="12">
                 <Label fx:id="lblUsername" styleClass="text-h3">
                     <font>
-                        <Font name="System" size="15" />
+                        <Font name="System" size="15"/>
                     </font>
                 </Label>
 
                 <!-- Avatar circle -->
                 <StackPane>
-                    <Circle radius="24" styleClass="avatar-circle" />
+                    <Circle radius="24" styleClass="avatar-circle"/>
                     <Label fx:id="lblInitials" styleClass="avatar-text">
                         <font>
-                            <Font name="System Bold" size="13" />
+                            <Font name="System Bold" size="13"/>
                         </font>
                     </Label>
                 </StackPane>
@@ -57,82 +60,89 @@
         <HBox style="-fx-background-color: #ffffff;">
 
             <!-- LEFT SIDEBAR -->
-            <VBox prefWidth="210" style="-fx-background-color: #f5f6f8;                          -fx-border-color: #e0e0e0;                          -fx-border-width: 0 1 0 0;">
+            <VBox prefWidth="210"
+                  style="-fx-background-color: #f5f6f8;                          -fx-border-color: #e0e0e0;                          -fx-border-width: 0 1 0 0;">
 
                 <!-- Users button (active/selected state) -->
-                <Button fx:id="scanningButton" onAction="#onScanningClicked" prefHeight="55" prefWidth="210" stylesheets="@CSS/app.css" text="Scanning [ S ]">
+                <Button fx:id="scanningButton" onAction="#onScanningClicked" prefHeight="55" prefWidth="210"
+                        stylesheets="@CSS/app.css" text="Scanning [ S ]">
                     <font>
-                        <Font name="System" size="16" />
+                        <Font name="System" size="16"/>
                     </font>
                     <styleClass>
-                        <String fx:value="button-secondary" />
-                        <String fx:value="text-button" />
+                        <String fx:value="button-secondary"/>
+                        <String fx:value="text-button"/>
                     </styleClass>
-               <VBox.margin>
-                  <Insets left="6.0" right="6.0" top="6.0" />
-               </VBox.margin>
+                    <VBox.margin>
+                        <Insets left="6.0" right="6.0" top="6.0"/>
+                    </VBox.margin>
                 </Button>
 
-                 <Button fx:id="boxesBtn" onAction="#onBoxesBtnClicked" prefHeight="55.0" prefWidth="210.0" stylesheets="@CSS/app.css" text="Boxes [ B ]">
-                     <font>
-                         <Font name="System Bold" size="15" />
-                     </font>
-                     <styleClass>
-                         <String fx:value="button-secondary" />
-                         <String fx:value="text-button" />
-                     </styleClass>
-               <VBox.margin>
-                  <Insets left="6.0" right="6.0" top="6.0" />
-               </VBox.margin>
-                 </Button>
+                <Button fx:id="boxesBtn" onAction="#onBoxesBtnClicked" prefHeight="55.0" prefWidth="210.0"
+                        stylesheets="@CSS/app.css" text="Boxes [ B ]">
+                    <font>
+                        <Font name="System Bold" size="15"/>
+                    </font>
+                    <styleClass>
+                        <String fx:value="button-secondary"/>
+                        <String fx:value="text-button"/>
+                    </styleClass>
+                    <VBox.margin>
+                        <Insets left="6.0" right="6.0" top="6.0"/>
+                    </VBox.margin>
+                </Button>
 
                 <!-- Filler region below menu items -->
-                <Region prefWidth="119.0" styleClass="modal-footer" VBox.vgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#onInfoBtnClick" stylesheets="@CSS/app.css" text="Shortcut Info">
-               <styleClass>
-                  <String fx:value="button-tertiary" />
-                  <String fx:value="text-button" />
-               </styleClass>
-               <VBox.margin>
-                  <Insets bottom="6.0" left="6.0" />
-               </VBox.margin>
-            </Button>
+                <Region prefWidth="119.0" styleClass="modal-footer" VBox.vgrow="ALWAYS"/>
+                <Button mnemonicParsing="false" onAction="#onInfoBtnClick" stylesheets="@CSS/app.css"
+                        text="Shortcut Info">
+                    <styleClass>
+                        <String fx:value="button-tertiary"/>
+                        <String fx:value="text-button"/>
+                    </styleClass>
+                    <VBox.margin>
+                        <Insets bottom="6.0" left="6.0"/>
+                    </VBox.margin>
+                </Button>
             </VBox>
 
             <!-- MAIN CONTENT AREA -->
-            <VBox fx:id="continueScanSection" alignment="CENTER" onMouseClicked="#onContinueScanClicked" spacing="8" style="-fx-cursor: hand;" stylesheets="@CSS/app.css" HBox.hgrow="ALWAYS">
+            <VBox fx:id="continueScanSection" alignment="CENTER" onMouseClicked="#onContinueScanClicked" spacing="8"
+                  style="-fx-cursor: hand;" stylesheets="@CSS/app.css" HBox.hgrow="ALWAYS">
 
                 <VBox.margin>
-                    <Insets left="355.0" />
+                    <Insets left="355.0"/>
                 </VBox.margin>
 
-                <ImageView fx:id="latestScanPreview" fitHeight="500.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
+                <ImageView fx:id="latestScanPreview" fitHeight="500.0" fitWidth="250.0" pickOnBounds="true"
+                           preserveRatio="true">
                     <!-- Default placeholder shown before latest scan loads -->
                     <image>
-                        <Image url="@/Images/WeblagerWhiteIcon.png" />
+                        <Image url="@/Images/WeblagerWhiteIcon.png"/>
                     </image>
                 </ImageView>
 
-                <Label fx:id="lblContinueScan" style="-fx-text-fill: #64748B;" styleClass="text-body" text="Continue scan?" />
+                <Label fx:id="lblContinueScan" style="-fx-text-fill: #64748B;" styleClass="text-body"
+                       text="Continue scan?"/>
 
                 <!-- BOTTOM ACTION BUTTONS -->
                 <HBox alignment="CENTER" prefHeight="80" spacing="40" styleClass="modal-footer" VBox.vgrow="ALWAYS">
                     <padding>
-                        <Insets bottom="15" left="20" right="20" top="15" />
+                        <Insets bottom="15" left="20" right="20" top="15"/>
                     </padding>
 
                     <Button fx:id="newScanBtn" onAction="#onNewScanBtnClicked" text="New Scan [ N ]">
                         <font>
-                            <Font name="System Bold" size="15" />
+                            <Font name="System Bold" size="15"/>
                         </font>
                         <styleClass>
-                            <String fx:value="button-primary" />
-                            <String fx:value="text-button" />
+                            <String fx:value="button-primary"/>
+                            <String fx:value="text-button"/>
                         </styleClass>
                     </Button>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
+                    <VBox.margin>
+                        <Insets/>
+                    </VBox.margin>
                 </HBox>
             </VBox>
         </HBox>

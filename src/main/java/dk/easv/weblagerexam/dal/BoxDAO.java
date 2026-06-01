@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BoxDAO {
-    private final ProfileDAO profileDAO = new ProfileDAO();
     private ConnectionManager conMan = new ConnectionManager();
 
     public void addBox(Box box) {
@@ -68,11 +67,11 @@ public class BoxDAO {
         return boxes;
     }
 
-    public void deleteBox(int boxId){
+    public void deleteBox(int boxId) {
         String sql = "DELETE FROM Box WHERE id = ?";
-        try(Connection con = conMan.getConnection();
-        PreparedStatement ps = con.prepareStatement(sql)){
-            ps.setInt(1,boxId);
+        try (Connection con = conMan.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, boxId);
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -121,25 +120,13 @@ public class BoxDAO {
         }
     }
 
-    public void softDeleteBox(int boxId){
-        String sql = "UPDATE  Box SET isDeleted = 1 WHERE id = ?";
-        try(Connection con = conMan.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-            ps.setInt(1,boxId);
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public Box getBoxById(int boxId) {
 
         String sql = """
-        SELECT *
-        FROM Box
-        WHERE id = ?
-        """;
+                SELECT *
+                FROM Box
+                WHERE id = ?
+                """;
 
         try (Connection con = conMan.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -166,5 +153,4 @@ public class BoxDAO {
 
         return null;
     }
-
 }
