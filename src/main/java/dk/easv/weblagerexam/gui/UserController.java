@@ -52,6 +52,7 @@ public class UserController {
         switch (event.getCode()) {
             case B -> { onBoxesBtnClicked(new ActionEvent()); event.consume(); }
             case N -> { onNewScanBtnClicked(new ActionEvent()); event.consume(); }
+            case S -> { onScanningClicked(new ActionEvent()); event.consume(); }
         }
     };
 

@@ -1,10 +1,7 @@
 package dk.easv.weblagerexam.dal;
 
-
-
 import dk.easv.weblagerexam.be.File;
 import dk.easv.weblagerexam.util.BarcodeReader;
-
 import java.io.InputStream;
 import java.util.*;
 

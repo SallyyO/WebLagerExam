@@ -8,7 +8,6 @@ public class Profile {
     private String name;
     private ProfileSettings settings;
     private Double settingsValue;
-    private boolean isDeleted;
     private int clientId;
 
     public Profile(int id, String name, ProfileSettings settings, Double settingsValue) {
@@ -24,7 +23,7 @@ public class Profile {
     public Double getSettingsValue() {return settingsValue;}
     public void setSettingsValue(Double settingsValue) {this.settingsValue = settingsValue;}
 
-    private List<Box> boxes; // one profile can have multiple boxes
+    private List<Box> boxes;
     private Client client;
 
     public Profile(int id, String name) {
@@ -66,16 +65,9 @@ public class Profile {
     public int getClientId() {return clientId;}
     public void setClientId(int clientId) {this.clientId = clientId;}
 
-    public boolean isDeleted() {
-        return isDeleted;}
-
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;}
 
     @Override
-    public String toString() {
-        return name;
-    }
+    public String toString() {return name;}
 
     public Client getClient() {return client;}
     public void setClient(Client client) {this.client = client;}

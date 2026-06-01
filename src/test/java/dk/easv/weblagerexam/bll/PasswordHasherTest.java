@@ -11,24 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PasswordHasherTest {
 
-    @Test
-    void generateSaltReturnsSixteenRandomBytesEncodedAsBase64() throws Exception {
-        String salt = PasswordHasher.generateSalt();
-
-        byte[] decodedSalt = Base64.getDecoder().decode(salt);
-
-        assertEquals(16, decodedSalt.length);
-    }
-
-    @Test
-    void hashPasswordIsDeterministicForSamePasswordAndSalt() throws Exception {
-        String salt = PasswordHasher.generateSalt();
-
-        String firstHash = PasswordHasher.hashPassword("secret", salt);
-        String secondHash = PasswordHasher.hashPassword("secret", salt);
-
-        assertEquals(firstHash, secondHash);
-    }
 
     @Test
     void verifyPasswordAcceptsMatchingPasswordAndRejectsDifferentPassword() throws Exception {

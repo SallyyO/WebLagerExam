@@ -1,7 +1,6 @@
 package dk.easv.weblagerexam.dal;
 
 import dk.easv.weblagerexam.be.File;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

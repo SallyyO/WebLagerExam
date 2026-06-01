@@ -5,13 +5,11 @@ import dk.easv.weblagerexam.bll.*;
 import dk.easv.weblagerexam.util.LogoutUtil;
 import dk.easv.weblagerexam.util.TiffConverter;
 import javafx.application.Platform;
-
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -32,7 +30,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
 public class ScanningController{
@@ -790,7 +787,7 @@ public class ScanningController{
         highlightThumbnail(index);
 
         lblStatus.setText("File " + (index + 1) + " of " + currentFiles.size()
-                + " — press W/S to navigate between files, R/L to rotate");
+                + " — press E/Q to navigate between files, R/L to rotate");
     }
 
     private void rotateCurrentFile(double degrees) {
@@ -876,19 +873,6 @@ public class ScanningController{
                         + "What would you like to do?"
         );
 
-        /* Image logo = new Image(
-                Objects.requireNonNull(
-                        getClass().getResourceAsStream("/Images/LogoBlueH.png")
-                )
-        );
-
-        ImageView logoView = new ImageView(logo);
-        logoView.setFitWidth(80);
-        logoView.setPreserveRatio(true);
-
-        alert.setGraphic(logoView);
-
-         */
 
         ButtonType btnSkip = new ButtonType("Skip [ S ]", ButtonBar.ButtonData.CANCEL_CLOSE);
         ButtonType btnAccept = new ButtonType("Continue [ ENTER ]", ButtonBar.ButtonData.OK_DONE);
@@ -1375,7 +1359,7 @@ public class ScanningController{
             Document newDoc =
                     documentManager.createManualSplitDocument(activeBox.getId());
 
-            // Copy files over AFTER split point
+
             List<File> movedFiles = new ArrayList<>();
 
             for (int i = splitIndex; i < originalFiles.size(); i++) {
@@ -1390,9 +1374,7 @@ public class ScanningController{
             for (File file : movedFiles) {
 
                 file.setDocumentId(newDoc.getId());
-
                 documentManager.updateFileDocument(file);
-
                 newDoc.getFiles().add(file);
             }
 
@@ -1497,7 +1479,6 @@ public class ScanningController{
     private void deleteFile(Document doc, File file) {
 
         try {
-
             documentManager.deleteFile(file, doc, activeBox, SessionManager.getCurrentUser()
             );
 

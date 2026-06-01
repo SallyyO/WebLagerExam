@@ -14,7 +14,6 @@ public class ClientManager {
     public List<Client> getAllClients() {
         return dao.getClientDAO().getAllClients();
     }
-
     public Client getClientById(int id) {
         return dao.getClientDAO().getClientById(id);
     }

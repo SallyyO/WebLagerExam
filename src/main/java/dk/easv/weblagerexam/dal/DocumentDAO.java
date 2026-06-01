@@ -10,7 +10,6 @@ import java.util.List;
 
 public class DocumentDAO {
 
-
     ConnectionManager conMan = new ConnectionManager();
 
     public int saveDocument(Document doc) {

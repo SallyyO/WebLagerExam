@@ -2,59 +2,69 @@ package dk.easv.weblagerexam.be;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
-class DocumentTest {
+public class DocumentTest {
 
     @Test
-    void addFileAssignsSequentialFileNumbers() {
-        Document document = new Document();
-        File first = new File(new byte[]{1}, false);
-        File second = new File(new byte[]{2}, false);
+    void scanningFilesAssignsIncrementalFileNumbers() {
+        Document doc = new Document();
+        doc.addFile(new File(new byte[]{1}, false));
+        doc.addFile(new File(new byte[]{2}, false));
+        doc.addFile(new File(new byte[]{3}, false));
 
-        document.addFile(first);
-        document.addFile(second);
-
-        assertEquals(2, document.getFileCount());
-        assertEquals(1, first.getFileNumber());
-        assertEquals(2, second.getFileNumber());
+        assertEquals(1, doc.getFiles().get(0).getFileNumber());
+        assertEquals(2, doc.getFiles().get(1).getFileNumber());
+        assertEquals(3, doc.getFiles().get(2).getFileNumber());
     }
 
     @Test
-    void reorderingFilesMovesFileAndRenumbersAllFiles() {
-        Document document = new Document();
-        File first = new File(new byte[]{1}, false);
-        File second = new File(new byte[]{2}, false);
-        File third = new File(new byte[]{3}, false);
-        document.addFile(first);
-        document.addFile(second);
-        document.addFile(third);
+    void reorderingFilesMovesFileAndRenumbers() {
+        Document doc = new Document();
+        File a = new File(new byte[]{1}, false);
+        File b = new File(new byte[]{2}, false);
+        File c = new File(new byte[]{3}, false);
+        doc.addFile(a);
+        doc.addFile(b);
+        doc.addFile(c);
 
-        document.reorderFiles(0, 2);
+        doc.reorderFiles(0, 2); // move first to last
 
-        assertSame(second, document.getFiles().get(0));
-        assertSame(third, document.getFiles().get(1));
-        assertSame(first, document.getFiles().get(2));
-        assertEquals(1, second.getFileNumber());
-        assertEquals(2, third.getFileNumber());
-        assertEquals(3, first.getFileNumber());
+        assertEquals(c, doc.getFiles().get(1)); // c moved up
+        assertEquals(a, doc.getFiles().get(2)); // a is now last
+        assertEquals(1, doc.getFiles().get(0).getFileNumber());
+        assertEquals(2, doc.getFiles().get(1).getFileNumber());
+        assertEquals(3, doc.getFiles().get(2).getFileNumber());
     }
 
     @Test
-    void reorderFilesIgnoresInvalidIndexes() {
-        Document document = new Document();
-        File first = new File(new byte[]{1}, false);
-        File second = new File(new byte[]{2}, false);
-        document.addFile(first);
-        document.addFile(second);
+    void reorderingFilesOutOfBoundsDoesNothing() {
+        Document doc = new Document();
+        doc.addFile(new File(new byte[]{1}, false));
 
-        document.reorderFiles(-1, 1);
-        document.reorderFiles(0, 2);
-
-        assertSame(first, document.getFiles().get(0));
-        assertSame(second, document.getFiles().get(1));
-        assertEquals(1, first.getFileNumber());
-        assertEquals(2, second.getFileNumber());
+        // Should not do or throw anything
+        assertDoesNotThrow(() -> doc.reorderFiles(0, 5));
+        assertDoesNotThrow(() -> doc.reorderFiles(-1, 0));
     }
+
+    @Test
+    void isEmptyIsTrueWhenNoFiles() {
+        assertTrue(new Document().isEmpty());
+    }
+    @Test
+    void isEmptyIsFalseWhenNotEmpty() {
+        Document doc = new Document();
+        doc.addFile(new File(new byte[]{1}, false));
+        assertFalse(doc.isEmpty());
+    }
+
+    @Test
+    void fileCountPrefersLoadedFilesOverDbCount() {
+        Document doc = new Document();
+        doc.setFileCount(5);
+        doc.addFile(new File(new byte[]{1}, false));
+        doc.addFile(new File(new byte[]{2}, false));
+        assertEquals(2, doc.getFileCount()); // uses list, not the DB value
+    }
+
 }

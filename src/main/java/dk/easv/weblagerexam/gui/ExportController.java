@@ -4,8 +4,6 @@ import dk.easv.weblagerexam.be.Box;
 import dk.easv.weblagerexam.be.Document;
 import dk.easv.weblagerexam.bll.DocumentManager;
 import dk.easv.weblagerexam.bll.ExportManager;
-import dk.easv.weblagerexam.bll.LogManager;
-import dk.easv.weblagerexam.bll.SessionManager;
 import dk.easv.weblagerexam.util.ExportMode;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;

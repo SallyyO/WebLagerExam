@@ -25,8 +25,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AdminController {
@@ -84,6 +82,8 @@ public class AdminController {
         switch (event.getCode()) {
             case A -> { onAddUserBtnClicked(new ActionEvent()); event.consume(); }
             case P -> { onProfilesClicked(new ActionEvent()); event.consume(); }
+            case C -> { onClientsClicked(new ActionEvent()); event.consume(); }
+            case L -> { onLogsClicked(new ActionEvent()); event.consume(); }
             case U -> {
                 try {
                     onUsersClicked(new ActionEvent());
@@ -203,7 +203,7 @@ public class AdminController {
 
             addNewBtn.setVisible(true);
             addNewBtn.setManaged(true);
-            addNewBtn.setText("Add User");
+            addNewBtn.setText("Add User [ A ]");
 
         } catch (Exception e) {
             e.printStackTrace();

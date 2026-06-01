@@ -60,7 +60,7 @@
             <VBox prefWidth="210" style="-fx-background-color: #f5f6f8;                          -fx-border-color: #e0e0e0;                          -fx-border-width: 0 1 0 0;">
 
                 <!-- Users button (active/selected state) -->
-                <Button fx:id="scanningButton" onAction="#onScanningClicked" prefHeight="55" prefWidth="210" stylesheets="@CSS/app.css" text="Scanning">
+                <Button fx:id="scanningButton" onAction="#onScanningClicked" prefHeight="55" prefWidth="210" stylesheets="@CSS/app.css" text="Scanning [ S ]">
                     <font>
                         <Font name="System" size="16" />
                     </font>

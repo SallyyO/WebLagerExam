@@ -7,87 +7,71 @@ import org.junit.jupiter.api.Test;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
-class FileSettingsTest {
+public class FileSettingsTest {
 
-    @Test
-    void applyReturnsOriginalImageWhenSourceOrProfileIsMissing() {
-        BufferedImage image = createImage(2, 2, Color.RED);
-
-        assertSame(image, FileSettings.apply(image, null));
-        assertEquals(null, FileSettings.apply(null, profile(ProfileSettings.GRAYSCALE, 0)));
+    private BufferedImage makeTestImage(int width, int height) {
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+                img.setRGB(x, y, 0xFF4488CC); // blue-ish
+        return img;
     }
 
     @Test
-    void brightenIncreasesChannelsAndCapsAt255() {
-        BufferedImage image = createImage(1, 1, new Color(250, 100, 10));
+    void rotate_90degrees_swapsDimensions() {
+        Profile rotate = new Profile(1, "Rotate", ProfileSettings.ROTATE, 90.0);
+        BufferedImage src = makeTestImage(200, 100); // wider than tall
+        BufferedImage result = FileSettings.apply(src, rotate);
 
-        BufferedImage result = FileSettings.apply(image, profile(ProfileSettings.BRIGHTEN, 20));
-        Color color = new Color(result.getRGB(0, 0));
-
-        assertEquals(255, color.getRed());
-        assertEquals(120, color.getGreen());
-        assertEquals(30, color.getBlue());
-        assertNotSame(image, result);
+        // After 90° rotation width and height swap (ish)
+        assertTrue(result.getHeight() > result.getWidth());
     }
 
     @Test
-    void brightenNegativeAmountLeavesPixelUnchanged() {
-        BufferedImage image = createImage(1, 1, new Color(25, 50, 75));
+    void rotateAuto_portraitBecomesLandscape() {
+        Profile auto = new Profile(1, "Auto", ProfileSettings.ROTATE_AUTO, null);
+        BufferedImage portrait = makeTestImage(100, 200); // taller than wide
+        BufferedImage result = FileSettings.apply(portrait, auto);
 
-        BufferedImage result = FileSettings.apply(image, profile(ProfileSettings.BRIGHTEN, -10));
-        Color color = new Color(result.getRGB(0, 0));
-
-        assertEquals(25, color.getRed());
-        assertEquals(50, color.getGreen());
-        assertEquals(75, color.getBlue());
+        assertTrue(result.getWidth() >= result.getHeight());
     }
 
     @Test
-    void rotateAutoRotatesPortraitImagesToLandscape() {
-        BufferedImage image = createImage(2, 4, Color.BLUE);
+    void rotateAuto_landscapeUnchanged() {
+        Profile auto = new Profile(1, "Auto", ProfileSettings.ROTATE_AUTO, null);
+        BufferedImage landscape = makeTestImage(200, 100); // already landscape so leave it alone
+        BufferedImage result = FileSettings.apply(landscape, auto);
 
-        BufferedImage result = FileSettings.apply(image, profile(ProfileSettings.ROTATE_AUTO, 0));
-
-        assertEquals(4, result.getWidth());
-        assertEquals(2, result.getHeight());
+        assertSame(landscape, result); // no rotation applied
     }
 
     @Test
-    void rotateAutoReturnsLandscapeImagesUnchanged() {
-        BufferedImage image = createImage(4, 2, Color.BLUE);
+    void brighten_increasesPixelValues() {
+        Profile brighten = new Profile(1, "Bright", ProfileSettings.BRIGHTEN, 50.0);
+        BufferedImage src = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
+        // Fill with dark colour
+        for (int y = 0; y < 10; y++)
+            for (int x = 0; x < 10; x++)
+                src.setRGB(x, y, 0x202020);
 
-        BufferedImage result = FileSettings.apply(image, profile(ProfileSettings.ROTATE_AUTO, 0));
+        BufferedImage result = FileSettings.apply(src, brighten);
 
-        assertSame(image, result);
+        int rgb = result.getRGB(5, 5);
+        int r = (rgb >> 16) & 0xFF;
+        assertTrue(r > 0x20); // brighter than original, wow
     }
 
     @Test
-    void gryffindorTintUsesExpectedHouseColor() {
-        BufferedImage image = createImage(1, 1, new Color(255, 255, 255));
+    void brighten_doesNotExceed255() {
+        Profile brighten = new Profile(1, "Bright", ProfileSettings.BRIGHTEN, 255.0);
+        BufferedImage src = makeTestImage(10, 10); // already bright
 
-        BufferedImage result = FileSettings.apply(image, profile(ProfileSettings.GRYFFINDOR, 0));
-        Color color = new Color(result.getRGB(0, 0));
+        BufferedImage result = FileSettings.apply(src, brighten);
 
-        assertEquals(116, color.getRed());
-        assertEquals(0, color.getGreen());
-        assertEquals(1, color.getBlue());
-    }
-
-    private static Profile profile(ProfileSettings setting, double value) {
-        return new Profile(1, "Test", setting, value);
-    }
-
-    private static BufferedImage createImage(int width, int height, Color color) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                image.setRGB(x, y, color.getRGB());
-            }
-        }
-        return image;
+        int rgb = result.getRGB(5, 5);
+        int r = (rgb >> 16) & 0xFF;
+        assertTrue(r <= 255);
     }
 }

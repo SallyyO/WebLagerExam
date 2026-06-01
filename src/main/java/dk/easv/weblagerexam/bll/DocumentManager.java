@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DocumentManager {
 
     private final ApiDAO apiDao;
-    private DocumentDAO documentDAO;
-    private  DAOManager dao;
+    private final DocumentDAO documentDAO;
+    private  DAOManager dao = new DAOManager();
     private final LogManager logManager = new LogManager();
 
     public DocumentManager() {

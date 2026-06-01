@@ -81,7 +81,7 @@
                     <VBox.margin><Insets left="6.0" right="6.0" top="6.0" /></VBox.margin>
                 </Button>
 
-                <Button fx:id="clientsButton" onAction="#onClientsClicked" prefHeight="55" prefWidth="210" text="Clients">
+                <Button fx:id="clientsButton" onAction="#onClientsClicked" prefHeight="55" prefWidth="210" text="Clients [ C ]">
                     <font><Font name="System" size="16" /></font>
                     <styleClass>
                         <String fx:value="button-secondary" />
@@ -90,7 +90,7 @@
                     <VBox.margin><Insets left="6.0" right="6.0" top="6.0" /></VBox.margin>
                 </Button>
 
-                <Button fx:id="logsButton" onAction="#onLogsClicked" prefHeight="55" prefWidth="210" text="Logs">
+                <Button fx:id="logsButton" onAction="#onLogsClicked" prefHeight="55" prefWidth="210" text="Logs [ L ]">
                     <font><Font name="System" size="16" /></font>
                     <styleClass>
                         <String fx:value="button-secondary" />
